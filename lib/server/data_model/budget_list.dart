@@ -19,7 +19,7 @@ class BudgetList {
 
   final category = IsarLink<Category>();
 
-  late List<int> imagesBytes;
+  late List<byte> imagesBytes;
 
   @Index(
     unique: false,

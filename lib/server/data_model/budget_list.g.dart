@@ -40,7 +40,7 @@ const BudgetListSchema = CollectionSchema(
     r'imagesBytes': PropertySchema(
       id: 4,
       name: r'imagesBytes',
-      type: IsarType.longList,
+      type: IsarType.byteList,
     ),
     r'isCompleted': PropertySchema(
       id: 5,
@@ -149,7 +149,7 @@ int _budgetListEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.description.length * 3;
-  bytesCount += 3 + object.imagesBytes.length * 8;
+  bytesCount += 3 + object.imagesBytes.length;
   bytesCount += 3 + object.title.length * 3;
   return bytesCount;
 }
@@ -164,7 +164,7 @@ void _budgetListSerialize(
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeDateTime(offsets[2], object.deadline);
   writer.writeString(offsets[3], object.description);
-  writer.writeLongList(offsets[4], object.imagesBytes);
+  writer.writeByteList(offsets[4], object.imagesBytes);
   writer.writeBool(offsets[5], object.isCompleted);
   writer.writeBool(offsets[6], object.isRemoved);
   writer.writeLong(offsets[7], object.priority);
@@ -189,7 +189,7 @@ BudgetList _budgetListDeserialize(
     title: reader.readString(offsets[8]),
   );
   object.createdAt = reader.readDateTime(offsets[1]);
-  object.imagesBytes = reader.readLongList(offsets[4]) ?? [];
+  object.imagesBytes = reader.readByteList(offsets[4]) ?? [];
   object.updatedAt = reader.readDateTime(offsets[9]);
   return object;
 }
@@ -210,7 +210,7 @@ P _budgetListDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readLongList(offset) ?? []) as P;
+      return (reader.readByteList(offset) ?? []) as P;
     case 5:
       return (reader.readBool(offset)) as P;
     case 6:
