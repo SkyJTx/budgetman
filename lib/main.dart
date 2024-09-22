@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:budgetman/dependencies_injector.dart';
 
-void main() {
+void main() async {
+  await init();
   runApp(const BudgetManApp());
 }
 
