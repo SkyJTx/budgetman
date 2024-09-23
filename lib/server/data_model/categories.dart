@@ -32,7 +32,6 @@ class Category {
   Category({
     DateTime? createdDateTime,
     DateTime? updatedDateTime,
-    required this.id,
     required this.name,
     required this.description,
     required this.colorValue,

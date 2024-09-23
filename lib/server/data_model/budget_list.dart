@@ -48,7 +48,6 @@ class BudgetList {
   bool isRemoved;
 
   BudgetList({
-    required this.id,
     required this.isCompleted,
     required this.title,
     required this.description,

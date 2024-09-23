@@ -110,11 +110,11 @@ Category _categoryDeserialize(
   final object = Category(
     colorValue: reader.readLong(offsets[0]),
     description: reader.readString(offsets[2]),
-    id: id,
     isRemoved: reader.readBoolOrNull(offsets[3]) ?? false,
     name: reader.readString(offsets[4]),
   );
   object.createdAt = reader.readDateTime(offsets[1]);
+  object.id = id;
   object.updatedAt = reader.readDateTime(offsets[5]);
   return object;
 }
