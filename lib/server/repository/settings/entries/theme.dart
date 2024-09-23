@@ -15,57 +15,57 @@ final class ThemeSettingEntry extends SettingsEntry<ThemeMode> {
   }
 
   @override
-  Future<void> ensureInitialized() async {
-    final isar = isarInstance;
-    final setting = isar.settings;
-    final theme = await setting.getByKey(key);
-    if (theme == null) {
-      await setting.put(Setting(key: key, value: defaultValue.name));
-    }
-  }
+  Future<void> ensureInitialized() => isarInstance.writeTxn(() async {
+        final isar = isarInstance;
+        final setting = isar.settings;
+        final theme = await setting.getByKey(key);
+        if (theme == null) {
+          await setting.put(Setting(key: key, value: defaultValue.name));
+        }
+      });
 
   @override
-  Future<ThemeMode> get() async {
-    final isar = isarInstance;
-    final setting = isar.settings;
-    final theme = await setting.getByKey(key);
-    if (theme == null) {
-      return defaultValue;
-    }
-    return {for (final i in ThemeMode.values) i.name: i}[theme.value] ?? defaultValue;
-  }
+  Future<ThemeMode> get() => isarInstance.txn(() async {
+        final isar = isarInstance;
+        final setting = isar.settings;
+        final theme = await setting.getByKey(key);
+        if (theme == null) {
+          return defaultValue;
+        }
+        return {for (final i in ThemeMode.values) i.name: i}[theme.value] ?? defaultValue;
+      });
 
   @override
-  Future<void> set(ThemeMode value) async {
-    final isar = isarInstance;
-    final setting = isar.settings;
-    final theme = await setting.getByKey(key);
-    if (theme == null) {
-      await setting.put(Setting(key: key, value: value.name));
-    } else {
-      await setting.put(theme..value = value.name);
-    }
-  }
+  Future<void> set(ThemeMode value) => isarInstance.writeTxn(() async {
+        final isar = isarInstance;
+        final setting = isar.settings;
+        final theme = await setting.getByKey(key);
+        if (theme == null) {
+          await setting.put(Setting(key: key, value: value.name));
+        } else {
+          await setting.put(theme..value = value.name);
+        }
+      });
 
   @override
-  Future<void> remove() async {
-    final isar = isarInstance;
-    final setting = isar.settings;
-    final theme = await setting.getByKey(key);
-    if (theme != null) {
-      await setting.deleteByKey(key);
-    }
-  }
+  Future<void> remove() => isarInstance.writeTxn(() async {
+        final isar = isarInstance;
+        final setting = isar.settings;
+        final theme = await setting.getByKey(key);
+        if (theme != null) {
+          await setting.deleteByKey(key);
+        }
+      });
 
   @override
-  Future<void> reset() async {
-    final isar = isarInstance;
-    final setting = isar.settings;
-    final theme = await setting.getByKey(key);
-    if (theme != null) {
-      await setting.put(theme..value = defaultValue.name);
-    } else {
-      await setting.put(Setting(key: key, value: defaultValue.name));
-    }
-  }
+  Future<void> reset() => isarInstance.writeTxn(() async {
+        final isar = isarInstance;
+        final setting = isar.settings;
+        final theme = await setting.getByKey(key);
+        if (theme != null) {
+          await setting.put(theme..value = defaultValue.name);
+        } else {
+          await setting.put(Setting(key: key, value: defaultValue.name));
+        }
+      });
 }
