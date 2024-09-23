@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:budgetman/server/repository/settings/settings_entries.dart';
 
 class SettingsRepository {
@@ -15,6 +17,10 @@ class SettingsRepository {
 
   NameSettingsEntry get name => NameSettingsEntry();
   ThemeSettingEntry get theme => ThemeSettingEntry();
+
+  Future<void> init() async {
+    await Future.wait(settings.map((e) => e.ensureInitialized()));
+  }
 
   Future<void> resetAll() => Future.wait(settings.map((e) => e.reset()));
 
