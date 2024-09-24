@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:isar/isar.dart';
 
 import 'package:budgetman/server/data_model/categories.dart';
@@ -57,7 +59,7 @@ class BudgetList {
     required this.isRemoved,
     DateTime? createdDateTime,
     DateTime? updatedDateTime,
-    List<int>? image,
+    List<byte>? image,
   }) {
     if (createdDateTime != null && updatedDateTime != null) {
       if (createdDateTime.isAfter(updatedDateTime)) {
@@ -84,7 +86,7 @@ class BudgetList {
     required bool isRemoved,
     DateTime? createdDateTime,
     DateTime? updatedDateTime,
-    List<int>? image,
+    List<byte>? image,
   }) {
     final budgetList = BudgetList(
       isCompleted: isCompleted,
