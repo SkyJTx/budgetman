@@ -79,7 +79,7 @@ class BudgetList {
     bool isCompleted = false,
     required String title,
     required String description,
-    required Category category,
+    Category? category,
     required int priority,
     required int budget,
     required DateTime deadline,
