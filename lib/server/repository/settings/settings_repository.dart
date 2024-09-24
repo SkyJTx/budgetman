@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:budgetman/server/repository/settings/settings_entries.dart';
 
 class SettingsRepository {

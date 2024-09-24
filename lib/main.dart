@@ -3,6 +3,7 @@ import 'package:budgetman/server/repository/settings/settings_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetman/dependencies_injector.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sizer/sizer.dart';
 
 void main() async {
   await init();
@@ -36,71 +37,84 @@ class BudgetManAppState extends State<BudgetManApp> {
   @override
   void initState() {
     super.initState();
-    nameController.text = BlocProvider.of<SettingsBloc>(context).state.name;
+    nameController.addListener(() {
+      context.read<SettingsBloc>().setName(nameController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsState>(
-      builder: (context, state) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'BudgetMan',
-          theme: ThemeData.from(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.yellow,
-              brightness: Brightness.light,
-            ),
-          ),
-          darkTheme: ThemeData.from(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.yellow,
-              brightness: Brightness.dark,
-            ),
-          ),
-          themeMode: state.theme,
-          home: Scaffold(
-            appBar: AppBar(
-              title: const Text('BudgetMan'),
-            ),
-            body: Center(
-              child: Column(
-                children: [
-                  Text('Hello, ${state.name}'),
-                  ListTile(
-                    title: const Text('Name'),
-                    trailing: Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 400,
-                      ),
-                      child: TextField(
-                        controller: nameController,
-                        onChanged: (value) {
-                          context.read<SettingsBloc>().setName(value);
-                        },
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    title: const Text('Theme'),
-                    trailing: Builder(builder: (context) {
-                      bool isDark = state.theme == ThemeMode.dark;
-                      if (state.theme == ThemeMode.system) {
-                        isDark = WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-                            Brightness.dark;
-                      }
-                      return Switch.adaptive(
-                        value: isDark,
-                        onChanged: (value) {
-                          context.read<SettingsBloc>().toggleTheme();
-                        },
-                      );
-                    }),
-                  ),
-                ],
+    return ResponsiveSizer(
+      builder: (context, orientation, deviceType) {
+        return BlocConsumer<SettingsBloc, SettingsState>(
+          listener: (context, state) {
+            nameController.text = state.name;
+          },
+          builder: (context, state) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'BudgetMan',
+              theme: ThemeData.from(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.yellow,
+                  brightness: Brightness.light,
+                ),
               ),
-            ),
-          ),
+              darkTheme: ThemeData.from(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.yellow,
+                  brightness: Brightness.dark,
+                ),
+              ),
+              themeMode: state.theme,
+              home: Scaffold(
+                appBar: AppBar(
+                  title: const Text('BudgetMan'),
+                ),
+                body: Center(
+                  child: Column(
+                    children: [
+                      Text('Hello, ${state.name}'),
+                      ListTile(
+                        title: const Text('Name'),
+                        trailing: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: 70.w,
+                          ),
+                          child: TextField(
+                            controller: nameController,
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        title: const Text('Theme'),
+                        trailing: Builder(builder: (context) {
+                          bool isDark = state.theme == ThemeMode.dark;
+                          if (state.theme == ThemeMode.system) {
+                            isDark =
+                                WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                                    Brightness.dark;
+                          }
+                          return Switch.adaptive(
+                            value: isDark,
+                            onChanged: (value) {
+                              context.read<SettingsBloc>().toggleTheme();
+                            },
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
