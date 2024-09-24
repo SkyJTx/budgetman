@@ -6,23 +6,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 
 void main() async {
-  await init();
-  runApp(MultiRepositoryProvider(
-    providers: [
-      RepositoryProvider(
-        create: (context) => SettingsRepository()..init(),
-      ),
-    ],
-    child: MultiBlocProvider(
+  runApp(await widget);
+}
+
+Future<Widget> get widget => init().then((_) => MultiRepositoryProvider(
       providers: [
-        BlocProvider(
-          create: (context) => SettingsBloc()..init(),
+        RepositoryProvider(
+          create: (context) => SettingsRepository()..init(),
         ),
       ],
-      child: const BudgetManApp(),
-    ),
-  ));
-}
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => SettingsBloc()..init(),
+          ),
+        ],
+        child: const BudgetManApp(),
+      ),
+    ));
 
 class BudgetManApp extends StatefulWidget {
   const BudgetManApp({super.key});
