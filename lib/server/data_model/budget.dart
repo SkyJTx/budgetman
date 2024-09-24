@@ -77,4 +77,35 @@ class Budget {
     createdAt = createdDateTime ?? DateTime.now();
     updatedAt = updatedDateTime ?? DateTime.now();
   }
+
+  factory Budget.create({
+    required String name,
+    required String description,
+    required DateTime startDate,
+    required DateTime endDate,
+    required bool isRoutine,
+    int? routineInterval,
+    List<Budget>? budgets,
+    required bool isCompleted,
+    required bool isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+  }) {
+    final budget = Budget(
+      name: name,
+      description: description,
+      startDate: startDate,
+      endDate: endDate,
+      isRoutine: isRoutine,
+      routineInterval: routineInterval,
+      isCompleted: isCompleted,
+      isRemoved: isRemoved,
+      createdDateTime: createdDateTime,
+      updatedDateTime: updatedDateTime,
+    );
+    if (budgets != null) {
+      budget.budgets.addAll(budgets);
+    }
+    return budget;
+  }
 }
