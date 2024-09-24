@@ -72,4 +72,33 @@ class BudgetList {
     updatedAt = updatedDateTime ?? DateTime.now();
     imagesBytes = image ?? [];
   }
+
+  factory BudgetList.create({
+    bool isCompleted = false,
+    required String title,
+    required String description,
+    required Category category,
+    required int priority,
+    required int budget,
+    required DateTime deadline,
+    required bool isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    List<int>? image,
+  }) {
+    final budgetList = BudgetList(
+      isCompleted: isCompleted,
+      title: title,
+      description: description,
+      priority: priority,
+      budget: budget.toDouble(),
+      deadline: deadline,
+      isRemoved: isRemoved,
+      createdDateTime: createdDateTime,
+      updatedDateTime: updatedDateTime,
+      image: image,
+    );
+    budgetList.category.value = category;
+    return budgetList;
+  }
 }
