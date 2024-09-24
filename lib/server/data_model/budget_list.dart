@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:isar/isar.dart';
 
 import 'package:budgetman/server/data_model/categories.dart';
@@ -57,7 +59,7 @@ class BudgetList {
     required this.isRemoved,
     DateTime? createdDateTime,
     DateTime? updatedDateTime,
-    List<int>? image,
+    List<byte>? image,
   }) {
     if (createdDateTime != null && updatedDateTime != null) {
       if (createdDateTime.isAfter(updatedDateTime)) {
@@ -71,5 +73,34 @@ class BudgetList {
     createdAt = createdDateTime ?? DateTime.now();
     updatedAt = updatedDateTime ?? DateTime.now();
     imagesBytes = image ?? [];
+  }
+
+  factory BudgetList.create({
+    bool isCompleted = false,
+    required String title,
+    required String description,
+    Category? category,
+    required int priority,
+    required int budget,
+    required DateTime deadline,
+    required bool isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    List<byte>? image,
+  }) {
+    final budgetList = BudgetList(
+      isCompleted: isCompleted,
+      title: title,
+      description: description,
+      priority: priority,
+      budget: budget.toDouble(),
+      deadline: deadline,
+      isRemoved: isRemoved,
+      createdDateTime: createdDateTime,
+      updatedDateTime: updatedDateTime,
+      image: image,
+    );
+    budgetList.category.value = category;
+    return budgetList;
   }
 }
