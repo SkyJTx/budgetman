@@ -20,6 +20,6 @@ Future<void> init() async {
     directory: dir.path,
     inspector: kDebugMode,
   );
-
+  
   getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
 }
