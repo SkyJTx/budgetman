@@ -4,7 +4,7 @@ part 'budget.g.dart';
 
 @collection
 class Budget {
-  Id id = Isar.autoIncrement;
+  Id id;
 
   @Index(
     unique: true,
@@ -38,6 +38,7 @@ class Budget {
   late DateTime updatedAt;
 
   Budget({
+    this.id = Isar.autoIncrement,
     required this.name,
     required this.description,
     required this.startDate,

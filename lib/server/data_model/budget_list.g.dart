@@ -182,13 +182,13 @@ BudgetList _budgetListDeserialize(
     budget: reader.readDouble(offsets[0]),
     deadline: reader.readDateTime(offsets[2]),
     description: reader.readString(offsets[3]),
+    id: id,
     isCompleted: reader.readBool(offsets[5]),
     isRemoved: reader.readBool(offsets[6]),
     priority: reader.readLong(offsets[7]),
     title: reader.readString(offsets[8]),
   );
   object.createdAt = reader.readDateTime(offsets[1]);
-  object.id = id;
   object.imagesBytes = reader.readByteList(offsets[4]) ?? [];
   object.updatedAt = reader.readDateTime(offsets[9]);
   return object;

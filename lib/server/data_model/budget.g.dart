@@ -154,6 +154,7 @@ Budget _budgetDeserialize(
   final object = Budget(
     description: reader.readString(offsets[1]),
     endDate: reader.readDateTime(offsets[2]),
+    id: id,
     isCompleted: reader.readBool(offsets[3]),
     isRemoved: reader.readBool(offsets[4]),
     isRoutine: reader.readBool(offsets[5]),
@@ -162,7 +163,6 @@ Budget _budgetDeserialize(
     startDate: reader.readDateTime(offsets[8]),
   );
   object.createdAt = reader.readDateTime(offsets[0]);
-  object.id = id;
   object.updatedAt = reader.readDateTime(offsets[9]);
   return object;
 }
