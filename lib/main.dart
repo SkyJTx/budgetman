@@ -1,6 +1,9 @@
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
 import 'package:budgetman/server/data_model/setting.dart';
+import 'package:budgetman/server/repository/budget/budget_repository.dart';
+import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
+import 'package:budgetman/server/repository/categories/categories_repository.dart';
 import 'package:budgetman/server/repository/settings/settings_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetman/dependencies_injector.dart';
@@ -17,6 +20,11 @@ Future<Widget> get widget => init().then((_) => MultiRepositoryProvider(
         RepositoryProvider(
           create: (context) => SettingsRepository()..init(),
         ),
+        ...[
+          BudgetRepository(),
+          BudgetListRepository(),
+          CategoryRepository(),
+        ].map((e) => RepositoryProvider.value(value: e))
       ],
       child: MultiBlocProvider(
         providers: [
