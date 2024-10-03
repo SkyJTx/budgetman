@@ -1,8 +1,15 @@
+import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:isar/isar.dart';
 
 class BudgetListRepository {
-  BudgetListRepository();
+  static get instance => BudgetListRepository._internal();
+
+  factory BudgetListRepository() {
+    return instance;
+  }
+
+  BudgetListRepository._internal();
 
   Isar get isarInstance {
     Isar? isar = Isar.getInstance();
@@ -10,17 +17,15 @@ class BudgetListRepository {
     return isar;
   }
 
-  Future<void> add(BudgetList budgetList) async {
-    await isarInstance.writeTxn(() async {
-      await isarInstance.budgetLists.put(budgetList);
-    });
-  }
+  Future<void> add(BudgetList budgetList, {required Budget budget}) =>
+      isarInstance.writeTxn(() async {
+        budget.budgetList.add(budgetList);
+      });
 
   Future<void> update(BudgetList updatedBudgetList) async {
-    updatedBudgetList.updatedAt = DateTime.now(); // Update the updatedAt field
+    updatedBudgetList.updatedAt = DateTime.now();
     await isarInstance.writeTxn(() async {
-      await isarInstance.budgetLists
-          .put(updatedBudgetList); // Insert or update the object
+      await isarInstance.budgetLists.put(updatedBudgetList);
     });
   }
 
@@ -33,11 +38,13 @@ class BudgetListRepository {
     });
   }
 
-  Future<List<BudgetList>> getAll() async {
-    return await isarInstance.budgetLists.where().findAll();
-  }
-
-  Future<BudgetList?> getById(int id) async {
-    return await isarInstance.budgetLists.get(id);
+  Future<List<BudgetList>> getAllinBudget(int budgetId) async {
+    return isarInstance.txn(() async {
+      final budget = await isarInstance.budgets.get(budgetId);
+      if (budget == null) {
+        throw Exception('Failed to get budget with id $budgetId');
+      }
+      return budget.budgetList.toList();
+    });
   }
 }
