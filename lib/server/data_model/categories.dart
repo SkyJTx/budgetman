@@ -93,4 +93,23 @@ class Category {
     updatedAt = updatedDateTime ?? updatedAt;
     return this;
   }
+
+  Category copyWith({
+    String? name,
+    String? description,
+    int? colorValue,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    bool? isRemoved,
+  }) {
+    return Category(
+      id: id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      colorValue: colorValue ?? this.colorValue,
+      createdDateTime: createdDateTime ?? createdAt,
+      updatedDateTime: updatedDateTime ?? updatedAt,
+      isRemoved: isRemoved ?? this.isRemoved,
+    );
+  }
 }

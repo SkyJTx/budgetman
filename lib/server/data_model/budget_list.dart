@@ -138,4 +138,32 @@ class BudgetList {
     imagesBytes = image ?? imagesBytes;
     return this;
   }
+
+  BudgetList copyWith({
+    bool? isCompleted,
+    String? title,
+    String? description,
+    Category? category,
+    int? priority,
+    double? budget,
+    DateTime? deadline,
+    bool? isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    List<byte>? image,
+  }) {
+    return BudgetList.create(
+      isCompleted: isCompleted ?? this.isCompleted,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      category: category ?? this.category.value,
+      priority: priority ?? this.priority,
+      budget: budget ?? this.budget,
+      deadline: deadline ?? this.deadline,
+      isRemoved: isRemoved ?? this.isRemoved,
+      createdDateTime: createdDateTime ?? createdAt,
+      updatedDateTime: updatedDateTime ?? updatedAt,
+      image: image ?? imagesBytes,
+    );
+  }
 }

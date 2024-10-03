@@ -169,4 +169,32 @@ class Budget {
     }
     return this;
   }
+
+  Budget copyWith({
+    String? name,
+    String? description,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? isRoutine,
+    int? routineInterval,
+    List<BudgetList>? budgetList,
+    bool? isCompleted,
+    bool? isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+  }) {
+    return Budget.create(
+      name: name ?? this.name,
+      description: description ?? this.description,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      isRoutine: isRoutine ?? this.isRoutine,
+      routineInterval: routineInterval ?? this.routineInterval,
+      budgetList: budgetList ?? this.budgetList.toList(),
+      isCompleted: isCompleted ?? this.isCompleted,
+      isRemoved: isRemoved ?? this.isRemoved,
+      createdDateTime: createdDateTime ?? createdAt,
+      updatedDateTime: updatedDateTime ?? updatedAt,
+    );
+  }
 }

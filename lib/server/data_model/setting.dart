@@ -35,4 +35,14 @@ class Setting {
     this.value = value ?? this.value;
     return this;
   }
+
+  Setting copyWith({
+    String? key,
+    String? value,
+  }) {
+    return Setting(
+      key: key ?? this.key,
+      value: value ?? this.value,
+    );
+  }
 }
