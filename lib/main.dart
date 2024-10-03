@@ -17,15 +17,11 @@ void main() async {
 
 Future<Widget> get widget => init().then((_) => MultiRepositoryProvider(
       providers: [
-        RepositoryProvider(
-          create: (context) => SettingsRepository()..init(),
-        ),
-        ...[
-          BudgetRepository(),
-          BudgetListRepository(),
-          CategoryRepository(),
-        ].map((e) => RepositoryProvider.value(value: e))
-      ],
+        BudgetRepository(),
+        BudgetListRepository(),
+        CategoryRepository(),
+        SettingsRepository()..init(),
+      ].map((e) => RepositoryProvider.value(value: e)).toList(),
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
