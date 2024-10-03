@@ -102,10 +102,10 @@ const BudgetSchema = CollectionSchema(
     )
   },
   links: {
-    r'budgets': LinkSchema(
-      id: -4216283518848119551,
-      name: r'budgets',
-      target: r'Budget',
+    r'budgetList': LinkSchema(
+      id: 1887625107914560168,
+      name: r'budgetList',
+      target: r'BudgetList',
       single: false,
     )
   },
@@ -154,6 +154,7 @@ Budget _budgetDeserialize(
   final object = Budget(
     description: reader.readString(offsets[1]),
     endDate: reader.readDateTime(offsets[2]),
+    id: id,
     isCompleted: reader.readBool(offsets[3]),
     isRemoved: reader.readBool(offsets[4]),
     isRoutine: reader.readBool(offsets[5]),
@@ -162,7 +163,6 @@ Budget _budgetDeserialize(
     startDate: reader.readDateTime(offsets[8]),
   );
   object.createdAt = reader.readDateTime(offsets[0]);
-  object.id = id;
   object.updatedAt = reader.readDateTime(offsets[9]);
   return object;
 }
@@ -204,12 +204,13 @@ Id _budgetGetId(Budget object) {
 }
 
 List<IsarLinkBase<dynamic>> _budgetGetLinks(Budget object) {
-  return [object.budgets];
+  return [object.budgetList];
 }
 
 void _budgetAttach(IsarCollection<dynamic> col, Id id, Budget object) {
   object.id = id;
-  object.budgets.attach(col, col.isar.collection<Budget>(), r'budgets', id);
+  object.budgetList
+      .attach(col, col.isar.collection<BudgetList>(), r'budgetList', id);
 }
 
 extension BudgetByIndex on IsarCollection<Budget> {
@@ -1210,51 +1211,52 @@ extension BudgetQueryFilter on QueryBuilder<Budget, Budget, QFilterCondition> {
 extension BudgetQueryObject on QueryBuilder<Budget, Budget, QFilterCondition> {}
 
 extension BudgetQueryLinks on QueryBuilder<Budget, Budget, QFilterCondition> {
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgets(
-      FilterQuery<Budget> q) {
+  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetList(
+      FilterQuery<BudgetList> q) {
     return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'budgets');
+      return query.link(q, r'budgetList');
     });
   }
 
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetsLengthEqualTo(
+  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetListLengthEqualTo(
       int length) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'budgets', length, true, length, true);
+      return query.linkLength(r'budgetList', length, true, length, true);
     });
   }
 
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetsIsEmpty() {
+  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetListIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'budgets', 0, true, 0, true);
+      return query.linkLength(r'budgetList', 0, true, 0, true);
     });
   }
 
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetsIsNotEmpty() {
+  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetListIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'budgets', 0, false, 999999, true);
+      return query.linkLength(r'budgetList', 0, false, 999999, true);
     });
   }
 
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetsLengthLessThan(
+  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetListLengthLessThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'budgets', 0, true, length, include);
+      return query.linkLength(r'budgetList', 0, true, length, include);
     });
   }
 
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetsLengthGreaterThan(
+  QueryBuilder<Budget, Budget, QAfterFilterCondition>
+      budgetListLengthGreaterThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'budgets', length, include, 999999, true);
+      return query.linkLength(r'budgetList', length, include, 999999, true);
     });
   }
 
-  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetsLengthBetween(
+  QueryBuilder<Budget, Budget, QAfterFilterCondition> budgetListLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -1262,7 +1264,7 @@ extension BudgetQueryLinks on QueryBuilder<Budget, Budget, QFilterCondition> {
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(
-          r'budgets', lower, includeLower, upper, includeUpper);
+          r'budgetList', lower, includeLower, upper, includeUpper);
     });
   }
 }

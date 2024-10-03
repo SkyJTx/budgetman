@@ -1,10 +1,11 @@
+import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:isar/isar.dart';
 
 part 'budget.g.dart';
 
 @collection
 class Budget {
-  Id id = Isar.autoIncrement;
+  Id id;
 
   @Index(
     unique: true,
@@ -27,7 +28,7 @@ class Budget {
 
   int? routineInterval;
 
-  final budgets = IsarLinks<Budget>();
+  final budgetList = IsarLinks<BudgetList>();
 
   bool isCompleted;
 
@@ -38,6 +39,7 @@ class Budget {
   late DateTime updatedAt;
 
   Budget({
+    this.id = Isar.autoIncrement,
     required this.name,
     required this.description,
     required this.startDate,
@@ -85,7 +87,7 @@ class Budget {
     required DateTime endDate,
     required bool isRoutine,
     int? routineInterval,
-    List<Budget>? budgets,
+    List<BudgetList> budgetList = const <BudgetList>[],
     required bool isCompleted,
     required bool isRemoved,
     DateTime? createdDateTime,
@@ -103,9 +105,9 @@ class Budget {
       createdDateTime: createdDateTime,
       updatedDateTime: updatedDateTime,
     );
-    if (budgets != null) {
-      budget.budgets.addAll(budgets);
-    }
+    
+    budget.budgetList.addAll(budgetList);
+    
     return budget;
   }
 }

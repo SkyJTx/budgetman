@@ -84,10 +84,10 @@ Setting _settingDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Setting(
+    id: id,
     key: reader.readString(offsets[0]),
     value: reader.readString(offsets[1]),
   );
-  object.id = id;
   return object;
 }
 

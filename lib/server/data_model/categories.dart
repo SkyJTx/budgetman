@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:isar/isar.dart';
@@ -7,7 +6,7 @@ part 'categories.g.dart';
 
 @collection
 class Category {
-  Id id = Isar.autoIncrement;
+  Id id;
 
   @Index(
     unique: true,
@@ -30,6 +29,7 @@ class Category {
   Color get color => Color(colorValue);
 
   Category({
+    this.id = Isar.autoIncrement,
     DateTime? createdDateTime,
     DateTime? updatedDateTime,
     required this.name,

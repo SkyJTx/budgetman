@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:isar/isar.dart';
 
 import 'package:budgetman/server/data_model/categories.dart';
@@ -8,7 +6,7 @@ part 'budget_list.g.dart';
 
 @collection
 class BudgetList {
-  Id id = Isar.autoIncrement;
+  Id id;
 
   @Index(
     unique: true,
@@ -50,6 +48,7 @@ class BudgetList {
   bool isRemoved;
 
   BudgetList({
+    this.id = Isar.autoIncrement,
     required this.isCompleted,
     required this.title,
     required this.description,
