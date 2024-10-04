@@ -13,10 +13,10 @@ import 'package:go_router/go_router.dart';
 class ClientRepository {
   ClientRepository._privateConstructor();
 
-  static final ClientRepository _instance = ClientRepository._privateConstructor();
+  static final ClientRepository instance = ClientRepository._privateConstructor();
 
   factory ClientRepository() {
-    return _instance;
+    return instance;
   }
 
   final List<FutureOr<void> Function(ClientRepository)> listeners = [];
@@ -25,7 +25,7 @@ class ClientRepository {
       GlobalKey<ScaffoldMessengerState>();
   final router = GoRouter(
     initialLocation: '/home',
-    navigatorKey: _instance.navigatorKey,
+    navigatorKey: instance.navigatorKey,
     routes: [
       ShellRoute(
         pageBuilder: (context, state, child) {
@@ -39,7 +39,7 @@ class ClientRepository {
         routes: [
           GoRoute(
             path: HomePage.routeName,
-            pageBuilder: _instance.goPageBuilder(
+            pageBuilder: instance.goPageBuilder(
               builder: (context, state) {
                 return const HomePage();
               },
@@ -47,7 +47,7 @@ class ClientRepository {
           ),
           GoRoute(
             path: BudgetPage.routeName,
-            pageBuilder: _instance.goPageBuilder(
+            pageBuilder: instance.goPageBuilder(
               builder: (context, state) {
                 return const BudgetPage();
               },
@@ -55,7 +55,7 @@ class ClientRepository {
           ),
           GoRoute(
             path: CategoriesPage.routeName,
-            pageBuilder: _instance.goPageBuilder(
+            pageBuilder: instance.goPageBuilder(
               builder: (context, state) {
                 return const CategoriesPage();
               },
@@ -63,7 +63,7 @@ class ClientRepository {
           ),
           GoRoute(
             path: SettingPage.routeName,
-            pageBuilder: _instance.goPageBuilder(
+            pageBuilder: instance.goPageBuilder(
               builder: (context, state) {
                 return const SettingPage();
               },
@@ -71,7 +71,7 @@ class ClientRepository {
           ),
           GoRoute(
             path: ComponentPage.routeName,
-            pageBuilder: _instance.goPageBuilder(
+            pageBuilder: instance.goPageBuilder(
               builder: (context, state) {
                 return const ComponentPage();
               },
