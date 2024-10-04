@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:isar/isar.dart';
@@ -51,6 +52,7 @@ class Category {
   }
 
   factory Category.create({
+    int id = Isar.autoIncrement,
     required String name,
     required String description,
     required int colorValue,
@@ -59,6 +61,7 @@ class Category {
     bool isRemoved = false,
   }) {
     return Category(
+      id: id,
       name: name,
       description: description,
       colorValue: colorValue,
@@ -103,7 +106,6 @@ class Category {
     bool? isRemoved,
   }) {
     return Category(
-      id: id,
       name: name ?? this.name,
       description: description ?? this.description,
       colorValue: colorValue ?? this.colorValue,
@@ -112,4 +114,32 @@ class Category {
       isRemoved: isRemoved ?? this.isRemoved,
     );
   }
+
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category.create(
+      id: map['id'] ?? Isar.autoIncrement,
+      name: map['name'] as String,
+      description: map['description'] as String,
+      colorValue: map['colorValue'] as int,
+      createdDateTime: DateTime.parse(map['createdDateTime'] as String),
+      updatedDateTime: DateTime.parse(map['updatedDateTime'] as String),
+      isRemoved: map['isRemoved'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'colorValue': colorValue,
+      'createdDateTime': createdAt.toIso8601String(),
+      'updatedDateTime': updatedAt.toIso8601String(),
+      'isRemoved': isRemoved,
+    };
+  }
+
+  factory Category.fromJson(String source) => Category.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  String toJson() => json.encode(toMap());
 }
