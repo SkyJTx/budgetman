@@ -67,7 +67,7 @@ class BudgetManAppState extends State<BudgetManApp> {
           },
           builder: (context, state) {
             return MaterialApp.router(
-              routerConfig: ClientRepository.instance.router,
+              routerConfig: ClientRepository.router,
               debugShowCheckedModeBanner: false,
               title: 'BudgetMan',
               theme: baseThemes.light(),
