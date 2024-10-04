@@ -49,4 +49,67 @@ class Category {
     createdAt = createdDateTime ?? DateTime.now();
     updatedAt = updatedDateTime ?? DateTime.now();
   }
+
+  factory Category.create({
+    required String name,
+    required String description,
+    required int colorValue,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    bool isRemoved = false,
+  }) {
+    return Category(
+      name: name,
+      description: description,
+      colorValue: colorValue,
+      createdDateTime: createdDateTime,
+      updatedDateTime: updatedDateTime,
+      isRemoved: isRemoved,
+    );
+  }
+
+  Category update({
+    String? name,
+    String? description,
+    int? colorValue,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    bool? isRemoved,
+  }) {
+    this.name = name ?? this.name;
+    this.description = description ?? this.description;
+    this.colorValue = colorValue ?? this.colorValue;
+    this.isRemoved = isRemoved ?? this.isRemoved;
+    if (createdDateTime != null && updatedDateTime != null) {
+      if (createdDateTime.isAfter(updatedDateTime)) {
+        throw ArgumentError.value(
+          createdDateTime,
+          'createdDateTime',
+          'createdDateTime must be before updatedDateTime',
+        );
+      }
+    }
+    createdAt = createdDateTime ?? createdAt;
+    updatedAt = updatedDateTime ?? updatedAt;
+    return this;
+  }
+
+  Category copyWith({
+    String? name,
+    String? description,
+    int? colorValue,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    bool? isRemoved,
+  }) {
+    return Category(
+      id: id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      colorValue: colorValue ?? this.colorValue,
+      createdDateTime: createdDateTime ?? createdAt,
+      updatedDateTime: updatedDateTime ?? updatedAt,
+      isRemoved: isRemoved ?? this.isRemoved,
+    );
+  }
 }

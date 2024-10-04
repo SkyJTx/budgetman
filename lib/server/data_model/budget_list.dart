@@ -80,7 +80,7 @@ class BudgetList {
     required String description,
     Category? category,
     required int priority,
-    required int budget,
+    required double budget,
     required DateTime deadline,
     required bool isRemoved,
     DateTime? createdDateTime,
@@ -92,7 +92,7 @@ class BudgetList {
       title: title,
       description: description,
       priority: priority,
-      budget: budget.toDouble(),
+      budget: budget,
       deadline: deadline,
       isRemoved: isRemoved,
       createdDateTime: createdDateTime,
@@ -101,5 +101,69 @@ class BudgetList {
     );
     budgetList.category.value = category;
     return budgetList;
+  }
+
+  BudgetList update({
+    bool? isCompleted,
+    String? title,
+    String? description,
+    Category? category,
+    int? priority,
+    double? budget,
+    DateTime? deadline,
+    bool? isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    List<byte>? image,
+  }) {
+    if (createdDateTime != null && updatedDateTime != null) {
+      if (createdDateTime.isAfter(updatedDateTime)) {
+        throw ArgumentError.value(
+          createdAt,
+          'createdAt',
+          'createdAt must be before updatedAt',
+        );
+      }
+    }
+    this.isCompleted = isCompleted ?? this.isCompleted;
+    this.title = title ?? this.title;
+    this.description = description ?? this.description;
+    this.category.value = category;
+    this.priority = priority ?? this.priority;
+    this.budget = budget ?? this.budget;
+    this.deadline = deadline ?? this.deadline;
+    this.isRemoved = isRemoved ?? this.isRemoved;
+    createdAt = createdDateTime ?? createdAt;
+    updatedAt = updatedDateTime ?? updatedAt;
+    imagesBytes = image ?? imagesBytes;
+    return this;
+  }
+
+  BudgetList copyWith({
+    bool? isCompleted,
+    String? title,
+    String? description,
+    Category? category,
+    int? priority,
+    double? budget,
+    DateTime? deadline,
+    bool? isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    List<byte>? image,
+  }) {
+    return BudgetList.create(
+      isCompleted: isCompleted ?? this.isCompleted,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      category: category ?? this.category.value,
+      priority: priority ?? this.priority,
+      budget: budget ?? this.budget,
+      deadline: deadline ?? this.deadline,
+      isRemoved: isRemoved ?? this.isRemoved,
+      createdDateTime: createdDateTime ?? createdAt,
+      updatedDateTime: updatedDateTime ?? updatedAt,
+      image: image ?? imagesBytes,
+    );
   }
 }
