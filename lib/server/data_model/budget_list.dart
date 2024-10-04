@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:isar/isar.dart';
 
 import 'package:budgetman/server/data_model/categories.dart';
@@ -75,6 +77,7 @@ class BudgetList {
   }
 
   factory BudgetList.create({
+    Id id = Isar.autoIncrement,
     bool isCompleted = false,
     required String title,
     required String description,
@@ -88,6 +91,7 @@ class BudgetList {
     List<byte>? image,
   }) {
     final budgetList = BudgetList(
+      id: id,
       isCompleted: isCompleted,
       title: title,
       description: description,
@@ -165,5 +169,58 @@ class BudgetList {
       updatedDateTime: updatedDateTime ?? updatedAt,
       image: image ?? imagesBytes,
     );
+  }
+
+  factory BudgetList.fromMap(Map<String, dynamic> map) {
+    return BudgetList.create(
+      id: map['id'] ?? Isar.autoIncrement,
+      isCompleted: map['isCompleted'] as bool,
+      title: map['title'] as String,
+      description: map['description'] as String,
+      category: map['category'] != null ? Category.fromMap(map['category']) : null,
+      priority: map['priority'] as int,
+      budget: map['budget'] as double,
+      deadline: map['deadline'] as DateTime,
+      isRemoved: map['isRemoved'] as bool,
+      createdDateTime: map['createdAt'] as DateTime,
+      updatedDateTime: map['updatedAt'] as DateTime,
+      image: map['imagesBytes'] as List<byte>,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'isCompleted': isCompleted,
+      'title': title,
+      'description': description,
+      'category': category.value?.toMap(),
+      'priority': priority,
+      'budget': budget,
+      'deadline': deadline,
+      'isRemoved': isRemoved,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'imagesBytes': imagesBytes,
+    };
+  }
+
+  factory BudgetList.fromJson(String source) => BudgetList.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'isCompleted': isCompleted,
+      'title': title,
+      'description': description,
+      'category': category.value?.toMap(),
+      'priority': priority,
+      'budget': budget,
+      'deadline': deadline.toIso8601String(),
+      'isRemoved': isRemoved,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'imagesBytes': imagesBytes,
+    };
   }
 }

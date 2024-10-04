@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:isar/isar.dart';
 
@@ -81,6 +83,7 @@ class Budget {
   }
 
   factory Budget.create({
+    int id = Isar.autoIncrement,
     required String name,
     required String description,
     required DateTime startDate,
@@ -94,6 +97,7 @@ class Budget {
     DateTime? updatedDateTime,
   }) {
     final budget = Budget(
+      id: id,
       name: name,
       description: description,
       startDate: startDate,
@@ -197,4 +201,48 @@ class Budget {
       updatedDateTime: updatedDateTime ?? updatedAt,
     );
   }
+
+  factory Budget.fromMap(Map<String, dynamic> map) {
+    return Budget.create(
+      id: map['id'] ?? Isar.autoIncrement,
+      name: map['name'],
+      description: map['description'],
+      startDate: map['startDate'],
+      endDate: map['endDate'],
+      isRoutine: map['isRoutine'],
+      routineInterval: map['routineInterval'],
+      budgetList: [
+        for (final budgetList in map['budgetList'])
+          BudgetList.fromMap(budgetList),
+      ],
+      isCompleted: map['isCompleted'],
+      isRemoved: map['isRemoved'],
+      createdDateTime: map['createdDateTime'],
+      updatedDateTime: map['updatedDateTime'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'startDate': startDate,
+      'endDate': endDate,
+      'isRoutine': isRoutine,
+      'routineInterval': routineInterval,
+      'budgetList': [
+        for (final budgetList in budgetList)
+          budgetList.toMap(),
+      ],
+      'isCompleted': isCompleted,
+      'isRemoved': isRemoved,
+      'createdDateTime': createdAt,
+      'updatedDateTime': updatedAt,
+    };
+  }
+
+  factory Budget.fromJson(String source) => Budget.fromMap(json.decode(source));
+
+  toJson() => json.encode(toMap());
 }
