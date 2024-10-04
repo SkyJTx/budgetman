@@ -1,5 +1,6 @@
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
+import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:budgetman/server/data_model/setting.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
 import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
@@ -17,6 +18,7 @@ void main() async {
 
 Future<Widget> get widget => init().then((_) => MultiRepositoryProvider(
       providers: [
+        ClientRepository(),
         BudgetRepository(),
         BudgetListRepository(),
         CategoryRepository(),
