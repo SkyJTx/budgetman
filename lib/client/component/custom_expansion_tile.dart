@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class CustomExpansionTile extends ExpansionTile {
   CustomExpansionTile({
     super.key,
+    super.initiallyExpanded = true,
+    bool showBorder = true,
     required BuildContext context,
     super.leading,
     required String title,
@@ -10,22 +12,21 @@ class CustomExpansionTile extends ExpansionTile {
     super.trailing,
     List<Widget> children = const [],
   }) : super(
-          initiallyExpanded: true,
           expansionAnimationStyle: AnimationStyle(
             curve: Curves.easeInOut,
           ),
-          shape: RoundedRectangleBorder(
+          shape: showBorder ? RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(
               color: Theme.of(context).dividerColor,
             ),
-          ),
-          collapsedShape: RoundedRectangleBorder(
+          ) : null,
+          collapsedShape: showBorder ? RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(
               color: Theme.of(context).dividerColor,
             ),
-          ),
+          ) : null,
           title: Text(
             title,
             style: Theme.of(context).textTheme.titleLarge,
