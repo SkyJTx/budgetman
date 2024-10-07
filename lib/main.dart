@@ -40,31 +40,12 @@ class BudgetManApp extends StatefulWidget {
 }
 
 class BudgetManAppState extends State<BudgetManApp> {
-  final nameController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    nameController.addListener(() {
-      context.read<SettingsBloc>().setName(nameController.text);
-    });
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final baseThemes = MaterialTheme(const TextTheme().apply());
     return ResponsiveSizer(
       builder: (context, orientation, deviceType) {
-        return BlocConsumer<SettingsBloc, SettingsState>(
-          listener: (context, state) {
-            nameController.text = state.name;
-          },
+        return BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             return MaterialApp.router(
               routerConfig: ClientRepository.router,
