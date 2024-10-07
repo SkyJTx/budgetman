@@ -18,9 +18,10 @@ class SettingPage extends StatefulWidget {
   State<SettingPage> createState() => SettingPageState();
 }
 
-class SettingPageState extends State<SettingPage> {
+class SettingPageState extends State<SettingPage> with SingleTickerProviderStateMixin {
   final userNameController = TextEditingController();
   final discordWebhookUriController = TextEditingController();
+  final scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SettingsBloc, SettingsState>(
@@ -30,7 +31,47 @@ class SettingPageState extends State<SettingPage> {
         log(state.toString());
       },
       builder: (context, state) {
+        if (!state.isInitialized) {
+          return Align(
+            alignment: Alignment.center,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              width: [50.w, 50.h].min.toDouble(),
+              height: [50.w, 50.h].min.toDouble(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Animate(
+                    target: state.isInitialized ? 0 : 1,
+                    onComplete: (controller) {
+                      controller.repeat();
+                    },
+                    effects: const [
+                      RotateEffect(
+                        begin: 0,
+                        end: 1,
+                        curve: Curves.linear,
+                        duration: Duration(seconds: 3),
+                      ),
+                    ],
+                    child: Icon(
+                      Icons.settings,
+                      size: 10.h,
+                    ),
+                  ),
+                  Text(
+                    'Initialize Settings',
+                    style: context.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
         return ListView(
+          controller: scrollController,
           children: [
             Align(
               alignment: Alignment.center,
@@ -41,15 +82,24 @@ class SettingPageState extends State<SettingPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.settings,
-                      size: 10.h,
-                    ).animate(onComplete: (controller) => controller.repeat()).rotate(
+                    Animate(
+                      target: state.isInitialized ? 0 : 1,
+                      onComplete: (controller) {
+                        controller.repeat();
+                      },
+                      effects: const [
+                        RotateEffect(
                           begin: 0,
                           end: 1,
                           curve: Curves.linear,
-                          duration: 3.seconds,
+                          duration: Duration(seconds: 3),
                         ),
+                      ],
+                      child: Icon(
+                        Icons.settings,
+                        size: 10.h,
+                      ),
+                    ),
                     Text(
                       'Settings',
                       style: context.textTheme.headlineMedium?.copyWith(
@@ -200,7 +250,16 @@ class SettingPageState extends State<SettingPage> {
               ],
             ),
           ],
-        );
+        )
+            .animate(
+              target: state.isInitialized ? 1 : 0,
+            )
+            .fade(
+              begin: 0,
+              end: 1,
+              curve: Curves.easeInOut,
+              duration: 0.5.seconds,
+            );
       },
     );
   }
