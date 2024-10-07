@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/component.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:budgetman/extension.dart';
 import 'package:sizer/sizer.dart';
@@ -17,11 +20,14 @@ class SettingPage extends StatefulWidget {
 
 class SettingPageState extends State<SettingPage> {
   final userNameController = TextEditingController();
+  final discordWebhookUriController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SettingsBloc, SettingsState>(
       listener: (context, state) {
-        userNameController.text = state.name;
+        userNameController.text = state.username;
+        discordWebhookUriController.text = state.discordWebhookUrl;
+        log(state.toString());
       },
       builder: (context, state) {
         return ListView(
@@ -38,7 +44,12 @@ class SettingPageState extends State<SettingPage> {
                     Icon(
                       Icons.settings,
                       size: 10.h,
-                    ),
+                    ).animate(onComplete: (controller) => controller.repeat()).rotate(
+                          begin: 0,
+                          end: 1,
+                          curve: Curves.linear,
+                          duration: 3.seconds,
+                        ),
                     Text(
                       'Settings',
                       style: context.textTheme.headlineMedium?.copyWith(
@@ -97,6 +108,95 @@ class SettingPageState extends State<SettingPage> {
                     },
                   ),
                 ),
+              ],
+            ),
+            SizedBox(height: 2.h),
+            CustomExpansionTile(
+              context: context,
+              leading: const Icon(Icons.notifications),
+              title: 'Notification',
+              subtitle: 'discord webhook, local notification, etc.',
+              children: [
+                CustomListTile(
+                  leading: const Icon(Icons.notifications),
+                  title: 'Notification',
+                  subtitle: 'discord webhook, local notification, etc.',
+                  trailing: Switch(
+                    value: state.notification,
+                    onChanged: (value) => context.bloc<SettingsBloc>()?.setNotification(value),
+                  ),
+                ),
+                CustomListTile(
+                  leading: const Icon(Icons.web),
+                  title: 'Discord Webhook',
+                  subtitle: 'Modify the discord webhook',
+                  trailing: Switch(
+                    value: state.discordWebhook,
+                    onChanged: state.enabledDiscordWebhook
+                        ? (value) => context.bloc<SettingsBloc>()?.setDiscordWebhook(value)
+                        : null,
+                  ).animate(target: state.enabledDiscordWebhook ? 1 : 0).fade(
+                        begin: 0.5,
+                        end: 1,
+                        curve: Curves.easeInOut,
+                        duration: 0.5.seconds,
+                      ),
+                )
+                    .animate(
+                      target: state.enabledDiscordWebhook ? 1 : 0,
+                    )
+                    .fade(
+                      begin: 0.5,
+                      end: 1,
+                      curve: Curves.easeInOut,
+                      duration: 0.5.seconds,
+                    ),
+                CustomListTile(
+                  leading: const Icon(Icons.web),
+                  title: 'Webhook URL',
+                  subtitle: 'Change the discord webhook URL',
+                  trailing: TextField(
+                    enabled: state.enabledDiscordWebhookUrl,
+                    controller: discordWebhookUriController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter the discord webhook URL',
+                    ),
+                    onChanged: state.enabledDiscordWebhookUrl
+                        ? (value) => context.bloc<SettingsBloc>()?.setDiscordWebhookUri(value)
+                        : null,
+                  ).animate(target: state.enabledDiscordWebhookUrl ? 1 : 0).fade(
+                        begin: 0,
+                        end: 1,
+                        curve: Curves.easeInOut,
+                        duration: 0.5.seconds,
+                      ),
+                ).animate(target: state.enabledDiscordWebhookUrl ? 1 : 0).fade(
+                      begin: 0.5,
+                      end: 1,
+                      curve: Curves.easeInOut,
+                      duration: 0.5.seconds,
+                    ),
+                CustomListTile(
+                  leading: const Icon(Icons.notifications_active),
+                  title: 'Local Notification',
+                  subtitle: 'Enable local notification',
+                  trailing: Switch(
+                    value: state.localNotification,
+                    onChanged: state.enabledLocalNotification
+                        ? (value) => context.bloc<SettingsBloc>()?.setLocalNotification(value)
+                        : null,
+                  ).animate(target: state.enabledLocalNotification ? 1 : 0).fade(
+                        begin: 0,
+                        end: 1,
+                        curve: Curves.easeInOut,
+                        duration: 0.5.seconds,
+                      ),
+                ).animate(target: state.enabledLocalNotification ? 1 : 0).fade(
+                      begin: 0.5,
+                      end: 1,
+                      curve: Curves.easeInOut,
+                      duration: 0.5.seconds,
+                    ),
               ],
             ),
           ],
