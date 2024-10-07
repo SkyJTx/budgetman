@@ -24,6 +24,6 @@ class SettingsRepository {
 
   @override
   String toString() {
-    return 'SettingsRepository';
+    return 'Settings Repository';
   }
 }

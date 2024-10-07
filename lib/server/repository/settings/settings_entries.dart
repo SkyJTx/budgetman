@@ -4,6 +4,10 @@ import 'package:isar/isar.dart';
 
 part 'entries/name.dart';
 part 'entries/theme.dart';
+part 'entries/notification.dart';
+part 'entries/discord_webhook.dart';
+part 'entries/local_notification.dart';
+part 'entries/discord_webhook_uri.dart';
 
 abstract interface class SettingsEntry<T extends Object> {
   final T defaultValue;
