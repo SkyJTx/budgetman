@@ -24,7 +24,7 @@ class ClientRepository {
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: SettingPage.routeName,
     navigatorKey: navigatorKey,
     routes: [
       ShellRoute(
@@ -38,6 +38,7 @@ class ClientRepository {
         },
         routes: [
           GoRoute(
+            name: HomePage.pageName,
             path: HomePage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -46,6 +47,7 @@ class ClientRepository {
             ),
           ),
           GoRoute(
+            name: BudgetPage.pageName,
             path: BudgetPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -54,6 +56,7 @@ class ClientRepository {
             ),
           ),
           GoRoute(
+            name: CategoriesPage.pageName,
             path: CategoriesPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -62,6 +65,7 @@ class ClientRepository {
             ),
           ),
           GoRoute(
+            name: SettingPage.pageName,
             path: SettingPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -70,6 +74,7 @@ class ClientRepository {
             ),
           ),
           GoRoute(
+            name: ComponentPage.pageName,
             path: ComponentPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
