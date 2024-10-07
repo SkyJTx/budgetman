@@ -1,48 +1,37 @@
-import 'dart:async';
-
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 
 class Setting<T> {
   final String key;
-  late final ValueChangeNotifier<bool> _enabled;
-  late final ValueChangeNotifier<T> _value;
-  final FutureOr<void> Function(ValueChangeNotifier<bool>, ValueChangeNotifier<T>) getter;
-  final FutureOr<void> Function(ValueChangeNotifier<bool>, ValueChangeNotifier<T>) setter;
+  late final ValueChangeNotifier<bool> enabledNotifier;
+  late final ValueChangeNotifier<T> valueNotifier;
 
   Setting({
     required this.key,
-    required ValueChangeNotifier<bool> enabled,
-    required ValueChangeNotifier<T> value,
-    required this.getter,
-    required this.setter,
-  }) {
-    _enabled = enabled;
-    _value = value;
-  }
+    required this.enabledNotifier,
+    required this.valueNotifier,
+  });
 
   bool get enabled {
-    return _enabled.value;
+    return enabledNotifier.value;
   }
 
   T get value {
-    return _value.value;
+    return valueNotifier.value;
   }
 
-  Future<bool> getEnabled() async {
-    await getter(_enabled, _value);
-    return _enabled.value;
+  set enabled(bool enabled) {
+    enabledNotifier.value = enabled;
   }
 
-  Future<T> getValue() async {
-    await getter(_enabled, _value);
-    return _value.value;
+  set value(T value) {
+    valueNotifier.value = value;
   }
 
-  Future<void> setEnabled(bool enabled) async {
-    await setter(this._enabled, this._value);
+  void providePrerequisite(void Function(ValueChangeNotifier<bool>) prerequisites) {
+    enabledNotifier.addListener(prerequisites);
   }
 
-  Future<void> setValue(T value) async {
-    await setter(this._enabled, this._value);
+  void provideChain(void Function(ValueChangeNotifier<T>) chain) {
+    valueNotifier.addListener(chain);
   }
 }
