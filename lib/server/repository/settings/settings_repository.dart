@@ -4,6 +4,9 @@ class SettingsRepository {
   static final settings = <SettingsEntry>[
     NameSettingsEntry(),
     ThemeSettingEntry(),
+    NotificationEntry(),
+    LocalNotification(),
+    DiscordWebhook(),
   ];
   static final instance = SettingsRepository._internal();
 
@@ -15,6 +18,9 @@ class SettingsRepository {
 
   NameSettingsEntry get name => NameSettingsEntry();
   ThemeSettingEntry get theme => ThemeSettingEntry();
+  NotificationEntry get notification => NotificationEntry();
+  LocalNotification get localNotification => LocalNotification();
+  DiscordWebhook get discordWebhook => DiscordWebhook();
 
   Future<void> init() async {
     await Future.wait(settings.map((e) => e.ensureInitialized()));
