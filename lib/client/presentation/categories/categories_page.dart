@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
 
+  static const String pageName = 'Categories';
   static const String routeName = '/categories';
 
   @override

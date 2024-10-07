@@ -1,14 +1,17 @@
 part of '../settings_entries.dart';
 
-final class NameSettingsEntry extends SettingsEntry<String> {
-  final key = 'name';
-  static final instance = NameSettingsEntry._internal();
+class DiscordWebhookUri extends SettingsEntry<String> {
+  final key = 'discord_webhook_uri';
+  static final instance = DiscordWebhookUri._internal();
 
-  factory NameSettingsEntry() {
+  @override
+  Future<bool> getEnabled() => Future.wait([NotificationEntry().get(), DiscordWebhook().get()]).then((value) => value.every((element) => element));
+
+  factory DiscordWebhookUri() {
     return instance;
   }
 
-  NameSettingsEntry._internal() : super('User');
+  DiscordWebhookUri._internal() : super('');
 
   Isar get isarInstance {
     Isar? isar = Isar.getInstance();
@@ -20,52 +23,52 @@ final class NameSettingsEntry extends SettingsEntry<String> {
   Future<void> ensureInitialized() => isarInstance.writeTxn(() async {
         final isar = isarInstance;
         final setting = isar.settings;
-        final name = await setting.getByKey(key);
-        if (name == null) {
+        final discordWebhookUri = await setting.getByKey(key);
+        if (discordWebhookUri == null) {
           await setting.put(Setting(key: key, value: defaultValue));
         }
       });
-
+  
   @override
   Future<String> get() => isarInstance.txn(() async {
         final isar = isarInstance;
         final setting = isar.settings;
-        final name = await setting.getByKey(key);
-        if (name == null) {
+        final discordWebhookUri = await setting.getByKey(key);
+        if (discordWebhookUri == null) {
           return defaultValue;
         }
-        return name.value;
+        return discordWebhookUri.value;
       });
-
+  
   @override
   Future<void> set(String value) => isarInstance.writeTxn(() async {
         final isar = isarInstance;
         final setting = isar.settings;
-        final name = await setting.getByKey(key);
-        if (name == null) {
+        final discordWebhookUri = await setting.getByKey(key);
+        if (discordWebhookUri == null) {
           await setting.put(Setting(key: key, value: value));
         } else {
-          await setting.put(name..value = value);
+          await setting.put(discordWebhookUri..value = value);
         }
       });
-
+  
   @override
   Future<void> remove() => isarInstance.writeTxn(() async {
         final isar = isarInstance;
         final setting = isar.settings;
-        final name = await setting.getByKey(key);
-        if (name != null) {
+        final discordWebhookUri = await setting.getByKey(key);
+        if (discordWebhookUri != null) {
           await setting.deleteByKey(key);
         }
       });
-
+  
   @override
   Future<void> reset() => isarInstance.writeTxn(() async {
         final isar = isarInstance;
         final setting = isar.settings;
-        final name = await setting.getByKey(key);
-        if (name != null) {
-          await setting.put(name..value = defaultValue);
+        final discordWebhookUri = await setting.getByKey(key);
+        if (discordWebhookUri != null) {
+          await setting.put(discordWebhookUri..value = defaultValue);
         } else {
           await setting.put(Setting(key: key, value: defaultValue));
         }

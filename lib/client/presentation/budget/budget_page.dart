@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class BudgetPage extends StatefulWidget {
   const BudgetPage({super.key});
 
+  static const String pageName = 'Budget';
   static const String routeName = '/budget';
 
   @override
