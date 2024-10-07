@@ -1,7 +1,7 @@
 part of '../settings_entries.dart';
 
 final class NotificationEntry extends SettingsEntry<bool> {
-  static const key = 'notification';
+  final key = 'notification';
   static final instance = NotificationEntry._internal();
 
   factory NotificationEntry() {

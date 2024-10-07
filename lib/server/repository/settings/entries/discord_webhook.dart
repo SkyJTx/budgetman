@@ -1,8 +1,11 @@
 part of '../settings_entries.dart';
 
 class DiscordWebhook extends SettingsEntry<bool> {
-  static const key = 'discord_webhook';
+  final key = 'discord_webhook';
   static final instance = DiscordWebhook._internal();
+
+  @override
+  Future<bool> getEnabled() => NotificationEntry().get();
 
   factory DiscordWebhook() {
     return instance;
@@ -59,7 +62,7 @@ class DiscordWebhook extends SettingsEntry<bool> {
           await setting.deleteByKey(key);
         }
       });
-  
+
   @override
   Future<void> reset() => isarInstance.writeTxn(() async {
         final isar = isarInstance;

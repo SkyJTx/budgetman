@@ -7,6 +7,7 @@ class SettingsRepository {
     NotificationEntry(),
     LocalNotification(),
     DiscordWebhook(),
+    DiscordWebhookUri(),
   ];
   static final instance = SettingsRepository._internal();
 
@@ -21,6 +22,7 @@ class SettingsRepository {
   NotificationEntry get notification => NotificationEntry();
   LocalNotification get localNotification => LocalNotification();
   DiscordWebhook get discordWebhook => DiscordWebhook();
+  DiscordWebhookUri get discordWebhookUri => DiscordWebhookUri();
 
   Future<void> init() async {
     await Future.wait(settings.map((e) => e.ensureInitialized()));

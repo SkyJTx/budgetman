@@ -1,7 +1,7 @@
 part of '../settings_entries.dart';
 
 final class NameSettingsEntry extends SettingsEntry<String> {
-  static const key = 'name';
+  final key = 'name';
   static final instance = NameSettingsEntry._internal();
 
   factory NameSettingsEntry() {

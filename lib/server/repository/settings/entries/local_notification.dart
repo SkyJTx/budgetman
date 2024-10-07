@@ -1,14 +1,17 @@
 part of '../settings_entries.dart';
 
 class LocalNotification extends SettingsEntry<bool> {
-  static const key = 'local_notification';
+  final key = 'local_notification';
   static final instance = LocalNotification._internal();
+
+  @override
+  Future<bool> getEnabled() => NotificationEntry().get();
 
   factory LocalNotification() {
     return instance;
   }
 
-  LocalNotification._internal() : super(false);
+  LocalNotification._internal() : super(false, defaultEnabled: false);
 
   Isar get isarInstance {
     Isar? isar = Isar.getInstance();

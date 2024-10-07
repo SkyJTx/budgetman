@@ -1,7 +1,7 @@
 part of '../settings_entries.dart';
 
 final class ThemeSettingEntry extends SettingsEntry<ThemeMode> {
-  static const key = 'theme';
+  final key = 'theme';
   static final instance = ThemeSettingEntry._internal();
 
   factory ThemeSettingEntry() => instance;

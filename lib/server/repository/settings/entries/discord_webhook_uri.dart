@@ -1,8 +1,11 @@
 part of '../settings_entries.dart';
 
 class DiscordWebhookUri extends SettingsEntry<String> {
-  static const key = 'discord_webhook_uri';
+  final key = 'discord_webhook_uri';
   static final instance = DiscordWebhookUri._internal();
+
+  @override
+  Future<bool> getEnabled() => Future.wait([NotificationEntry().get(), DiscordWebhook().get()]).then((value) => value.every((element) => element));
 
   factory DiscordWebhookUri() {
     return instance;
