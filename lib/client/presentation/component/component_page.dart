@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class ComponentPage extends StatefulWidget {
   const ComponentPage({super.key});
 
+  static const String pageName = 'Component';
   static const String routeName = '/component';
 
   @override
