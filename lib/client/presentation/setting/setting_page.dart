@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/component.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +20,13 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
   final userNameController = TextEditingController();
   final discordWebhookUriController = TextEditingController();
   final scrollController = ScrollController();
+  AnimationController? controller;
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SettingsBloc, SettingsState>(
       listener: (context, state) {
         userNameController.text = state.username;
         discordWebhookUriController.text = state.discordWebhookUrl;
-        log(state.toString());
       },
       builder: (context, state) {
         if (!state.isInitialized) {
@@ -64,6 +62,7 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                     style: context.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -83,21 +82,42 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Animate(
-                      target: state.isInitialized ? 0 : 1,
-                      onComplete: (controller) {
-                        controller.repeat();
+                      target: state.isInitialized ? 1 : 0,
+                      onInit: (controller) {
+                        this.controller = controller;
+                        controller.stop();
                       },
-                      effects: const [
+                      effects: [
                         RotateEffect(
                           begin: 0,
                           end: 1,
-                          curve: Curves.linear,
-                          duration: Duration(seconds: 3),
+                          curve: Curves.easeInOut,
+                          duration: 1.0.seconds,
+                        ),
+                        ScaleEffect(
+                          begin: const Offset(0.7, 0.7),
+                          end: const Offset(1.1, 1.1),
+                          curve: Curves.easeInOut,
+                          duration: 0.7.seconds,
+                        ),
+                        ScaleEffect(
+                          delay: const Duration(seconds: 1),
+                          begin: const Offset(1.1, 1.1),
+                          end: const Offset(1, 1),
+                          curve: Curves.easeInOut,
+                          duration: 0.3.seconds,
                         ),
                       ],
-                      child: Icon(
-                        Icons.settings,
-                        size: 10.h,
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (controller?.isAnimating ?? false) return;
+                          await controller?.reverse();
+                          controller?.forward();
+                        },
+                        child: Icon(
+                          Icons.settings,
+                          size: 10.h,
+                        ),
                       ),
                     ),
                     Text(
@@ -186,7 +206,7 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                         ? (value) => context.bloc<SettingsBloc>()?.setDiscordWebhook(value)
                         : null,
                   ).animate(target: state.enabledDiscordWebhook ? 1 : 0).fade(
-                        begin: 0.5,
+                        begin: 0,
                         end: 1,
                         curve: Curves.easeInOut,
                         duration: 0.5.seconds,
