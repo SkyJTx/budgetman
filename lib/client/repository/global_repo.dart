@@ -6,6 +6,7 @@ import 'package:budgetman/client/presentation/component/component_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/main_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
+import 'package:budgetman/server/data_model/budget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +52,13 @@ class ClientRepository {
             path: BudgetPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
-                return const BudgetPage();
+                final budget = state.extra;
+                if (budget is Budget) {
+                  return BudgetPage(
+                    budget: budget,
+                  );
+                }
+                throw ArgumentError('Expected Argument: Budget, Got: $budget');
               },
             ),
           ),

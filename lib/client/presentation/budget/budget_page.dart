@@ -1,7 +1,13 @@
+import 'package:budgetman/server/data_model/budget.dart';
 import 'package:flutter/material.dart';
 
 class BudgetPage extends StatefulWidget {
-  const BudgetPage({super.key});
+  const BudgetPage({
+    super.key,
+    required this.budget,
+  });
+
+  final Budget budget;
 
   static const String pageName = 'Budget';
   static const String routeName = '/budget';
@@ -13,6 +19,9 @@ class BudgetPage extends StatefulWidget {
 class BudgetPageState extends State<BudgetPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [],
+    );
   }
 }
