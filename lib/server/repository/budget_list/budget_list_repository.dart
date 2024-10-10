@@ -17,15 +17,27 @@ class BudgetListRepository {
     return isar;
   }
 
-  Future<void> add(BudgetList budgetList, {required Budget budget}) =>
-      isarInstance.writeTxn(() async {
-        budget.budgetList.add(budgetList);
-      });
+  Future<Budget> add(BudgetList budgetList, {required Budget budget}) async {
+    return isarInstance.writeTxn(() async {
+      budget.budgetList.add(budgetList);
+      int id = await isarInstance.budgets.put(budget);
+      final updatedBudget = await isarInstance.budgets.get(id);
+      if (updatedBudget == null) {
+        throw Exception('Failed to get budget with id $id');
+      }
+      return updatedBudget;
+    });
+  }
 
-  Future<void> update(BudgetList updatedBudgetList) async {
+  Future<BudgetList> update(BudgetList updatedBudgetList) async {
     updatedBudgetList.updatedAt = DateTime.now();
-    await isarInstance.writeTxn(() async {
-      await isarInstance.budgetLists.put(updatedBudgetList);
+    return await isarInstance.writeTxn(() async {
+      int id = await isarInstance.budgetLists.put(updatedBudgetList);
+      final result = await isarInstance.budgetLists.get(id);
+      if (result == null) {
+        throw Exception('Failed to get BudgetList with id $id');
+      }
+      return result;
     });
   }
 

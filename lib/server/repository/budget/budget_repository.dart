@@ -16,17 +16,19 @@ class BudgetRepository {
     return isar;
   }
 
-  Future<void> add(Budget budget) async {
+  Future<Budget> add(Budget budget) async {
     await isarInstance.writeTxn(() async {
       await isarInstance.budgets.put(budget);
     });
+    return budget;
   }
 
-  Future<void> update(Budget updatedBudget) async {
+  Future<Budget> update(Budget updatedBudget) async {
     updatedBudget.updatedAt = DateTime.now();
     await isarInstance.writeTxn(() async {
       await isarInstance.budgets.put(updatedBudget);
     });
+    return updatedBudget;
   }
 
   Future<void> delete(int id) async {
