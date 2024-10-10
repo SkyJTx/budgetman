@@ -16,6 +16,16 @@ class BudgetRepository {
     return isar;
   }
 
+  Future<Budget> get(int id) async {
+    return isarInstance.txn(() async {
+      final budget = await isarInstance.budgets.get(id);
+      if (budget == null) {
+        throw Exception('Failed to get Budget with id $id');
+      }
+      return budget;
+    });
+  }
+
   Future<Budget> add(Budget budget) async {
     await isarInstance.writeTxn(() async {
       await isarInstance.budgets.put(budget);

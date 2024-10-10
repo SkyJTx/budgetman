@@ -16,6 +16,16 @@ class CategoryRepository {
     return isar;
   }
 
+  Future<Category> get(Id id) async {
+    return isarInstance.txn(() async {
+      final category = await isarInstance.categorys.get(id);
+      if (category == null) {
+        throw Exception('Failed to get Category with id $id');
+      }
+      return category;
+    });
+  }
+
   Future<void> add(Category category) async {
     await isarInstance.writeTxn(() async {
       await isarInstance.categorys.put(category);
