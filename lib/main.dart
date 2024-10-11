@@ -48,6 +48,7 @@ class BudgetManAppState extends State<BudgetManApp> {
         return BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             return MaterialApp.router(
+              scaffoldMessengerKey: ClientRepository.scaffoldMessengerKey,
               routerConfig: ClientRepository.router,
               debugShowCheckedModeBanner: false,
               title: 'BudgetMan',
