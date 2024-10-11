@@ -7,6 +7,7 @@ import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/main_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
 import 'package:budgetman/server/data_model/budget.dart';
+import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +26,7 @@ class ClientRepository {
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static final router = GoRouter(
-    initialLocation: SettingPage.routeName,
+    initialLocation: BudgetPage.routeName,
     navigatorKey: navigatorKey,
     routes: [
       ShellRoute(
@@ -52,6 +53,28 @@ class ClientRepository {
             path: BudgetPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
+                return BudgetPage(
+                  budget: Budget.create(
+                    name: 'Budget',
+                    description: 'Budget Description',
+                    startDate: DateTime.now(),
+                    endDate: DateTime.now().add(90.days),
+                    isRoutine: true,
+                    routineInterval: 30.days.inSeconds,
+                    isCompleted: false,
+                    isRemoved: false,
+                    budgetList: [
+                      BudgetList.create(
+                        title: 'Budget List',
+                        description: 'Budget List Description',
+                        priority: 1,
+                        budget: 1000,
+                        deadline: DateTime.now().add(30.days),
+                        isRemoved: false,
+                      ),
+                    ],
+                  ),
+                );
                 final budget = state.extra;
                 if (budget is Budget) {
                   return BudgetPage(
