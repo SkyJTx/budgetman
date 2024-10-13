@@ -70,6 +70,7 @@ class BudgetRepository {
     );
     await isarInstance.writeTxn(() async {
       await isarInstance.budgets.put(newBudget);
+      newBudget.budgetList.addAll(budgetList);
       await newBudget.budgetList.save();
     });
     return newBudget;

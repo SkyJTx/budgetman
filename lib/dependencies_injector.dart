@@ -2,8 +2,11 @@ import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:budgetman/server/data_model/categories.dart';
 import 'package:budgetman/server/data_model/setting.dart';
+import 'package:budgetman/server/repository/budget/budget_repository.dart';
+import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,6 +23,36 @@ Future<void> init() async {
     directory: dir.path,
     inspector: kDebugMode,
   );
-  
+
+  if (kDebugMode) {
+    await isar.writeTxn(() async {
+      await Future.wait([
+        isar.budgets.clear(),
+        isar.budgetLists.clear(),
+        isar.categorys.clear(),
+        isar.settings.clear(),
+      ]);
+    });
+    final budget = await BudgetRepository().add(
+      name: 'Budget 1',
+      description: 'Budget 1 Description',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(30.days),
+      isRoutine: true,
+      routineInterval: 10.days.inSeconds,
+      isCompleted: false,
+      isRemoved: false,
+    );
+    await BudgetListRepository().add(
+      budget,
+      title: 'Budget List 1',
+      description: 'Budget List 1 Description',
+      priority: 1,
+      amount: 1000.0,
+      deadline: DateTime.now().add(30.days),
+      isRemoved: false,
+    );
+  }
+
   getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
 }
