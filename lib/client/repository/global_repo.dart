@@ -40,7 +40,6 @@ class ClientRepository {
         },
         routes: [
           GoRoute(
-            name: HomePage.pageName,
             path: HomePage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -49,32 +48,9 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: BudgetPage.pageName,
             path: BudgetPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
-                return BudgetPage(
-                  budget: Budget.create(
-                    name: 'Budget',
-                    description: 'Budget Description',
-                    startDate: DateTime.now(),
-                    endDate: DateTime.now().add(90.days),
-                    isRoutine: true,
-                    routineInterval: 30.days.inSeconds,
-                    isCompleted: false,
-                    isRemoved: false,
-                    budgetList: [
-                      BudgetList.create(
-                        title: 'Budget List',
-                        description: 'Budget List Description',
-                        priority: 1,
-                        budget: 1000,
-                        deadline: DateTime.now().add(30.days),
-                        isRemoved: false,
-                      ),
-                    ],
-                  ),
-                );
                 final budget = state.extra;
                 if (budget is Budget) {
                   return BudgetPage(
@@ -86,7 +62,6 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: CategoriesPage.pageName,
             path: CategoriesPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -95,7 +70,6 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: SettingPage.pageName,
             path: SettingPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -104,7 +78,6 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: ComponentPage.pageName,
             path: ComponentPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
