@@ -2,6 +2,7 @@ import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
 import 'package:budgetman/client/presentation/component/component_page.dart';
+import 'package:budgetman/client/component/options_button.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
 import 'package:budgetman/extension.dart';
@@ -26,13 +27,14 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         return Scaffold(
-          key: _scaffoldKey,
+          key: scaffoldKey,
           appBar: AppBar(
             title: ListTile(
               title: const Text('BudgetMan App'),
@@ -58,7 +60,7 @@ class MainPageState extends State<MainPage> {
                           title: const Text('Home'),
                           onTap: () {
                             context.go(HomePage.routeName);
-                            _scaffoldKey.currentState!.closeDrawer();
+                            scaffoldKey.currentState!.closeDrawer();
                           },
                         ),
                         ListTile(
@@ -68,7 +70,7 @@ class MainPageState extends State<MainPage> {
                             final budget = await BudgetRepository().getAll().then((value) => value.first);
                             if (!context.mounted) return;
                             context.go(BudgetPage.routeName, extra: budget);
-                            _scaffoldKey.currentState!.closeDrawer();
+                            scaffoldKey.currentState!.closeDrawer();
                           },
                         ),
                         ListTile(
@@ -76,7 +78,7 @@ class MainPageState extends State<MainPage> {
                           title: const Text('Categories'),
                           onTap: () {
                             context.go(CategoriesPage.routeName);
-                            _scaffoldKey.currentState!.closeDrawer();
+                            scaffoldKey.currentState!.closeDrawer();
                           },
                         ),
                         ListTile(
@@ -84,7 +86,7 @@ class MainPageState extends State<MainPage> {
                           title: const Text('Component'),
                           onTap: () {
                             context.go(ComponentPage.routeName);
-                            _scaffoldKey.currentState!.closeDrawer();
+                            scaffoldKey.currentState!.closeDrawer();
                           },
                         ),
                         ListTile(
@@ -92,7 +94,7 @@ class MainPageState extends State<MainPage> {
                           title: const Text('Setting'),
                           onTap: () {
                             context.go(SettingPage.routeName);
-                            _scaffoldKey.currentState!.closeDrawer();
+                            scaffoldKey.currentState!.closeDrawer();
                           },
                         ),
                       ],
@@ -108,6 +110,11 @@ class MainPageState extends State<MainPage> {
               child: widget.child,
             ),
           ),
+          floatingActionButton: widget.state.matchedLocation == '/setting'
+              ? null
+              : OptionsButton(
+                  locate: widget.state.matchedLocation,
+                ),
         );
       },
     );
