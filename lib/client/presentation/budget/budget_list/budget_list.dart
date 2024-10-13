@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 import 'package:budgetman/extension.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
@@ -45,11 +47,10 @@ class BudgetListTile extends StatefulWidget {
 }
 
 class BudgetListTileState extends State<BudgetListTile> {
-  final ValueChangeNotifier<bool> _expandedController = ValueChangeNotifier(false);
+  final _expandedController = ExpansionTileController();
   late ValueChangeNotifier<bool> _selectionModeController;
   late ValueChangeNotifier<bool> _selectionController;
   late ValueChangeNotifier<bool> _completeController;
-  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -79,16 +80,12 @@ class BudgetListTileState extends State<BudgetListTile> {
     }
   }
 
-  void toggleExpandCollapse() {
-    _expandedController.value = !_expandedController.value;
-  }
-
   void expand() {
-    _expandedController.value = true;
+    _expandedController.expand();
   }
 
   void collapse() {
-    _expandedController.value = false;
+    _expandedController.collapse();
   }
 
   @override
@@ -98,66 +95,110 @@ class BudgetListTileState extends State<BudgetListTile> {
         BlocProvider.value(value: _selectionModeController),
         BlocProvider.value(value: _selectionController),
         BlocProvider.value(value: _completeController),
-        BlocProvider.value(value: _expandedController),
       ],
-      child: InkWell(
-        onTap: toggleExpandCollapse,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 4,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              BlocBuilder<ValueChangeNotifier<bool>, bool>(
-                bloc: _selectionController,
-                builder: (context, state) {
-                  return Checkbox(
-                    value: state,
-                    onChanged: (value) {
-                      _selectionController.value = value!;
-                      widget.onBudgetListSelection?.call(widget.budgetList, _selectionController);
-                    },
-                  );
-                },
-              ),
-              Flexible(
-                child: Text(
+      child: Column(
+        children: [
+          ExpansionTile(
+            controller: _expandedController,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide.none,
+            ),
+            collapsedShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide.none,
+            ),
+            expansionAnimationStyle: AnimationStyle(
+              curve: Curves.easeInOut,
+              duration: 0.3.seconds,
+              reverseCurve: Curves.easeInOut,
+              reverseDuration: 0.3.seconds,
+            ),
+            leading: BlocBuilder<ValueChangeNotifier<bool>, bool>(
+              bloc: _selectionController,
+              builder: (context, state) {
+                return Checkbox(
+                  value: state,
+                  onChanged: (value) {
+                    _selectionController.value = value!;
+                    widget.onBudgetListSelection?.call(widget.budgetList, _selectionController);
+                  },
+                );
+              },
+            ),
+            title: Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: widget.budgetList.category.value?.color ??
+                        context.theme.colorScheme.tertiary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    widget.budgetList.category.value?.name ?? 'None',
+                    style: context.theme.textTheme.titleMedium?.copyWith(
+                      color: widget.budgetList.category.value?.color ??
+                          context.theme.colorScheme.onTertiary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
                   widget.budgetList.title,
-                  style: context.theme.textTheme.titleMedium,
+                  style: context.theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                   overflow: TextOverflow.ellipsis,
                   strutStyle: const StrutStyle(height: 1.5),
                 ),
-              ),
-              Text(
-                '฿ ${widget.budgetList.budget.toShortString()}',
-                style: context.theme.textTheme.titleMedium,
-              ),
-              if (widget.budgetList.category.value != null)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: widget.budgetList.category.value!.color,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    widget.budgetList.category.value!.name,
-                  ),
-                ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  DateFormat('dd/MM/y').format(widget.budgetList.deadline),
+              ],
+            ),
+            subtitle: Row(
+              children: [
+                Text(
+                  '฿ ${widget.budgetList.budget.toShortString()}',
                   style: context.theme.textTheme.titleMedium,
                 ),
+                const SizedBox(width: 8),
+                Builder(builder: (context) {
+                  Color? color;
+                  Color? textColor;
+                  if (widget.budgetList.deadline.isBefore(DateTime.now())) {
+                    color = context.theme.colorScheme.error;
+                    textColor = context.theme.colorScheme.onError;
+                  } else if (widget.budgetList.deadline.isBefore(DateTime.now().add(1.days))) {
+                    color = Colors.yellowAccent;
+                    textColor = Colors.black;
+                  }
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      DateFormat('dd/MM/y').format(widget.budgetList.deadline),
+                      style: context.theme.textTheme.titleMedium?.copyWith(
+                        color: textColor ?? context.theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+            children: [
+              Divider(
+                height: 1,
+                color: context.theme.colorScheme.primary,
+              ),
+              Text(
+                widget.budgetList.description,
+                style: context.theme.textTheme.titleMedium,
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
