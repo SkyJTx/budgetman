@@ -1,4 +1,5 @@
 import 'package:budgetman/server/data_model/budget.dart';
+import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:isar/isar.dart';
 
 class BudgetRepository {
@@ -16,7 +17,7 @@ class BudgetRepository {
     return isar;
   }
 
-  Future<Budget> get(int id) async {
+  Future<Budget> getById(int id) async {
     return isarInstance.txn(() async {
       final budget = await isarInstance.budgets.get(id);
       if (budget == null) {
@@ -26,19 +27,86 @@ class BudgetRepository {
     });
   }
 
-  Future<Budget> add(Budget budget) async {
-    await isarInstance.writeTxn(() async {
-      await isarInstance.budgets.put(budget);
+  Future<Budget> getByName(String name) async {
+    return isarInstance.txn(() async {
+      final budget = await isarInstance.budgets
+          .where()
+          .filter()
+          .nameEqualTo(name)
+          .findFirst();
+      if (budget == null) {
+        throw Exception('Failed to get Budget with name $name');
+      }
+      return budget;
     });
-    return budget;
   }
 
-  Future<Budget> update(Budget updatedBudget) async {
-    updatedBudget.updatedAt = DateTime.now();
+  Future<Budget> add({
+    int id = Isar.autoIncrement,
+    required String name,
+    required String description,
+    required DateTime startDate,
+    required DateTime endDate,
+    required bool isRoutine,
+    int? routineInterval,
+    List<BudgetList> budgetList = const <BudgetList>[],
+    required bool isCompleted,
+    required bool isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+  }) async {
+    final newBudget = Budget(
+      id: id,
+      name: name,
+      description: description,
+      startDate: startDate,
+      endDate: endDate,
+      isRoutine: isRoutine,
+      routineInterval: routineInterval,
+      isCompleted: isCompleted,
+      isRemoved: isRemoved,
+      createdDateTime: createdDateTime,
+      updatedDateTime: updatedDateTime,
+    );
     await isarInstance.writeTxn(() async {
-      await isarInstance.budgets.put(updatedBudget);
+      await isarInstance.budgets.put(newBudget);
+      await newBudget.budgetList.save();
     });
-    return updatedBudget;
+    return newBudget;
+  }
+
+  Future<Budget> update(
+    Budget budget, {
+    String? name,
+    String? description,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? isRoutine,
+    int? routineInterval,
+    List<BudgetList>? budgetList,
+    bool? isCompleted,
+    bool? isRemoved,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+  }) async {
+    budget.name = name ?? budget.name;
+    budget.description = description ?? budget.description;
+    budget.startDate = startDate ?? budget.startDate;
+    budget.endDate = endDate ?? budget.endDate;
+    budget.isRoutine = isRoutine ?? budget.isRoutine;
+    budget.routineInterval = routineInterval ?? budget.routineInterval;
+    budget.isCompleted = isCompleted ?? budget.isCompleted;
+    budget.isRemoved = isRemoved ?? budget.isRemoved;
+    budget.updatedAt = updatedDateTime ?? DateTime.now();
+    await isarInstance.writeTxn(() async {
+      await isarInstance.budgets.put(budget);
+      if (budgetList != null) {
+        budget.budgetList.clear();
+        budget.budgetList.addAll(budgetList);
+        await budget.budgetList.save();
+      }
+    });
+    return budget;
   }
 
   Future<void> delete(int id) async {
@@ -47,6 +115,12 @@ class BudgetRepository {
       if (!success) {
         throw Exception('Failed to delete Budget with id $id');
       }
+    });
+  }
+
+  Future<void> deleteAll() async {
+    await isarInstance.writeTxn(() async {
+      await isarInstance.budgets.clear();
     });
   }
 
