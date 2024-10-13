@@ -131,23 +131,33 @@ class BudgetPageState extends State<BudgetPage> {
                                 ),
                                 SizedBox(height: 2.h),
                                 Flexible(
-                                  child: ListView.builder(
-                                    itemCount: state.budget.budgetList.length,
-                                    itemBuilder: (context, index) {
-                                      final budgetList = state.budget.budgetList.toList()[index];
-                                      return Column(
-                                        children: [
-                                          const Divider(
-                                            height: 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: context.theme.colorScheme.primary),
+                                    ),
+                                    child: ListView(
+                                      children: [
+                                        for (final budgetList in state.budget.budgetList.toList())
+                                          Column(
+                                            children: [
+                                              BudgetListTile(budgetList: budgetList),
+                                              Divider(
+                                                height: 0,
+                                                color: context.theme.colorScheme.primary,
+                                              ),
+                                            ],
                                           ),
-                                          BudgetListTile(budgetList: budgetList),
-                                          if (index != state.budget.budgetList.length)
-                                            const Divider(
-                                              height: 0,
-                                            ),
-                                        ],
-                                      );
-                                    },
+                                        Container(
+                                          margin: const EdgeInsets.symmetric(vertical: 32),
+                                          child: Text(
+                                            'End of Budget List',
+                                            textAlign: TextAlign.center,
+                                            style: context.theme.textTheme.titleMedium,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
