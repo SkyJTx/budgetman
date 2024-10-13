@@ -205,7 +205,8 @@ class BudgetList {
     };
   }
 
-  factory BudgetList.fromJson(String source) => BudgetList.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory BudgetList.fromJson(String source) =>
+      BudgetList.fromMap(json.decode(source) as Map<String, dynamic>);
 
   Map<String, dynamic> toJson() {
     return {
