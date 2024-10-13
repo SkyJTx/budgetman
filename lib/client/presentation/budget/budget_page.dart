@@ -135,7 +135,18 @@ class BudgetPageState extends State<BudgetPage> {
                                     itemCount: state.budget.budgetList.length,
                                     itemBuilder: (context, index) {
                                       final budgetList = state.budget.budgetList.toList()[index];
-                                      return BudgetListTile(budgetList: budgetList);
+                                      return Column(
+                                        children: [
+                                          const Divider(
+                                            height: 0,
+                                          ),
+                                          BudgetListTile(budgetList: budgetList),
+                                          if (index != state.budget.budgetList.length)
+                                            const Divider(
+                                              height: 0,
+                                            ),
+                                        ],
+                                      );
                                     },
                                   ),
                                 ),
@@ -174,7 +185,18 @@ class BudgetPageState extends State<BudgetPage> {
                                   itemCount: state.budget.budgetList.length,
                                   itemBuilder: (context, index) {
                                     final budgetList = state.budget.budgetList.toList()[index];
-                                    return BudgetListTile(budgetList: budgetList);
+                                    return Column(
+                                      children: [
+                                        const Divider(
+                                          height: 0,
+                                        ),
+                                        BudgetListTile(budgetList: budgetList),
+                                        if (index != state.budget.budgetList.length)
+                                          const Divider(
+                                            height: 0,
+                                          ),
+                                      ],
+                                    );
                                   },
                                 ),
                               ),

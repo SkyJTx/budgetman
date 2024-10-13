@@ -5,7 +5,6 @@ import 'package:budgetman/client/presentation/component/component_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
 import 'package:budgetman/extension.dart';
-import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

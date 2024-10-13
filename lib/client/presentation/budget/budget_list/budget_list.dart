@@ -101,11 +101,11 @@ class BudgetListTileState extends State<BudgetListTile> {
         BlocProvider.value(value: _expandedController),
       ],
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
         onTap: toggleExpandCollapse,
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 4,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -134,17 +134,18 @@ class BudgetListTileState extends State<BudgetListTile> {
                 '฿ ${widget.budgetList.budget.toShortString()}',
                 style: context.theme.textTheme.titleMedium,
               ),
-              if (widget.budgetList.category.value != null) Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: widget.budgetList.category.value!.color,
+              if (widget.budgetList.category.value != null)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: widget.budgetList.category.value!.color,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  child: Text(
+                    widget.budgetList.category.value!.name,
+                  ),
                 ),
-                child: Text(
-                  widget.budgetList.category.value!.name,
-                ),
-              ),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
