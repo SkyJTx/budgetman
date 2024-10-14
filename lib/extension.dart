@@ -36,10 +36,10 @@ extension NumX on num {
   num cbrt() => pow(1 / 3);
   num abs() => this < 0 ? -this : this;
   num round() => floorToDouble();
-  String toShortString() {
+  String toShortString({int fractionDigits = 2}) {
     final level = ['', 'K', 'M', 'B', 'T', 'Q'];
     final index = (math.log(this) ~/ math.log(1000)).clamp(0, level.length - 1);
-    return '${(this / math.pow(1000, index)).toStringAsFixed(2)}${level[index]}';
+    return '${(this / math.pow(1000, index)).toStringAsFixed(fractionDigits)}${level[index]}';
   }
 }
 
