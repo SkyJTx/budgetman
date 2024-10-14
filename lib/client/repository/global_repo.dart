@@ -6,6 +6,7 @@ import 'package:budgetman/client/presentation/component/component_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/main_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
+import 'package:budgetman/extension.dart';
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -20,12 +21,36 @@ class ClientRepository {
     return instance;
   }
 
+  void showSuccessSnackBar(
+    BuildContext context, {
+    Widget? leading,
+    required TextSpan message,
+    Widget? trailing,
+  }) {
+    scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
+        content: ListTile(
+          leading: leading,
+          title: Text.rich(
+            message,
+          ),
+          trailing: trailing,
+        ),
+        backgroundColor: context.theme.colorScheme.secondaryContainer,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   final List<FutureOr<void> Function(ClientRepository)> listeners = [];
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static final router = GoRouter(
-    initialLocation: BudgetPage.routeName,
+    initialLocation: HomePage.routeName,
     navigatorKey: navigatorKey,
     routes: [
       ShellRoute(
