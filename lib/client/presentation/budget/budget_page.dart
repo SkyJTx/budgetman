@@ -52,6 +52,10 @@ class BudgetPageState extends State<BudgetPage> {
           return BlocBuilder<BudgetBloc, BudgetState>(
             bloc: budgetBloc,
             builder: (context, state) {
+              final sortedBudgetList = state.budget.budgetList
+                  .where((budgetList) => !budgetList.isRemoved)
+                  .sortedBy((e) => e.deadline)
+                  .sortedBy<num>((e) => e.isCompleted ? 1 : 0);
               return Padding(
                 padding: EdgeInsets.all([3.h, 3.w].min.toDouble()),
                 child: Column(
@@ -113,9 +117,7 @@ class BudgetPageState extends State<BudgetPage> {
                         builder: (context, orientaion, screen) {
                           final budgetListView = ListView(
                             children: [
-                              ...state.budget.budgetList
-                                  .where((e) => !e.isRemoved)
-                                  .map((budgetList) {
+                              ...sortedBudgetList.map((budgetList) {
                                 final budgetListTileState = GlobalKey<BudgetListTileState>();
                                 return Column(
                                   children: [
@@ -200,6 +202,42 @@ class BudgetPageState extends State<BudgetPage> {
                               ),
                             ],
                           );
+                          const graphWidget = Text('Graph Placeholder');
+                          final utilityWidget = Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: null,
+                                style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(12),
+                                      bottomLeft: Radius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                                label: const Text('Edit Budget'),
+                                icon: const Icon(Icons.edit),
+                              ),
+                              VerticalDivider(
+                                width: 2,
+                                color: context.theme.colorScheme.secondary,
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: null,
+                                style: ElevatedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(12),
+                                      bottomRight: Radius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                                label: const Text('Add Budget List'),
+                                icon: const Icon(Icons.add),
+                              ),
+                            ],
+                          );
 
                           if (80.w < 100.h) {
                             return Column(
@@ -211,44 +249,10 @@ class BudgetPageState extends State<BudgetPage> {
                                   ),
                                   height: 40.h,
                                   alignment: Alignment.center,
-                                  child: const Text('Graph Placeholder'),
+                                  child: graphWidget,
                                 ),
                                 const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: null,
-                                      style: ElevatedButton.styleFrom(
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(12),
-                                            bottomLeft: Radius.circular(12),
-                                          ),
-                                        ),
-                                      ),
-                                      label: const Text('Edit Budget'),
-                                      icon: const Icon(Icons.edit),
-                                    ),
-                                    VerticalDivider(
-                                      width: 2,
-                                      color: context.theme.colorScheme.secondary,
-                                    ),
-                                    ElevatedButton.icon(
-                                      onPressed: null,
-                                      style: ElevatedButton.styleFrom(
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(12),
-                                            bottomRight: Radius.circular(12),
-                                          ),
-                                        ),
-                                      ),
-                                      label: const Text('Add Budget List'),
-                                      icon: const Icon(Icons.add),
-                                    ),
-                                  ],
-                                ),
+                                utilityWidget,
                                 SizedBox(height: 2.h),
                                 Flexible(
                                   child: Container(
@@ -273,18 +277,11 @@ class BudgetPageState extends State<BudgetPage> {
                                       ),
                                       width: 40.w,
                                       alignment: Alignment.center,
-                                      child: const Text('Graph Placeholder'),
+                                      child: graphWidget,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: context.theme.colorScheme.primary),
-                                    ),
-                                    padding: const EdgeInsets.all(8),
-                                    child: const Text('Utility Placeholder'),
-                                  ),
+                                  utilityWidget,
                                 ],
                               ),
                               SizedBox(width: 2.w),
