@@ -1,4 +1,6 @@
+import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
+import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -15,8 +17,7 @@ class OptionsButton extends StatefulWidget {
   State<OptionsButton> createState() => _OptionsButtonState();
 }
 
-class _OptionsButtonState extends State<OptionsButton>
-    with SingleTickerProviderStateMixin {
+class _OptionsButtonState extends State<OptionsButton> with SingleTickerProviderStateMixin {
   AnimationController? controller;
   bool isClicked = false;
   OverlayEntry? _overlayEntry;
@@ -45,62 +46,50 @@ class _OptionsButtonState extends State<OptionsButton>
                   children: [
                     ListTile(
                       leading: Icon(Icons.add_circle_outline,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer),
+                          color: Theme.of(context).colorScheme.onPrimaryContainer),
                       title: Text(
-                        widget.locate == '/home'
+                        widget.locate == HomePage.routeName
                             ? 'Add Budget'
-                            : widget.locate == '/budget'
+                            : widget.locate == BudgetPage.routeName
                                 ? 'Add List'
                                 : 'Add Categories',
-                        style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
                       ),
                       onTap: () {
                         _removeOverlay();
                       },
                     ),
-                    if (widget.locate == '/budget')
+                    if (widget.locate == BudgetPage.routeName)
                       Divider(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
-                    if (widget.locate == '/budget')
+                    if (widget.locate == BudgetPage.routeName)
                       ListTile(
                         leading: Icon(
                           Icons.edit_outlined,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                         title: Text(
                           'Edit List',
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
                         ),
                         onTap: () {
                           _removeOverlay();
                         },
                       ),
-                    if (widget.locate != '/categories')
+                    if (widget.locate != CategoriesPage.routeName)
                       Divider(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
-                    if (widget.locate != '/categories')
+                    if (widget.locate != CategoriesPage.routeName)
                       ListTile(
                         leading: Icon(
                           Icons.folder_outlined,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                         title: Text(
                           'Edit Categories',
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
                         ),
                         onTap: () {
                           _removeOverlay();
