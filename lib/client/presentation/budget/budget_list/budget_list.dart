@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 import 'package:budgetman/extension.dart';
@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:sizer/sizer.dart';
 
 class BudgetListTile extends StatefulWidget {
   const BudgetListTile({
     super.key,
     required this.budgetList,
+    this.expandedController,
     this.selectionModeController,
     this.selectionController,
     this.completeController,
@@ -23,6 +25,7 @@ class BudgetListTile extends StatefulWidget {
     this.onBudgetListSelection,
   });
 
+  final ExpansionTileController? expandedController;
   final ValueChangeNotifier<bool>? selectionModeController;
   final ValueChangeNotifier<bool>? selectionController;
   final ValueChangeNotifier<bool>? completeController;
@@ -47,7 +50,7 @@ class BudgetListTile extends StatefulWidget {
 }
 
 class BudgetListTileState extends State<BudgetListTile> {
-  final _expandedController = ExpansionTileController();
+  late ExpansionTileController _expandedController;
   late ValueChangeNotifier<bool> _selectionModeController;
   late ValueChangeNotifier<bool> _selectionController;
   late ValueChangeNotifier<bool> _completeController;
@@ -57,6 +60,7 @@ class BudgetListTileState extends State<BudgetListTile> {
     _selectionModeController = widget.selectionModeController ?? ValueChangeNotifier(false);
     _selectionController = widget.selectionController ?? ValueChangeNotifier(false);
     _completeController = widget.completeController ?? ValueChangeNotifier(false);
+    _expandedController = widget.expandedController ?? ExpansionTileController();
     super.initState();
     widget.onInit?.call(
       widget.budgetList,
@@ -64,6 +68,15 @@ class BudgetListTileState extends State<BudgetListTile> {
       _selectionController,
       _completeController,
     );
+    _selectionModeController.addListener((notifier) {
+      widget.onSelectionModeChanged?.call(widget.budgetList, notifier);
+    });
+    _selectionController.addListener((notifier) {
+      widget.onBudgetListSelection?.call(widget.budgetList, notifier);
+    });
+    _completeController.addListener((notifier) {
+      widget.onPressComplete?.call(widget.budgetList, notifier);
+    });
   }
 
   @override
@@ -77,6 +90,9 @@ class BudgetListTileState extends State<BudgetListTile> {
     }
     if (oldWidget.completeController != widget.completeController) {
       _completeController = widget.completeController ?? ValueChangeNotifier(false);
+    }
+    if (oldWidget.expandedController != widget.expandedController) {
+      _expandedController = widget.expandedController ?? ExpansionTileController();
     }
   }
 
@@ -96,110 +112,298 @@ class BudgetListTileState extends State<BudgetListTile> {
         BlocProvider.value(value: _selectionController),
         BlocProvider.value(value: _completeController),
       ],
-      child: Column(
-        children: [
-          ExpansionTile(
-            controller: _expandedController,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide.none,
+      child: ExpansionTile(
+        controller: _expandedController,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide.none,
+        ),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide.none,
+        ),
+        expansionAnimationStyle: AnimationStyle(
+          curve: Curves.easeInOut,
+          duration: 0.3.seconds,
+          reverseCurve: Curves.easeInOut,
+          reverseDuration: 0.3.seconds,
+        ),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: context.theme.colorScheme.primaryContainer,
+        collapsedBackgroundColor: context.theme.colorScheme.surfaceContainerHighest,
+        leading: BlocBuilder<ValueChangeNotifier<bool>, bool>(
+          bloc: _completeController,
+          builder: (context, state) {
+            return Checkbox(
+              value: state,
+              onChanged: (value) {
+                _completeController.value = value!;
+              },
+            );
+          },
+        ),
+        title: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color:
+                    widget.budgetList.category.value?.color ?? context.theme.colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(
+                widget.budgetList.category.value?.name ?? 'None',
+                style: context.theme.textTheme.titleMedium?.copyWith(
+                  color: widget.budgetList.category.value?.color ??
+                      context.theme.colorScheme.onTertiary,
+                ),
+              ),
             ),
-            collapsedShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide.none,
+            const SizedBox(width: 8),
+            Text(
+              widget.budgetList.title,
+              style: context.theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+              strutStyle: const StrutStyle(height: 1.5),
             ),
-            expansionAnimationStyle: AnimationStyle(
-              curve: Curves.easeInOut,
-              duration: 0.3.seconds,
-              reverseCurve: Curves.easeInOut,
-              reverseDuration: 0.3.seconds,
+          ],
+        ),
+        subtitle: Row(
+          children: [
+            Text(
+              '฿ ${widget.budgetList.budget.toShortString()}',
+              style: context.theme.textTheme.titleMedium,
             ),
-            leading: BlocBuilder<ValueChangeNotifier<bool>, bool>(
-              bloc: _selectionController,
-              builder: (context, state) {
-                return Checkbox(
-                  value: state,
-                  onChanged: (value) {
-                    _selectionController.value = value!;
-                    widget.onBudgetListSelection?.call(widget.budgetList, _selectionController);
-                  },
+            const SizedBox(width: 8),
+            Builder(
+              builder: (context) {
+                Color? color;
+                Color? textColor;
+                if (widget.budgetList.deadline.isBefore(DateTime.now())) {
+                  color = context.theme.colorScheme.error;
+                  textColor = context.theme.colorScheme.onError;
+                } else if (widget.budgetList.deadline.isBefore(DateTime.now().add(1.days))) {
+                  color = Colors.yellowAccent;
+                  textColor = Colors.black;
+                }
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    DateFormat('dd/MM/y').format(widget.budgetList.deadline),
+                    style: context.theme.textTheme.titleMedium?.copyWith(
+                      color: textColor ?? context.theme.colorScheme.onSurface,
+                    ),
+                  ),
                 );
               },
             ),
-            title: Row(
+          ],
+        ),
+        children: [
+          Divider(
+            height: 1,
+            color: context.theme.colorScheme.primary,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: widget.budgetList.category.value?.color ??
-                        context.theme.colorScheme.tertiary,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    widget.budgetList.category.value?.name ?? 'None',
-                    style: context.theme.textTheme.titleMedium?.copyWith(
-                      color: widget.budgetList.category.value?.color ??
-                          context.theme.colorScheme.onTertiary,
-                    ),
+                SelectionArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Description: ',
+                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: widget.budgetList.description,
+                              style: context.theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Priority: ',
+                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: widget.budgetList.priority.toString(),
+                              style: context.theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Amount: ',
+                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '฿ ${widget.budgetList.budget.toStringAsFixed(2)}',
+                              style: context.theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Created: ',
+                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: DateFormat('dd/MM/y').format(widget.budgetList.createdAt),
+                              style: context.theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Deadline: ',
+                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: DateFormat('dd/MM/y').format(widget.budgetList.deadline),
+                              style: context.theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  widget.budgetList.title,
-                  style: context.theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  strutStyle: const StrutStyle(height: 1.5),
-                ),
-              ],
-            ),
-            subtitle: Row(
-              children: [
-                Text(
-                  '฿ ${widget.budgetList.budget.toShortString()}',
-                  style: context.theme.textTheme.titleMedium,
-                ),
-                const SizedBox(width: 8),
-                Builder(builder: (context) {
-                  Color? color;
-                  Color? textColor;
-                  if (widget.budgetList.deadline.isBefore(DateTime.now())) {
-                    color = context.theme.colorScheme.error;
-                    textColor = context.theme.colorScheme.onError;
-                  } else if (widget.budgetList.deadline.isBefore(DateTime.now().add(1.days))) {
-                    color = Colors.yellowAccent;
-                    textColor = Colors.black;
-                  }
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      DateFormat('dd/MM/y').format(widget.budgetList.deadline),
-                      style: context.theme.textTheme.titleMedium?.copyWith(
-                        color: textColor ?? context.theme.colorScheme.onSurface,
+                SizedBox(width: 2.w),
+                Flexible(
+                  child: Center(
+                    child: ElevatedButton(
+                      onPressed: widget.budgetList.imagesBytes.isEmpty
+                          ? null
+                          : () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return Center(
+                                    child: Stack(
+                                      children: [
+                                        InteractiveViewer(
+                                          child: Image.memory(
+                                            Uint8List.fromList(widget.budgetList.imagesBytes),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Positioned.directional(
+                                          textDirection: Directionality.of(context),
+                                          end: 0,
+                                          top: 0,
+                                          child: ElevatedButton.icon(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            label: const Text('Close'),
+                                            icon: const Icon(Icons.close),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(
+                          'View Image',
+                          textAlign: TextAlign.center,
+                          style: context.theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  );
-                }),
+                  ),
+                ),
               ],
             ),
-            children: [
-              Divider(
-                height: 1,
-                color: context.theme.colorScheme.primary,
-              ),
-              Text(
-                widget.budgetList.description,
-                style: context.theme.textTheme.titleMedium,
-              ),
-            ],
           ),
+          Center(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          bottomLeft: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                    onPressed: null,
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit'),
+                  ),
+                  const VerticalDivider(width: 2),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      widget.onPressDelete?.call(widget.budgetList);
+                    },
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Delete'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 1.h),
         ],
-      ),
+      )
+          .animate()
+          .slideX(
+            curve: Curves.easeInOut,
+          )
+          .fade(
+            curve: Curves.easeInOut,
+          ),
     );
   }
 }
