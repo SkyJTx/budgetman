@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:budgetman/server/data_model/categories.dart';
@@ -48,8 +50,8 @@ Future<void> init() async {
         title: 'Budget List $i',
         description: 'Budget List $i Description',
         priority: 1,
-        amount: 1000.0,
-        deadline: DateTime.now().add(3.days),
+        amount: Random().nextDouble() * 100000,
+        deadline: DateTime.now().add(i.days),
         isCompleted: i % 2 == 0,
       );
     }
