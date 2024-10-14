@@ -1,5 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
+import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
 import 'package:budgetman/client/presentation/budget/budget_list/budget_list.dart';
+import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:budgetman/extension.dart';
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +111,97 @@ class BudgetPageState extends State<BudgetPage> {
                     Expanded(
                       child: ResponsiveSizer(
                         builder: (context, orientaion, screen) {
-                          if (orientaion == Orientation.portrait) {
+                          final budgetListView = ListView(
+                            children: [
+                              ...state.budget.budgetList
+                                  .where((e) => !e.isRemoved)
+                                  .map((budgetList) {
+                                final budgetListTileState = GlobalKey<BudgetListTileState>();
+                                return Column(
+                                  children: [
+                                    BudgetListTile(
+                                      key: budgetListTileState,
+                                      budgetList: budgetList,
+                                      onInit: (
+                                        budgetList,
+                                        selectionModeController,
+                                        selectionController,
+                                        completeController,
+                                      ) {
+                                        completeController.value = budgetList.isCompleted;
+                                      },
+                                      onPressComplete: (budgetList, completeController) async {
+                                        await budgetBloc.updateBudgetList(
+                                          budgetList,
+                                          isCompleted: completeController.value,
+                                        );
+
+                                        if (context.mounted) {
+                                          ClientRepository().showSuccessSnackBar(
+                                            context,
+                                            message: TextSpan(
+                                              text: budgetList.title,
+                                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: ' is marked as ',
+                                                  style: context.theme.textTheme.titleMedium,
+                                                ),
+                                                TextSpan(
+                                                  text: completeController.value
+                                                      ? '"Completed"'
+                                                      : '"Incomplete"',
+                                                  style:
+                                                      context.theme.textTheme.titleMedium?.copyWith(
+                                                    color: completeController.value
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      onPressDelete: (budgetList) async {
+                                        final isConfirm = (await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) {
+                                            return ConfirmationDialog(
+                                              context: context,
+                                              title: 'Are you sure to delete?',
+                                              content:
+                                                  'You are deleting ${budgetList.title} from the list. This action cannot be undone.',
+                                              onPressAction: (isConfirm) {
+                                                Navigator.of(context).pop(isConfirm);
+                                              },
+                                            );
+                                          },
+                                        ))!;
+                                        if (isConfirm) {
+                                          budgetListTileState.currentState?.collapse();
+                                          await budgetBloc.removeBudgetList(budgetList);
+                                        }
+                                      },
+                                    ),
+                                    SizedBox(height: 2.h),
+                                  ],
+                                );
+                              }),
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 32),
+                                child: Text(
+                                  'End of Budget List',
+                                  textAlign: TextAlign.center,
+                                  style: context.theme.textTheme.titleMedium,
+                                ),
+                              ),
+                            ],
+                          );
+
+                          if (80.w < 100.h) {
                             return Column(
                               children: [
                                 Container(
@@ -121,43 +214,48 @@ class BudgetPageState extends State<BudgetPage> {
                                   child: const Text('Graph Placeholder'),
                                 ),
                                 const SizedBox(height: 8),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: context.theme.colorScheme.primary),
-                                  ),
-                                  padding: const EdgeInsets.all(8),
-                                  child: const Text('Utility Placeholder'),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: null,
+                                      style: ElevatedButton.styleFrom(
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            bottomLeft: Radius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                      label: const Text('Edit Budget'),
+                                      icon: const Icon(Icons.edit),
+                                    ),
+                                    VerticalDivider(
+                                      width: 2,
+                                      color: context.theme.colorScheme.secondary,
+                                    ),
+                                    ElevatedButton.icon(
+                                      onPressed: null,
+                                      style: ElevatedButton.styleFrom(
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(12),
+                                            bottomRight: Radius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                      label: const Text('Add Budget List'),
+                                      icon: const Icon(Icons.add),
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(height: 2.h),
                                 Flexible(
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: context.theme.colorScheme.primary),
                                     ),
-                                    child: ListView(
-                                      children: [
-                                        for (final budgetList in state.budget.budgetList.toList())
-                                          Column(
-                                            children: [
-                                              BudgetListTile(budgetList: budgetList),
-                                              Divider(
-                                                height: 0,
-                                                color: context.theme.colorScheme.primary,
-                                              ),
-                                            ],
-                                          ),
-                                        Container(
-                                          margin: const EdgeInsets.symmetric(vertical: 32),
-                                          child: Text(
-                                            'End of Budget List',
-                                            textAlign: TextAlign.center,
-                                            style: context.theme.textTheme.titleMedium,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    child: budgetListView,
                                   ),
                                 ),
                               ],
@@ -190,26 +288,7 @@ class BudgetPageState extends State<BudgetPage> {
                                 ],
                               ),
                               SizedBox(width: 2.w),
-                              Flexible(
-                                child: ListView.builder(
-                                  itemCount: state.budget.budgetList.length,
-                                  itemBuilder: (context, index) {
-                                    final budgetList = state.budget.budgetList.toList()[index];
-                                    return Column(
-                                      children: [
-                                        const Divider(
-                                          height: 0,
-                                        ),
-                                        BudgetListTile(budgetList: budgetList),
-                                        if (index != state.budget.budgetList.length)
-                                          const Divider(
-                                            height: 0,
-                                          ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
+                              Flexible(child: budgetListView),
                             ],
                           );
                         },
