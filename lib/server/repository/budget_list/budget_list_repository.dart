@@ -38,7 +38,7 @@ class BudgetListRepository {
     required int priority,
     required double amount,
     required DateTime deadline,
-    required bool isRemoved,
+    bool isRemoved = false,
     DateTime? createdDateTime,
     DateTime? updatedDateTime,
     List<byte>? image,
