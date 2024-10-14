@@ -30,10 +30,9 @@ Future<void> init() async {
         isar.budgets.clear(),
         isar.budgetLists.clear(),
         isar.categorys.clear(),
-        isar.settings.clear(),
       ]);
     });
-    final budget = await BudgetRepository().add(
+    var budget = await BudgetRepository().add(
       name: 'Budget 1',
       description: 'Budget 1 Description',
       startDate: DateTime.now(),
@@ -43,15 +42,17 @@ Future<void> init() async {
       isCompleted: false,
       isRemoved: false,
     );
-    await BudgetListRepository().add(
-      budget,
-      title: 'Budget List 1',
-      description: 'Budget List 1 Description',
-      priority: 1,
-      amount: 1000.0,
-      deadline: DateTime.now().add(30.days),
-      isRemoved: false,
-    );
+    for (int i = 1; i <= 30; i++) {
+      await BudgetListRepository().add(
+        budget,
+        title: 'Budget List $i',
+        description: 'Budget List $i Description',
+        priority: 1,
+        amount: 1000.0,
+        deadline: DateTime.now().add(3.days),
+        isCompleted: i % 2 == 0,
+      );
+    }
   }
 
   getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
