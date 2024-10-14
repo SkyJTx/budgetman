@@ -54,7 +54,7 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                     ],
                     child: Icon(
                       Icons.settings,
-                      size: 10.h,
+                      size: 20.w,
                     ),
                   ),
                   Text(
@@ -76,8 +76,6 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
               alignment: Alignment.center,
               child: Container(
                 padding: const EdgeInsets.all(20),
-                width: [50.w, 50.h].min.toDouble(),
-                height: [50.w, 50.h].min.toDouble(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -116,7 +114,7 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                         },
                         child: Icon(
                           Icons.settings,
-                          size: 10.h,
+                          size: 20.w,
                         ),
                       ),
                     ),
