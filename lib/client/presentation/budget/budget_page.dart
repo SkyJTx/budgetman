@@ -1,3 +1,4 @@
+import 'package:budgetman/client/component/chart/line_chart.dart';
 import 'package:collection/collection.dart';
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
@@ -202,7 +203,14 @@ class BudgetPageState extends State<BudgetPage> {
                               ),
                             ],
                           );
-                          const graphWidget = Text('Graph Placeholder');
+                          final graphWidget = Padding(
+                            padding: EdgeInsets.all([2.w, 2.h].min.toDouble()),
+                            child: CustomLineChart(
+                              data: sortedBudgetList.map((e) {
+                                return (x: e.deadline, y: e.budget);
+                              }).toList(),
+                            ),
+                          );
                           final utilityWidget = Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
