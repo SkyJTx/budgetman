@@ -6,6 +6,7 @@ import 'package:budgetman/client/presentation/budget/budget_list/budget_list.dar
 import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:budgetman/extension.dart';
 import 'package:budgetman/server/data_model/budget.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,8 +54,9 @@ class BudgetPageState extends State<BudgetPage> {
           return BlocBuilder<BudgetBloc, BudgetState>(
             bloc: budgetBloc,
             builder: (context, state) {
-              final sortedBudgetList = state.budget.budgetList
-                  .where((budgetList) => !budgetList.isRemoved)
+              final filteredBudgetList =
+                  state.budget.budgetList.where((budgetList) => !budgetList.isRemoved);
+              final sortedBudgetList = filteredBudgetList
                   .sortedBy((e) => e.deadline)
                   .sortedBy<num>((e) => e.isCompleted ? 1 : 0);
               return Padding(
@@ -64,9 +66,12 @@ class BudgetPageState extends State<BudgetPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          widget.budget.name,
-                          style: context.theme.textTheme.titleLarge,
+                        Flexible(
+                          child: Text(
+                            widget.budget.name,
+                            style: context.theme.textTheme.titleLarge,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         BlocSelector<BudgetBloc, BudgetState, bool>(
                           bloc: budgetBloc,
@@ -203,51 +208,138 @@ class BudgetPageState extends State<BudgetPage> {
                               ),
                             ],
                           );
-                          final graphWidget = Padding(
-                            padding: EdgeInsets.all([2.w, 2.h].min.toDouble()),
-                            child: CustomLineChart(
-                              data: sortedBudgetList.map((e) {
+
+                          final graphWidget = Builder(
+                            builder: (context) {
+                              if (sortedBudgetList.isEmpty) {
+                                return const Center(
+                                  child: Text('No budget list found'),
+                                );
+                              }
+                              final mapper = filteredBudgetList.map((e) {
                                 return (x: e.deadline, y: e.budget);
-                              }).toList(),
-                            ),
-                          );
-                          final utilityWidget = Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: null,
-                                style: ElevatedButton.styleFrom(
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(12),
-                                      bottomLeft: Radius.circular(12),
-                                    ),
-                                  ),
+                              });
+                              final sortedData = <DateTime, double>{};
+                              for (final e in mapper) {
+                                final key = e.x;
+                                if (sortedData.containsKey(key)) {
+                                  sortedData[key] = sortedData[key]! + e.y;
+                                } else {
+                                  sortedData[key] = e.y;
+                                }
+                              }
+                              final firstDateTime = sortedData.keys.first;
+                              return Padding(
+                                padding: EdgeInsets.all([2.w, 2.h].min.toDouble()),
+                                child: CustomLineChart(
+                                  data: sortedData.entries
+                                      .map((e) => FlSpot(
+                                            e.key.difference(firstDateTime).inDays.toDouble(),
+                                            e.value.roundToDouble(),
+                                          ))
+                                      .toList(),
+                                  getTooltipItems: (spot) {
+                                    return spot.map((e) {
+                                      final date = firstDateTime.add(Duration(days: e.x.toInt()));
+                                      return LineTooltipItem(
+                                        'Deadline: ${DateFormat('dd/MM/y').format(date)}',
+                                        TextStyle(
+                                          color: context.theme.colorScheme.onSurface,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                '\n Amount: ${e.y.toShortString(fractionDigits: 0)}',
+                                            style: TextStyle(
+                                              color: context.theme.colorScheme.onSurface,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList();
+                                  },
+                                  maxY: sortedData.values.max * 1.5,
+                                  minY: -1,
+                                  leftAxisTitleWidget: const Text('Amount'),
+                                  bottomAxisTitleWidget: const Text('Date Time'),
+                                  getLeftAxisTitlesWidget: (value, meta) {
+                                    return SideTitleWidget(
+                                      axisSide: meta.axisSide,
+                                      child: Text(
+                                        value.toShortString(fractionDigits: 0),
+                                      ),
+                                    );
+                                  },
+                                  getBottomAxisTitlesWidget: (value, meta) {
+                                    final date = firstDateTime.add(Duration(days: value.toInt()));
+                                    return SideTitleWidget(
+                                      axisSide: meta.axisSide,
+                                      space: 4,
+                                      child: Text(
+                                        DateFormat('dd/MM/y').format(date),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                label: const Text('Edit Budget'),
-                                icon: const Icon(Icons.edit),
-                              ),
-                              VerticalDivider(
-                                width: 2,
-                                color: context.theme.colorScheme.secondary,
-                              ),
-                              ElevatedButton.icon(
-                                onPressed: null,
-                                style: ElevatedButton.styleFrom(
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(12),
-                                      bottomRight: Radius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                label: const Text('Add Budget List'),
-                                icon: const Icon(Icons.add),
-                              ),
-                            ],
+                              );
+                            },
                           );
 
-                          if (80.w < 100.h) {
+                          final utilityWidget = ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: 50.w,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: ElevatedButton.icon(
+                                    onPressed: null,
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(12),
+                                          bottomLeft: Radius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                    label: const Text(
+                                      'Edit Budget',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    icon: const Icon(Icons.edit),
+                                  ),
+                                ),
+                                VerticalDivider(
+                                  width: 2,
+                                  color: context.theme.colorScheme.secondary,
+                                ),
+                                Flexible(
+                                  child: ElevatedButton.icon(
+                                    onPressed: null,
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(12),
+                                          bottomRight: Radius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                    label: const Text(
+                                      'Add Budget List',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    icon: const Icon(Icons.add),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          // Vertical
+                          if (80.w < 100.h || 100.w < 898) {
                             return Column(
                               children: [
                                 Container(
@@ -273,6 +365,8 @@ class BudgetPageState extends State<BudgetPage> {
                               ],
                             );
                           }
+
+                          // Horizontal
                           return Row(
                             children: [
                               Column(
@@ -283,7 +377,7 @@ class BudgetPageState extends State<BudgetPage> {
                                         borderRadius: BorderRadius.circular(10),
                                         color: context.theme.colorScheme.surfaceContainerHighest,
                                       ),
-                                      width: 40.w,
+                                      width: 60.w,
                                       alignment: Alignment.center,
                                       child: graphWidget,
                                     ),
