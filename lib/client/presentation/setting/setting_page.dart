@@ -52,9 +52,9 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                         duration: Duration(seconds: 3),
                       ),
                     ],
-                    child: Icon(
+                    child: const Icon(
                       Icons.settings,
-                      size: 20.w,
+                      size: 100,
                     ),
                   ),
                   Text(
@@ -112,9 +112,9 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
                           await controller?.reverse();
                           controller?.forward();
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.settings,
-                          size: 20.w,
+                          size: 100,
                         ),
                       ),
                     ),
