@@ -31,6 +31,8 @@ extension ContextX on BuildContext {
 }
 
 extension NumX on num {
+  num get pi => this * math.pi;
+  num get e => this * math.e;
   num pow(num exponent) => math.pow(this, exponent);
   num sqrt() => pow(0.5);
   num cbrt() => pow(1 / 3);
