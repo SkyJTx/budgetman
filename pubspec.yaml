@@ -51,6 +51,7 @@ dependencies:
   fl_chart: ^0.69.0
   image_picker: ^1.0.0
   flutter_image_compress: ^2.3.0
+  modal_bottom_sheet: ^3.0.0
 
 dev_dependencies:
   flutter_test:
