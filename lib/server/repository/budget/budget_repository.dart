@@ -29,11 +29,7 @@ class BudgetRepository {
 
   Future<Budget> getByName(String name) async {
     return isarInstance.txn(() async {
-      final budget = await isarInstance.budgets
-          .where()
-          .filter()
-          .nameEqualTo(name)
-          .findFirst();
+      final budget = await isarInstance.budgets.where().filter().nameEqualTo(name).findFirst();
       if (budget == null) {
         throw Exception('Failed to get Budget with name $name');
       }
