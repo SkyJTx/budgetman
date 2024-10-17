@@ -47,7 +47,6 @@ enum AlertType {
   }
 
   double get size => 50;
-
 }
 
 class CustomAlertDialog<T> extends StatefulWidget {
@@ -66,6 +65,22 @@ class CustomAlertDialog<T> extends StatefulWidget {
 
   @override
   State<CustomAlertDialog> createState() => CustomAlertDialogState<T>();
+
+  static Future<void> alertWithoutOptions(
+    BuildContext context,
+    AlertType type,
+    String title,
+    String content,
+  ) {
+    return showDialog(
+      context: context,
+      builder: (context) => CustomAlertDialog(
+        type: type,
+        title: title,
+        content: content,
+      ),
+    );
+  }
 }
 
 class CustomAlertDialogState<T> extends State<CustomAlertDialog> {
@@ -90,7 +105,7 @@ class CustomAlertDialogState<T> extends State<CustomAlertDialog> {
             ),
           ],
         ),
-        content: Text(widget.content ?? 'No content'),
+        content: widget.content != null ? Text(widget.content!) : null,
         actions: [
           ...widget.actions,
           if (widget.actions.isEmpty) ...[
