@@ -106,10 +106,7 @@ class MainPageState extends State<MainPage> {
               ),
             ),
             body: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all([3.w, 3.h].min.toDouble()),
-                child: widget.child,
-              ),
+              child: widget.child,
             ),
             floatingActionButton: () {
               if (widget.state.matchedLocation == HomePage.routeName) {
