@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/component.dart';
+import 'package:budgetman/client/component/dialog/custom_alert_dialog.dart';
 import 'package:budgetman/client/component/loading_overlay.dart';
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
@@ -124,6 +126,41 @@ class EditBudgetListState extends State<EditBudgetList> {
     return null;
   }
 
+  Future<void> _setPhoto(XFile? pickedFile) async {
+    if (pickedFile == null) return;
+    final bytes = await pickedFile.readAsBytes();
+    if (!context.mounted) return;
+    var resultBytes = await LoadingOverlay.wait(
+      context,
+      Future(() async {
+        var compressedBytes = bytes;
+        for (int quality = 100; quality > 0; quality -= 10) {
+          compressedBytes = await FlutterImageCompress.compressWithList(
+            bytes,
+            quality: quality,
+          );
+          await Future.delayed(2.seconds);
+          if (compressedBytes.lengthInBytes / 10.pow(6) < 6) {
+            log('Image Size: ${compressedBytes.lengthInBytes / 10.pow(6)} MB, Quality: $quality');
+            return compressedBytes;
+          }
+          quality -= 10;
+        }
+        return null;
+      }),
+    );
+    if (resultBytes == null) {
+      if (!context.mounted) return;
+      return CustomAlertDialog.alertWithoutOptions(
+        context,
+        AlertType.warning,
+        'Image Size Exceeded',
+        '',
+      );
+    }
+    _imageController.value = resultBytes.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -141,312 +178,389 @@ class EditBudgetListState extends State<EditBudgetList> {
           },
           child: Column(
             children: [
-              AppBar(
-                title: Text(
-                  'Edit Budget List',
-                  style: context.textTheme.titleLarge,
+              Container(
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  left: 8,
+                  right: 8,
                 ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-              Flexible(
-                child: ListView(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.check_circle_rounded,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Completion Check',
-                      subtitle: 'Check box to mark as completed',
-                      trailing: BlocBuilder<ValueChangeNotifier<bool>, bool>(
-                        bloc: _checkController,
-                        builder: (context, state) {
-                          return Checkbox(
-                            value: state,
-                            onChanged: (value) {
-                              if (value == null) return;
-                              _checkController.value = value;
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.title,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Title',
-                      subtitle: 'Enter the title of the budget list',
-                      trailing: TextFormField(
-                        key: _titleFormKey,
-                        validator: titleValidator,
-                        onChanged: (value) {
-                          _titleValidator.value = _titleFormKey.currentState?.validate() ?? false;
-                        },
-                        maxLength: 40,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter budget list\'s title',
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.edit,
+                          color: context.theme.colorScheme.primary,
                         ),
-                        controller: _titleController,
-                      ),
-                    ),
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.description,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Description',
-                      subtitle: 'Enter the description of the budget list',
-                      trailing: TextFormField(
-                        key: _descriptionFormKey,
-                        validator: descriptionValidator,
-                        onChanged: (value) {
-                          _descriptionValidator.value =
-                              _descriptionFormKey.currentState?.validate() ?? false;
-                        },
-                        maxLength: 100,
-                        controller: _descriptionController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter budget list\'s description',
+                        const SizedBox(width: 8),
+                        Text(
+                          'Edit Budget List',
+                          style: context.textTheme.headlineMedium,
                         ),
-                      ),
+                      ],
                     ),
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.category,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Category',
-                      subtitle: 'Select the category of the budget list',
-                      trailing: DropdownMenu<Category?>(
-                        dropdownMenuEntries: [
-                          DropdownMenuEntry(
-                            value: null,
-                            leadingIcon: CircleAvatar(
-                              backgroundColor: context.theme.colorScheme.tertiary,
-                            ),
-                            labelWidget: const Text('None'),
-                            label: 'None',
-                          ),
-                          ...widget.categories.map((e) {
-                            return DropdownMenuEntry(
-                              value: e,
-                              leadingIcon: CircleAvatar(
-                                backgroundColor: e.color,
-                              ),
-                              labelWidget: Text(e.name),
-                              label: e.name,
-                            );
-                          }),
-                        ],
-                        onSelected: (value) {
-                          _categoryController.value = value;
-                        },
-                      ),
-                    ),
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.priority_high,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Prioity',
-                      subtitle: 'Enter the priority of the budget list',
-                      trailing: TextFormField(
-                        key: _priorityFormKey,
-                        validator: priorityValidator,
-                        onChanged: (value) {
-                          _priorityValidator.value =
-                              _priorityFormKey.currentState?.validate() ?? false;
-                        },
-                        keyboardType: TextInputType.number,
-                        controller: _priorityController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter budget list\'s priority',
-                        ),
-                      ),
-                    ),
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.attach_money,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Budget',
-                      subtitle: 'Enter the budget of the budget list',
-                      trailing: TextFormField(
-                        key: _amountFormKey,
-                        controller: _amountController,
-                        validator: amountValidator,
-                        onChanged: (value) {
-                          _amountValidator.value = _amountFormKey.currentState?.validate() ?? false;
-                        },
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter budget list\'s budget',
-                        ),
-                      ),
-                    ),
-                    BlocBuilder<ValueChangeNotifier<DateTime>, DateTime>(
-                      bloc: _dateTimeController,
-                      builder: (context, state) {
-                        return CustomListTile(
-                          leading: Icon(
-                            Icons.calendar_today,
-                            color: context.theme.colorScheme.primary,
-                          ),
-                          title: 'Deadline',
-                          subtitle: 'Current: ${DateFormat('dd/MM/y').format(state)}',
-                          trailing: ElevatedButton(
-                            onPressed: () async {
-                              final firstDate = DateTime.now();
-                              late final DateTime endDate;
-                              if (widget.budget.isRoutine) {
-                                endDate = firstDate.add(widget.budget.routineInterval!.seconds);
-                              } else {
-                                endDate = widget.budget.endDate;
-                              }
-                              final initDate = widget.budgetList.deadline.isAfter(endDate)
-                                  ? endDate
-                                  : widget.budgetList.deadline;
-                              final selected = await showDatePicker(
-                                context: context,
-                                initialDate: initDate,
-                                firstDate: firstDate,
-                                lastDate: endDate,
-                              );
-                              if (selected == null) return;
-                              _dateTimeController.value = selected;
-                            },
-                            child: Text(
-                              'Select Deadline',
-                              style: context.textTheme.bodyMedium,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    CustomListTile(
-                      leading: Icon(
-                        Icons.image,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      title: 'Images',
-                      subtitle: 'Add images to the budget list',
-                      trailing: ElevatedButton(
-                        onPressed: () async {
-                          final imagePicker = ImagePicker();
-                          final pickedFile =
-                              await imagePicker.pickImage(source: ImageSource.gallery);
-                          if (pickedFile == null) return;
-                          final bytes = await pickedFile.readAsBytes();
-                          if (!context.mounted) return;
-                          final compressedBytes = await LoadingOverlay.wait(
-                              context,
-                              FlutterImageCompress.compressWithList(
-                                bytes,
-                                quality: 50,
-                              ));
-                          _imageController.value = compressedBytes.toList();
-                        },
-                        child: Text(
-                          'Add Images',
-                          style: context.textTheme.bodyMedium,
-                        ),
-                      ),
-                    ),
-                    BlocSelector<ValueChangeNotifier<List<byte>>, List<byte>, Uint8List?>(
-                      bloc: _imageController,
-                      selector: (state) {
-                        return state.isNotEmpty ? Uint8List.fromList(state) : null;
-                      },
-                      builder: (context, imageByte) {
-                        if (imageByte == null) return const SizedBox.shrink();
-                        return Container(
-                          constraints: BoxConstraints(
-                            maxHeight: 20.h,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: context.theme.colorScheme.secondaryContainer,
-                            ),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(
-                              imageByte,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: Colors.red,
-                                    size: 24,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        _titleValidator.value = _titleFormKey.currentState?.validate() ?? false;
-                        _descriptionValidator.value =
-                            _descriptionFormKey.currentState?.validate() ?? false;
-                        _priorityValidator.value =
-                            _priorityFormKey.currentState?.validate() ?? false;
-                        _amountValidator.value = _amountFormKey.currentState?.validate() ?? false;
-                        if (!_titleValidator.value ||
-                            !_descriptionValidator.value ||
-                            !_priorityValidator.value ||
-                            !_amountValidator.value) {
-                          return;
-                        }
-                        await LoadingOverlay.wait(
-                            context,
-                            widget.budgetBloc.updateBudgetList(
-                              widget.budgetList,
-                              title: _titleController.text,
-                              description: _descriptionController.text,
-                              category: _categoryController.value,
-                              priority: int.tryParse(_priorityController.text),
-                              budget: double.tryParse(_amountController.text),
-                              deadline: _dateTimeController.value,
-                              updatedDateTime: DateTime.now(),
-                              image: _imageController.value,
-                            ));
-                        if (!context.mounted) return;
-                        if (widget.budgetBloc.state.error != null) {
-                          ClientRepository().showErrorSnackBar(
-                            context,
-                            message: TextSpan(
-                              text: widget.budgetBloc.state.error!.message,
-                              style: context.textTheme.bodyMedium,
-                            ),
-                          );
-                        }
-                        ClientRepository().showSuccessSnackBar(context,
-                            message: TextSpan(
-                              text: 'Budget List Updated Successfully',
-                              style: context.textTheme.bodyMedium,
-                            ));
+                    IconButton(
+                      onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text(
-                        'Save',
-                        style: context.textTheme.bodyMedium,
+                      icon: Icon(
+                        Icons.close,
+                        color: context.theme.colorScheme.error,
                       ),
                     ),
                   ],
+                ),
+              ),
+              const Divider(),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: ListView(
+                    children: [
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.check_circle_rounded,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Completion Check',
+                        subtitle: 'Check box to mark as completed',
+                        trailing: BlocBuilder<ValueChangeNotifier<bool>, bool>(
+                          bloc: _checkController,
+                          builder: (context, state) {
+                            return Checkbox(
+                              value: state,
+                              onChanged: (value) {
+                                if (value == null) return;
+                                _checkController.value = value;
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const Divider(),
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.title,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Title',
+                        trailing: TextFormField(
+                          key: _titleFormKey,
+                          validator: titleValidator,
+                          onChanged: (value) {
+                            _titleValidator.value = _titleFormKey.currentState?.validate() ?? false;
+                          },
+                          maxLength: 40,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter budget list\'s title',
+                          ),
+                          controller: _titleController,
+                        ),
+                      ),
+                      const Divider(),
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.description,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Description',
+                        trailing: TextFormField(
+                          key: _descriptionFormKey,
+                          validator: descriptionValidator,
+                          onChanged: (value) {
+                            _descriptionValidator.value =
+                                _descriptionFormKey.currentState?.validate() ?? false;
+                          },
+                          maxLength: 100,
+                          controller: _descriptionController,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter budget list\'s description',
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.category,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Category',
+                        trailing: DropdownMenu<Category?>(
+                          dropdownMenuEntries: [
+                            DropdownMenuEntry(
+                              value: null,
+                              leadingIcon: CircleAvatar(
+                                backgroundColor: context.theme.colorScheme.tertiary,
+                              ),
+                              labelWidget: const Text('None'),
+                              label: 'None',
+                            ),
+                            ...widget.categories.map((e) {
+                              return DropdownMenuEntry(
+                                value: e,
+                                leadingIcon: CircleAvatar(
+                                  backgroundColor: e.color,
+                                ),
+                                labelWidget: Text(e.name),
+                                label: e.name,
+                              );
+                            }),
+                          ],
+                          onSelected: (value) {
+                            _categoryController.value = value;
+                          },
+                        ),
+                      ),
+                      const Divider(),
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.priority_high,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Priority',
+                        subtitle: 'Highest priority will show first',
+                        trailing: TextFormField(
+                          key: _priorityFormKey,
+                          validator: priorityValidator,
+                          onChanged: (value) {
+                            _priorityValidator.value =
+                                _priorityFormKey.currentState?.validate() ?? false;
+                          },
+                          keyboardType: TextInputType.number,
+                          controller: _priorityController,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter budget list\'s priority',
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.attach_money,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Amount',
+                        trailing: TextFormField(
+                          key: _amountFormKey,
+                          controller: _amountController,
+                          validator: amountValidator,
+                          onChanged: (value) {
+                            _amountValidator.value =
+                                _amountFormKey.currentState?.validate() ?? false;
+                          },
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter budget list\'s amount',
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      BlocBuilder<ValueChangeNotifier<DateTime>, DateTime>(
+                        bloc: _dateTimeController,
+                        builder: (context, state) {
+                          return CustomListTile(
+                            leading: Icon(
+                              Icons.calendar_today,
+                              color: context.theme.colorScheme.primary,
+                            ),
+                            title: 'Deadline',
+                            subtitle: 'Current: ${DateFormat('dd/MM/y').format(state)}',
+                            trailing: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.theme.colorScheme.secondaryContainer,
+                                foregroundColor: context.theme.colorScheme.onSecondaryContainer,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final firstDate = DateTime.now();
+                                late final DateTime endDate;
+                                if (widget.budget.isRoutine) {
+                                  endDate = firstDate.add(widget.budget.routineInterval!.seconds);
+                                } else {
+                                  endDate = widget.budget.endDate;
+                                }
+                                final initDate = widget.budgetList.deadline.isAfter(endDate)
+                                    ? endDate
+                                    : widget.budgetList.deadline;
+                                final selected = await showDatePicker(
+                                  context: context,
+                                  initialDate: initDate,
+                                  firstDate: firstDate,
+                                  lastDate: endDate,
+                                );
+                                if (selected == null) return;
+                                _dateTimeController.value = selected;
+                              },
+                              child: Text(
+                                'Select Deadline',
+                                style: context.textTheme.bodyMedium,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(),
+                      CustomListTile(
+                        leading: Icon(
+                          Icons.image,
+                          color: context.theme.colorScheme.primary,
+                        ),
+                        title: 'Images',
+                        trailing: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.theme.colorScheme.onSecondaryContainer,
+                                foregroundColor: context.theme.colorScheme.secondaryContainer,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                    bottomLeft: Radius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final imagePicker = ImagePicker();
+                                final pickedFile = await imagePicker.pickImage(
+                                  source: ImageSource.camera,
+                                );
+                                await _setPhoto(pickedFile);
+                              },
+                              child: Icon(
+                                Icons.add_a_photo,
+                                color: context.theme.colorScheme.secondaryContainer,
+                              ),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.theme.colorScheme.secondaryContainer,
+                                foregroundColor: context.theme.colorScheme.onSecondaryContainer,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(8),
+                                    bottomRight: Radius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final imagePicker = ImagePicker();
+                                final pickedFile = await imagePicker.pickImage(
+                                  source: ImageSource.gallery,
+                                );
+                                await _setPhoto(pickedFile);
+                              },
+                              child: Icon(
+                                Icons.add_photo_alternate,
+                                color: context.theme.colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      BlocSelector<ValueChangeNotifier<List<byte>>, List<byte>, Uint8List?>(
+                        bloc: _imageController,
+                        selector: (state) {
+                          return state.isNotEmpty ? Uint8List.fromList(state) : null;
+                        },
+                        builder: (context, imageByte) {
+                          if (imageByte == null) return const SizedBox.shrink();
+                          return Container(
+                            constraints: BoxConstraints(
+                              maxHeight: 20.h,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: context.theme.colorScheme.secondaryContainer,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.memory(
+                                imageByte,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.error,
+                                      color: Colors.red,
+                                      size: 24,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          _titleValidator.value = _titleFormKey.currentState?.validate() ?? false;
+                          _descriptionValidator.value =
+                              _descriptionFormKey.currentState?.validate() ?? false;
+                          _priorityValidator.value =
+                              _priorityFormKey.currentState?.validate() ?? false;
+                          _amountValidator.value = _amountFormKey.currentState?.validate() ?? false;
+                          if (!_titleValidator.value ||
+                              !_descriptionValidator.value ||
+                              !_priorityValidator.value ||
+                              !_amountValidator.value) {
+                            return;
+                          }
+                          await LoadingOverlay.wait(
+                              context,
+                              widget.budgetBloc.updateBudgetList(
+                                widget.budgetList,
+                                title: _titleController.text,
+                                description: _descriptionController.text,
+                                category: _categoryController.value,
+                                priority: int.tryParse(_priorityController.text),
+                                budget: double.tryParse(_amountController.text),
+                                deadline: _dateTimeController.value,
+                                updatedDateTime: DateTime.now(),
+                                image: _imageController.value,
+                              ));
+                          if (!context.mounted) return;
+                          if (widget.budgetBloc.state.error != null) {
+                            ClientRepository().showErrorSnackBar(
+                              context,
+                              message: TextSpan(
+                                text: widget.budgetBloc.state.error!.message,
+                                style: context.textTheme.bodyMedium,
+                              ),
+                            );
+                          }
+                          ClientRepository().showSuccessSnackBar(context,
+                              message: TextSpan(
+                                text: 'Budget List Updated Successfully',
+                                style: context.textTheme.bodyMedium,
+                              ));
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.theme.colorScheme.primary,
+                          foregroundColor: context.theme.colorScheme.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            'Save',
+                            style: context.textTheme.headlineMedium?.copyWith(
+                              color: context.theme.colorScheme.onPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
