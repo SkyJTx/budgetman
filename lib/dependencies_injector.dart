@@ -40,9 +40,9 @@ Future<bool> init() async {
         name: 'Budget 1',
         description: 'Budget 1 Description',
         startDate: DateTime.now(),
-        endDate: DateTime.now().add(30.days),
+        endDate: DateTime.now().add(365.days),
         isRoutine: true,
-        routineInterval: 10.days.inSeconds,
+        routineInterval: 365.days.inSeconds,
         isCompleted: false,
         isRemoved: false,
       );
