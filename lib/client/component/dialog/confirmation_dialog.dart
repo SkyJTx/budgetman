@@ -39,4 +39,22 @@ class ConfirmationDialog extends CustomAlertDialog {
             ),
           ],
         );
+
+  static Future<bool> show({
+    required BuildContext context,
+    required String title,
+    required String content,
+    void Function(bool isConfirmed)? onPressAction,
+  }) async {
+    final value = await showDialog<bool>(
+      context: context,
+      builder: (context) => ConfirmationDialog(
+        context: context,
+        title: title,
+        content: content,
+        onPressAction: onPressAction,
+      ),
+    );
+    return value ?? false;
+  }
 }
