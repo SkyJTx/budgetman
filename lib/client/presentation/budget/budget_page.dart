@@ -1,4 +1,5 @@
 import 'package:budgetman/client/component/chart/line_chart.dart';
+import 'package:budgetman/client/presentation/budget/budget_list/add_budget_list.dart';
 import 'package:budgetman/client/presentation/budget/budget_list/edit_budget_list.dart';
 import 'package:collection/collection.dart';
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:sizer/sizer.dart';
 
 class BudgetPage extends StatefulWidget {
@@ -69,9 +71,10 @@ class BudgetPageState extends State<BudgetPage> {
               final filteredBudgetList =
                   state.budget.budgetList.where((budgetList) => !budgetList.isRemoved);
               final sortedBudgetList = filteredBudgetList
+                  .sortedBy<num>((e) => -e.priority)
                   .sortedBy((e) => e.deadline)
                   .sortedBy<num>((e) => e.isCompleted ? 1 : 0);
-              return Padding(
+              return Container(
                 padding: EdgeInsets.all([3.h, 3.w].min.toDouble()),
                 child: Column(
                   children: [
@@ -186,7 +189,7 @@ class BudgetPageState extends State<BudgetPage> {
                                         }
                                       },
                                       onPressEdit: (budgetList) {
-                                        showModalBottomSheet(
+                                        showBarModalBottomSheet(
                                           context: context,
                                           builder: (context) {
                                             return EditBudgetList(
@@ -278,7 +281,7 @@ class BudgetPageState extends State<BudgetPage> {
                                             e.key.difference(firstDateTime).inDays.toDouble(),
                                             e.value.roundToDouble(),
                                           ))
-                                      .toList(),
+                                      .sortedBy<num>((e) => e.x),
                                   getTooltipItems: (spot) {
                                     return spot.map((e) {
                                       final date = firstDateTime.add(Duration(days: e.x.toInt()));
@@ -330,7 +333,7 @@ class BudgetPageState extends State<BudgetPage> {
 
                           final utilityWidget = ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxWidth: 50.w,
+                              maxWidth: 80.w < 100.h || 100.w < 898 ? double.infinity : 50.w,
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -359,7 +362,18 @@ class BudgetPageState extends State<BudgetPage> {
                                 ),
                                 Flexible(
                                   child: ElevatedButton.icon(
-                                    onPressed: null,
+                                    onPressed: () {
+                                      showBarModalBottomSheet(
+                                        context: context,
+                                        builder: (context) {
+                                          return AddBudgetList(
+                                            budgetBloc: budgetBloc,
+                                            budget: widget.budget,
+                                            categories: state.categories,
+                                          );
+                                        },
+                                      );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       shape: const RoundedRectangleBorder(
                                         borderRadius: BorderRadius.only(
@@ -418,7 +432,7 @@ class BudgetPageState extends State<BudgetPage> {
                                         borderRadius: BorderRadius.circular(10),
                                         color: context.theme.colorScheme.surfaceContainerHighest,
                                       ),
-                                      width: 60.w,
+                                      width: 50.w,
                                       alignment: Alignment.center,
                                       child: graphWidget,
                                     ),
