@@ -315,29 +315,28 @@ class BudgetListTileState extends State<BudgetListTile> {
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return Center(
-                                    child: Stack(
-                                      children: [
-                                        InteractiveViewer(
-                                          child: Image.memory(
-                                            Uint8List.fromList(widget.budgetList.imagesBytes),
-                                            fit: BoxFit.cover,
-                                          ),
+                                  return Stack(
+                                    alignment: AlignmentDirectional.center,
+                                    children: [
+                                      InteractiveViewer(
+                                        child: Image.memory(
+                                          Uint8List.fromList(widget.budgetList.imagesBytes),
+                                          fit: BoxFit.cover,
                                         ),
-                                        Positioned.directional(
-                                          textDirection: Directionality.of(context),
-                                          end: 0,
-                                          top: 0,
-                                          child: ElevatedButton.icon(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            label: const Text('Close'),
-                                            icon: const Icon(Icons.close),
-                                          ),
+                                      ),
+                                      Positioned.directional(
+                                        textDirection: Directionality.of(context),
+                                        end: 12,
+                                        top: 12,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          label: const Text('Close'),
+                                          icon: const Icon(Icons.close),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   );
                                 },
                               );
@@ -349,6 +348,7 @@ class BudgetListTileState extends State<BudgetListTile> {
                           textAlign: TextAlign.center,
                           style: context.theme.textTheme.labelMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: context.theme.colorScheme.primary,
                           ),
                         ),
                       ),
