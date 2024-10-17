@@ -21,6 +21,33 @@ class ClientRepository {
     return instance;
   }
 
+  void showErrorSnackBar(
+    BuildContext context, {
+    Widget? leading,
+    required TextSpan message,
+    Widget? trailing,
+  }) {
+    scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
+        content: ListTile(
+          leading: leading,
+          title: Text.rich(
+            message,
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.theme.colorScheme.onError,
+            ),
+          ),
+          trailing: trailing,
+        ),
+        backgroundColor: context.theme.colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   void showSuccessSnackBar(
     BuildContext context, {
     Widget? leading,
