@@ -64,7 +64,8 @@ class CustomLineChartState extends State<CustomLineChart> {
               gradient: LinearGradient(
                 colors: gradientColors,
               ),
-              barWidth: 5,
+              barWidth: 2,
+              curveSmoothness: 1 / widget.data.length,
               isStrokeCapRound: true,
               dotData: const FlDotData(
                 show: false,
@@ -92,15 +93,18 @@ class CustomLineChartState extends State<CustomLineChart> {
               axisNameWidget: widget.leftAxisTitleWidget,
               sideTitles: SideTitles(
                 showTitles: true,
+                maxIncluded: false,
                 interval: widget.data.map((e) => e.y).mean.toDouble(),
                 getTitlesWidget: widget.getLeftAxisTitlesWidget ?? defaultGetTitle,
-                reservedSize: 42,
+                reservedSize: 62,
               ),
             ),
             bottomTitles: AxisTitles(
               axisNameWidget: widget.bottomAxisTitleWidget,
               sideTitles: SideTitles(
                 showTitles: true,
+                minIncluded: false,
+                maxIncluded: false,
                 interval: widget.data.map((e) => e.x).mean.toDouble(),
                 getTitlesWidget: widget.getBottomAxisTitlesWidget ?? defaultGetTitle,
               ),
