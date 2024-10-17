@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
@@ -35,14 +36,15 @@ class BudgetListTile extends StatefulWidget {
     ValueChangeNotifier<bool> selectionController,
     ValueChangeNotifier<bool> completeController,
   )? onInit;
-  final void Function(BudgetList budgetList, ValueChangeNotifier<bool> selectionModeController)?
+  final FutureOr<void> Function(
+          BudgetList budgetList, ValueChangeNotifier<bool> selectionModeController)?
       onSelectionModeChanged;
-  final void Function(BudgetList budgetList, ValueChangeNotifier<bool> selectionController)?
-      onBudgetListSelection;
-  final void Function(BudgetList budgetList, ValueChangeNotifier<bool> completeController)?
-      onPressComplete;
-  final void Function(BudgetList budgetList)? onPressEdit;
-  final void Function(BudgetList budgetList)? onPressDelete;
+  final FutureOr<void> Function(
+      BudgetList budgetList, ValueChangeNotifier<bool> selectionController)? onBudgetListSelection;
+  final FutureOr<void> Function(
+      BudgetList budgetList, ValueChangeNotifier<bool> completeController)? onPressComplete;
+  final FutureOr<void> Function(BudgetList budgetList)? onPressEdit;
+  final FutureOr<void> Function(BudgetList budgetList)? onPressDelete;
   final BudgetList budgetList;
 
   @override
@@ -136,7 +138,7 @@ class BudgetListTileState extends State<BudgetListTile> {
           builder: (context, state) {
             return Checkbox(
               value: state,
-              onChanged: (value) {
+              onChanged: (value) async {
                 _completeController.value = value!;
               },
             );
@@ -370,7 +372,11 @@ class BudgetListTileState extends State<BudgetListTile> {
                         ),
                       ),
                     ),
-                    onPressed: null,
+                    onPressed: widget.onPressEdit != null
+                        ? () {
+                            widget.onPressEdit?.call(widget.budgetList);
+                          }
+                        : null,
                     icon: const Icon(Icons.edit),
                     label: const Text('Edit'),
                   ),
@@ -384,9 +390,11 @@ class BudgetListTileState extends State<BudgetListTile> {
                         ),
                       ),
                     ),
-                    onPressed: () {
-                      widget.onPressDelete?.call(widget.budgetList);
-                    },
+                    onPressed: widget.onPressDelete != null
+                        ? () {
+                            widget.onPressDelete?.call(widget.budgetList);
+                          }
+                        : null,
                     icon: const Icon(Icons.delete),
                     label: const Text('Delete'),
                   ),
@@ -396,14 +404,7 @@ class BudgetListTileState extends State<BudgetListTile> {
           ),
           SizedBox(height: 1.h),
         ],
-      )
-          .animate()
-          .slideX(
-            curve: Curves.easeInOut,
-          )
-          .fade(
-            curve: Curves.easeInOut,
-          ),
+      ),
     );
   }
 }

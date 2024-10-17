@@ -1,4 +1,5 @@
 import 'package:budgetman/client/component/chart/line_chart.dart';
+import 'package:budgetman/client/presentation/budget/budget_list/edit_budget_list.dart';
 import 'package:collection/collection.dart';
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
@@ -51,8 +52,19 @@ class BudgetPageState extends State<BudgetPage> {
               child: CircularProgressIndicator(),
             );
           }
-          return BlocBuilder<BudgetBloc, BudgetState>(
+          return BlocConsumer<BudgetBloc, BudgetState>(
             bloc: budgetBloc,
+            listener: (context, state) {
+              if (state.error != null) {
+                ClientRepository().showErrorSnackBar(
+                  context,
+                  message: TextSpan(
+                    text: state.error!.message,
+                    style: context.theme.textTheme.bodyMedium,
+                  ),
+                );
+              }
+            },
             builder: (context, state) {
               final filteredBudgetList =
                   state.budget.budgetList.where((budgetList) => !budgetList.isRemoved);
@@ -143,7 +155,7 @@ class BudgetPageState extends State<BudgetPage> {
                                           budgetList,
                                           isCompleted: completeController.value,
                                         );
-
+                                        if (state.error != null) return;
                                         if (context.mounted) {
                                           ClientRepository().showSuccessSnackBar(
                                             context,
@@ -173,6 +185,19 @@ class BudgetPageState extends State<BudgetPage> {
                                           );
                                         }
                                       },
+                                      onPressEdit: (budgetList) {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder: (context) {
+                                            return EditBudgetList(
+                                              budgetBloc: budgetBloc,
+                                              budget: widget.budget,
+                                              categories: state.categories,
+                                              budgetList: budgetList,
+                                            );
+                                          },
+                                        );
+                                      },
                                       onPressDelete: (budgetList) async {
                                         final isConfirm = (await showDialog<bool>(
                                           context: context,
@@ -191,6 +216,22 @@ class BudgetPageState extends State<BudgetPage> {
                                         if (isConfirm) {
                                           budgetListTileState.currentState?.collapse();
                                           await budgetBloc.removeBudgetList(budgetList);
+                                          if (state.error != null) return;
+                                          if (!context.mounted) return;
+                                          ClientRepository().showSuccessSnackBar(
+                                            context,
+                                            message: TextSpan(
+                                              text: budgetList.title,
+                                              style: context.theme.textTheme.titleMedium?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              children: const [
+                                                TextSpan(
+                                                  text: ' is deleted successfully.',
+                                                ),
+                                              ],
+                                            ),
+                                          );
                                         }
                                       },
                                     ),
