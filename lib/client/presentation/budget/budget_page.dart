@@ -6,7 +6,7 @@ import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
 import 'package:budgetman/client/presentation/budget/budget_list/budget_list.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

@@ -6,7 +6,7 @@ import 'package:budgetman/client/presentation/component/component_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/main_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

@@ -1,4 +1,4 @@
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 

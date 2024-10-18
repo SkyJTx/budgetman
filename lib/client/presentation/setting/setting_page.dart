@@ -3,7 +3,7 @@ import 'package:budgetman/client/component/component.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
 import 'package:sizer/sizer.dart';
 
 class SettingPage extends StatefulWidget {

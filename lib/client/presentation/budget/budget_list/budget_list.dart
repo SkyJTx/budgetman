@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
