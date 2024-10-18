@@ -77,7 +77,7 @@ const BudgetListSchema = CollectionSchema(
     r'title': IndexSchema(
       id: -7636685945352118059,
       name: r'title',
-      unique: true,
+      unique: false,
       replace: false,
       properties: [
         IndexPropertySchema(
@@ -237,61 +237,6 @@ List<IsarLinkBase<dynamic>> _budgetListGetLinks(BudgetList object) {
 void _budgetListAttach(IsarCollection<dynamic> col, Id id, BudgetList object) {
   object.id = id;
   object.category.attach(col, col.isar.collection<Category>(), r'category', id);
-}
-
-extension BudgetListByIndex on IsarCollection<BudgetList> {
-  Future<BudgetList?> getByTitle(String title) {
-    return getByIndex(r'title', [title]);
-  }
-
-  BudgetList? getByTitleSync(String title) {
-    return getByIndexSync(r'title', [title]);
-  }
-
-  Future<bool> deleteByTitle(String title) {
-    return deleteByIndex(r'title', [title]);
-  }
-
-  bool deleteByTitleSync(String title) {
-    return deleteByIndexSync(r'title', [title]);
-  }
-
-  Future<List<BudgetList?>> getAllByTitle(List<String> titleValues) {
-    final values = titleValues.map((e) => [e]).toList();
-    return getAllByIndex(r'title', values);
-  }
-
-  List<BudgetList?> getAllByTitleSync(List<String> titleValues) {
-    final values = titleValues.map((e) => [e]).toList();
-    return getAllByIndexSync(r'title', values);
-  }
-
-  Future<int> deleteAllByTitle(List<String> titleValues) {
-    final values = titleValues.map((e) => [e]).toList();
-    return deleteAllByIndex(r'title', values);
-  }
-
-  int deleteAllByTitleSync(List<String> titleValues) {
-    final values = titleValues.map((e) => [e]).toList();
-    return deleteAllByIndexSync(r'title', values);
-  }
-
-  Future<Id> putByTitle(BudgetList object) {
-    return putByIndex(r'title', object);
-  }
-
-  Id putByTitleSync(BudgetList object, {bool saveLinks = true}) {
-    return putByIndexSync(r'title', object, saveLinks: saveLinks);
-  }
-
-  Future<List<Id>> putAllByTitle(List<BudgetList> objects) {
-    return putAllByIndex(r'title', objects);
-  }
-
-  List<Id> putAllByTitleSync(List<BudgetList> objects,
-      {bool saveLinks = true}) {
-    return putAllByIndexSync(r'title', objects, saveLinks: saveLinks);
-  }
 }
 
 extension BudgetListQueryWhereSort

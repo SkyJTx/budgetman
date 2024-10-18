@@ -14,23 +14,53 @@ void main() async {
   runApp(await widget);
 }
 
-Future<Widget> get widget => init().then((_) => MultiRepositoryProvider(
-      providers: [
-        ClientRepository(),
-        BudgetRepository(),
-        BudgetListRepository(),
-        CategoryRepository(),
-        SettingsRepository()..init(),
-      ].map((e) => RepositoryProvider.value(value: e)).toList(),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => SettingsBloc()..init(),
+Future<Widget> get widget => init().then(
+      (compatible) {
+        if (compatible) {
+          return MultiRepositoryProvider(
+            providers: [
+              ClientRepository(),
+              BudgetRepository(),
+              BudgetListRepository(),
+              CategoryRepository(),
+              SettingsRepository()..init(),
+            ].map((e) => RepositoryProvider.value(value: e)).toList(),
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => SettingsBloc()..init(),
+                ),
+              ],
+              child: const BudgetManApp(),
+            ),
+          );
+        }
+        return const MaterialApp(
+          home: Scaffold(
+            body: SafeArea(
+                child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.error,
+                    size: 100.0,
+                    color: Colors.red,
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Your device is not compatible with this app.',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            )),
           ),
-        ],
-        child: const BudgetManApp(),
-      ),
-    ));
+        );
+      },
+    );
 
 class BudgetManApp extends StatefulWidget {
   const BudgetManApp({super.key});
@@ -48,6 +78,7 @@ class BudgetManAppState extends State<BudgetManApp> {
         return BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             return MaterialApp.router(
+              scaffoldMessengerKey: ClientRepository.scaffoldMessengerKey,
               routerConfig: ClientRepository.router,
               debugShowCheckedModeBanner: false,
               title: 'BudgetMan',

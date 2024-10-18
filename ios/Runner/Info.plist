@@ -45,6 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photo library for saving receipt</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow access to camera for taking receipt photo</string>
 </dict>
 </plist>

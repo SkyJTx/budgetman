@@ -16,20 +16,92 @@ class CategoryRepository {
     return isar;
   }
 
-  Future<void> add(Category category) async {
+  Future<Category> getById(Id id) async {
+    return isarInstance.txn(() async {
+      final category = await isarInstance.categorys.get(id);
+      if (category == null) {
+        throw Exception('Failed to get Category with id $id');
+      }
+      return category;
+    });
+  }
+
+  Future<Category> getByName(String name) async {
+    return isarInstance.txn(() async {
+      final category = await isarInstance.categorys
+          .where()
+          .filter()
+          .nameEqualTo(name)
+          .findFirst();
+      if (category == null) {
+        throw Exception('Failed to get Category with name $name');
+      }
+      return category;
+    });
+  }
+
+  Future<void> add({
+    int id = Isar.autoIncrement,
+    required String name,
+    required String description,
+    required int colorValue,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    bool isRemoved = false,
+  }) async {
+    final category = Category(
+      id: id,
+      name: name,
+      description: description,
+      colorValue: colorValue,
+      isRemoved: isRemoved,
+      createdDateTime: createdDateTime,
+      updatedDateTime: updatedDateTime,
+    );
     await isarInstance.writeTxn(() async {
       await isarInstance.categorys.put(category);
     });
   }
 
-  Future<void> update(Category updatedCategory) async {
-    updatedCategory.updatedAt = DateTime.now();
+  Future<void> update(
+    Category category, {
+    String? name,
+    String? description,
+    int? colorValue,
+    DateTime? createdDateTime,
+    DateTime? updatedDateTime,
+    bool? isRemoved,
+  }) async {
+    category.name = name ?? category.name;
+    category.description = description ?? category.description;
+    category.colorValue = colorValue ?? category.colorValue;
+    category.isRemoved = isRemoved ?? category.isRemoved;
+    if (createdDateTime != null && updatedDateTime != null) {
+      if (createdDateTime.isAfter(updatedDateTime)) {
+        throw ArgumentError.value(
+          createdDateTime,
+          'createdDateTime',
+          'createdDateTime must be before updatedDateTime',
+        );
+      }
+    }
+    category.createdAt = createdDateTime ?? category.createdAt;
+    category.updatedAt = updatedDateTime ?? DateTime.now();
     await isarInstance.writeTxn(() async {
-      await isarInstance.categorys.put(updatedCategory);
+      await isarInstance.categorys.put(category);
     });
   }
 
-  Future<void> delete(Id id) async {
+  Future<void> delete(Category category) async {
+    await isarInstance.writeTxn(() async {
+      final success = await isarInstance.categorys.delete(category.id);
+      if (!success) {
+        throw Exception('Failed to delete Category with id ${category.id}');
+      }
+    });
+  }
+
+  Future<void> deleteById(Id id) async {
     await isarInstance.writeTxn(() async {
       final success = await isarInstance.categorys.delete(id);
       if (!success) {

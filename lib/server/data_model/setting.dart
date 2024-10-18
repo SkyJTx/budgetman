@@ -66,8 +66,8 @@ class Setting {
     };
   }
 
-  factory Setting.fromJson(String source) => Setting.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Setting.fromJson(String source) =>
+      Setting.fromMap(json.decode(source) as Map<String, dynamic>);
 
   String toJson() => json.encode(toMap());
-
 }

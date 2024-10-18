@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:isar/isar.dart';
 
 extension ContextX on BuildContext {
   ThemeData get theme => Theme.of(this);
@@ -30,11 +31,18 @@ extension ContextX on BuildContext {
 }
 
 extension NumX on num {
+  num get pi => this * math.pi;
+  num get e => this * math.e;
   num pow(num exponent) => math.pow(this, exponent);
   num sqrt() => pow(0.5);
   num cbrt() => pow(1 / 3);
   num abs() => this < 0 ? -this : this;
   num round() => floorToDouble();
+  String toShortString({int fractionDigits = 2}) {
+    final level = ['', 'K', 'M', 'B', 'T', 'Q'];
+    final index = (math.log(this) ~/ math.log(1000)).clamp(0, level.length - 1);
+    return '${(this / math.pow(1000, index)).toStringAsFixed(fractionDigits)}${level[index]}';
+  }
 }
 
 extension Statistic on Iterable<num> {
@@ -103,4 +111,14 @@ extension Statistic on Iterable<num> {
   num get sKurtosis => map((e) => (e - mean).pow(4)).sum / ((length - 1) * sStdDev.pow(4));
   num get pCV => pStdDev / mean;
   num get sCV => sStdDev / mean;
+}
+
+extension BetterIsar on Isar {
+  static Isar get instance {
+    final isar = Isar.getInstance();
+    if (isar == null) {
+      throw Exception('Isar instance is null');
+    }
+    return isar;
+  }
 }

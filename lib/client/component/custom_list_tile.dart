@@ -1,4 +1,4 @@
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -7,7 +7,7 @@ class CustomListTile extends StatefulWidget {
     super.key,
     required this.leading,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.trailing,
     this.enableTrailingConstraints = true,
     this.trailingConstraints,
@@ -15,7 +15,7 @@ class CustomListTile extends StatefulWidget {
 
   final Widget leading;
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final Widget trailing;
   final bool enableTrailingConstraints;
   final BoxConstraints? trailingConstraints;
@@ -37,18 +37,20 @@ class CustomListTileState extends State<CustomListTile> {
               widget.leading,
               const SizedBox(width: 8),
               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.title,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme.of(context).textTheme.titleMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    widget.subtitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  if (widget.subtitle != null)
+                    Text(
+                      widget.subtitle!,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
               const SizedBox(width: 8),

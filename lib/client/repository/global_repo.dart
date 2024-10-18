@@ -6,6 +6,8 @@ import 'package:budgetman/client/presentation/component/component_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/main_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
+import 'package:budgetman/server/component/extension.dart';
+import 'package:budgetman/server/data_model/budget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -19,12 +21,63 @@ class ClientRepository {
     return instance;
   }
 
+  void showErrorSnackBar(
+    BuildContext context, {
+    Widget? leading,
+    required TextSpan message,
+    Widget? trailing,
+  }) {
+    scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
+        content: ListTile(
+          leading: leading,
+          title: Text.rich(
+            message,
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.theme.colorScheme.onError,
+            ),
+          ),
+          trailing: trailing,
+        ),
+        backgroundColor: context.theme.colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void showSuccessSnackBar(
+    BuildContext context, {
+    Widget? leading,
+    required TextSpan message,
+    Widget? trailing,
+  }) {
+    scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
+        content: ListTile(
+          leading: leading,
+          title: Text.rich(
+            message,
+          ),
+          trailing: trailing,
+        ),
+        backgroundColor: context.theme.colorScheme.secondaryContainer,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   final List<FutureOr<void> Function(ClientRepository)> listeners = [];
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static final router = GoRouter(
-    initialLocation: SettingPage.routeName,
+    initialLocation: HomePage.routeName,
     navigatorKey: navigatorKey,
     routes: [
       ShellRoute(
@@ -38,7 +91,6 @@ class ClientRepository {
         },
         routes: [
           GoRoute(
-            name: HomePage.pageName,
             path: HomePage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -47,16 +99,20 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: BudgetPage.pageName,
             path: BudgetPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
-                return const BudgetPage();
+                final budget = state.extra;
+                if (budget is Budget) {
+                  return BudgetPage(
+                    budget: budget,
+                  );
+                }
+                throw ArgumentError('Expected Argument: Budget, Got: $budget');
               },
             ),
           ),
           GoRoute(
-            name: CategoriesPage.pageName,
             path: CategoriesPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -65,7 +121,6 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: SettingPage.pageName,
             path: SettingPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
@@ -74,7 +129,6 @@ class ClientRepository {
             ),
           ),
           GoRoute(
-            name: ComponentPage.pageName,
             path: ComponentPage.routeName,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
