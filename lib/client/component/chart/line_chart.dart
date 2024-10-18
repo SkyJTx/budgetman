@@ -94,7 +94,7 @@ class CustomLineChartState extends State<CustomLineChart> {
               sideTitles: SideTitles(
                 showTitles: true,
                 maxIncluded: false,
-                interval: widget.data.map((e) => e.y).mean.toDouble(),
+                interval: widget.data.map((e) => e.y).max.toDouble() / 3,
                 getTitlesWidget: widget.getLeftAxisTitlesWidget ?? defaultGetTitle,
                 reservedSize: 62,
               ),
@@ -105,7 +105,7 @@ class CustomLineChartState extends State<CustomLineChart> {
                 showTitles: true,
                 minIncluded: false,
                 maxIncluded: false,
-                interval: widget.data.map((e) => e.x).mean.toDouble(),
+                interval: widget.data.map((e) => e.x).max.toDouble() / 3,
                 getTitlesWidget: widget.getBottomAxisTitlesWidget ?? defaultGetTitle,
               ),
             ),
