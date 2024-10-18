@@ -7,6 +7,7 @@ import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
 import 'package:budgetman/server/component/extension.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +64,7 @@ class MainPageState extends State<MainPage> {
                               scaffoldKey.currentState!.closeDrawer();
                             },
                           ),
-                          ListTile(
+                          if (kDebugMode) ListTile(
                             leading: const Icon(Icons.money),
                             title: const Text('Budget'),
                             onTap: () async {
@@ -82,7 +83,7 @@ class MainPageState extends State<MainPage> {
                               scaffoldKey.currentState!.closeDrawer();
                             },
                           ),
-                          ListTile(
+                          if (kDebugMode) ListTile(
                             leading: const Icon(Icons.widgets),
                             title: const Text('Component'),
                             onTap: () {
