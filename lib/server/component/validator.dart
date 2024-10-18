@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 class Validator {
   static String? titleValidator(String? value) {
     final frontBackSpaceRegEx = RegExp(r'^\s+|\s+$');
@@ -35,7 +33,7 @@ class Validator {
   static String? priorityValidator(String? value) {
     final numValue = int.tryParse(value ?? '');
     if (numValue == null) {
-      return 'Priority must be a number';
+      return 'Priority must be an integer';
     }
     if (numValue < 1) {
       return 'Priority must be at least 1';
@@ -54,15 +52,10 @@ class Validator {
     return null;
   }
 
-  static String? routineIntervalValidator(String? value) {
-    log(
-      "Warning: routineIntervalValidator is not recommended for use",
-      name: 'Validator',
-      error: const Deprecated('Use RoutineInterval instead'),
-    );
+  static String? routineIntervalSecondValidator(String? value) {
     final intValue = int.tryParse(value ?? '');
     if (intValue == null) {
-      return 'Routine interval must be a number';
+      return 'Routine interval must be an integer';
     }
     if (intValue < 60 * 60 * 24) {
       return 'Routine interval must be at least 1 day';
@@ -70,6 +63,17 @@ class Validator {
     final duration = Duration(seconds: intValue);
     if (duration.inDays > 365.25 * 20) {
       return 'Routine interval must be at most 20 years';
+    }
+    return null;
+  }
+
+  static String? routineIntervalDayValidator(String? value) {
+    final intValue = int.tryParse(value ?? '');
+    if (intValue == null) {
+      return 'Routine interval day must be an integer';
+    }
+    if (intValue < 1) {
+      return 'Routine interval day must be at least 1 day';
     }
     return null;
   }

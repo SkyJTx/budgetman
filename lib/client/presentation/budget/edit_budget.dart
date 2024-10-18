@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/custom_list_tile.dart';
 import 'package:budgetman/client/component/custom_text_form_field.dart';
+import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
 import 'package:budgetman/client/component/loading_overlay.dart';
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
+import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:budgetman/server/component/date_formatter.dart';
 import 'package:budgetman/server/component/extension.dart';
 import 'package:budgetman/server/component/validator.dart';
@@ -37,7 +39,8 @@ class EditBudgetState extends State<EditBudget> {
   final _startDateController = ValueChangeNotifier<DateTime>(DateTime.now());
   final _endDateController = ValueChangeNotifier<DateTime>(DateTime.now());
   final _isRoutineController = ValueChangeNotifier<bool>(false);
-  final _routineIntervalController = ValueChangeNotifier<Duration?>(null);
+  final _routineIntervalController = TextEditingController();
+  final _routineIntervalFormKey = GlobalKey<FormFieldState<String>>();
   final _isCompletedController = ValueChangeNotifier<bool>(false);
 
   void init() {
@@ -46,13 +49,16 @@ class EditBudgetState extends State<EditBudget> {
     _startDateController.value = widget.budget.startDate;
     _endDateController.value = widget.budget.endDate;
     _isRoutineController.value = widget.budget.isRoutine;
-    _routineIntervalController.value = widget.budget.routineInterval?.seconds;
+    _routineIntervalController.text = (widget.budget.routineInterval ?? '').toString();
     _isCompletedController.value = widget.budget.isCompleted;
     _titleController.addListener(() {
       _titleFormKey.currentState?.validate();
     });
     _descriptionController.addListener(() {
       _descriptionFormKey.currentState?.validate();
+    });
+    _routineIntervalController.addListener(() {
+      _routineIntervalFormKey.currentState?.validate();
     });
     _budgetBloc = widget.budgetBloc ?? BudgetBloc(widget.budget)
       ..init();
@@ -62,6 +68,7 @@ class EditBudgetState extends State<EditBudget> {
     return [
       _titleFormKey.currentState?.validate() ?? false,
       _descriptionFormKey.currentState?.validate() ?? false,
+      _routineIntervalFormKey.currentState?.validate() ?? false,
     ];
   }
 
@@ -79,6 +86,27 @@ class EditBudgetState extends State<EditBudget> {
       _budgetBloc = widget.budgetBloc ?? BudgetBloc(widget.budget)
         ..init();
     }
+  }
+
+  Future<DateTime> getDate({
+    required BuildContext context,
+    required DateTime firstDate,
+    required DateTime lastDate,
+    required DateTime currentDate,
+    required String title,
+  }) async {
+    final value = await showDatePicker(
+      context: context,
+      helpText: title,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      initialDate: currentDate,
+      useRootNavigator: false,
+    );
+    if (value == null) {
+      return currentDate;
+    }
+    return value;
   }
 
   @override
@@ -171,9 +199,6 @@ class EditBudgetState extends State<EditBudget> {
                             maxLength: 40,
                             controller: _titleController,
                             validator: Validator.titleValidator,
-                            onChanged: (value) {
-                              _titleFormKey.currentState?.validate();
-                            },
                           ),
                           CustomTextFormField(
                             key: _descriptionFormKey,
@@ -184,9 +209,6 @@ class EditBudgetState extends State<EditBudget> {
                             maxLength: 100,
                             controller: _descriptionController,
                             validator: Validator.descriptionValidator,
-                            onChanged: (value) {
-                              _descriptionFormKey.currentState?.validate();
-                            },
                           ),
                           BlocBuilder<ValueChangeNotifier<DateTime>, DateTime>(
                             builder: (context, state) {
@@ -205,7 +227,16 @@ class EditBudgetState extends State<EditBudget> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: null, //TODO: Implement Start Date
+                                  onPressed: () async {
+                                    final value = await getDate(
+                                      context: context,
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                                      currentDate: state,
+                                      title: 'Select Start Date',
+                                    );
+                                    _startDateController.value = value;
+                                  },
                                   child: Text(
                                     'Select Date',
                                     style: context.theme.textTheme.bodyMedium?.copyWith(
@@ -233,7 +264,16 @@ class EditBudgetState extends State<EditBudget> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: null, //TODO: Implement Start Date
+                                  onPressed: () async {
+                                    final value = await getDate(
+                                      context: context,
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                                      currentDate: state,
+                                      title: 'Select End Date',
+                                    );
+                                    _endDateController.value = value;
+                                  },
                                   child: Text(
                                     'Select Date',
                                     style: context.theme.textTheme.bodyMedium?.copyWith(
@@ -263,39 +303,42 @@ class EditBudgetState extends State<EditBudget> {
                               },
                             ),
                           ),
-                          CustomListTile(
-                            leading: Icon(
-                              Icons.timelapse_outlined,
-                              color: context.theme.colorScheme.primary,
-                            ),
-                            title: 'Routine Interval',
-                            trailing: BlocSelector<ValueChangeNotifier<bool>, bool,
-                                FutureOr<void> Function()?>(
-                              bloc: _isRoutineController,
-                              selector: (isRoutine) {
-                                if (!isRoutine) return null;
-                                return () async {}; //TODO: Implement Routine Interval
-                              },
-                              builder: (context, state) {
-                                return ElevatedButton(
-                                  onPressed: state,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: context.theme.colorScheme.secondaryContainer,
-                                    foregroundColor: context.theme.colorScheme.onSecondaryContainer,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Select Interval',
-                                    style: context.theme.textTheme.bodyMedium?.copyWith(
-                                      color: context.theme.colorScheme.onSecondaryContainer,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                          BlocBuilder<ValueChangeNotifier<bool>, bool>(
+                            builder: (context, state) {
+                              return CustomTextFormField(
+                                enabled: state,
+                                key: _routineIntervalFormKey,
+                                context: context,
+                                prefix: const Icon(Icons.repeat),
+                                label: const Text('Routine Interval'),
+                                suffix: const Text('days'),
+                                hintText: 'Enter routine interval in days',
+                                keyboardType: TextInputType.number,
+                                controller: _routineIntervalController,
+                                validator: Validator.routineIntervalDayValidator,
+                                onTapOutside: (event) {
+                                  final parsedDouble =
+                                      double.tryParse(_routineIntervalController.text);
+                                  if (parsedDouble == null) {
+                                    _routineIntervalController.text = '';
+                                  } else {
+                                    _routineIntervalController.text =
+                                        parsedDouble.round().toString();
+                                  }
+                                },
+                                onEditingComplete: () {
+                                  final parsedDouble =
+                                      double.tryParse(_routineIntervalController.text);
+                                  if (parsedDouble == null) {
+                                    _routineIntervalController.text = '';
+                                  } else {
+                                    _routineIntervalController.text =
+                                        parsedDouble.round().toString();
+                                  }
+                                },
+                              );
+                            },
+                          )
                         ].map((e) {
                           return Column(
                             children: [
@@ -304,6 +347,63 @@ class EditBudgetState extends State<EditBudget> {
                             ],
                           );
                         }),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final isValid = postInit().reduce((value, element) => value && element);
+                            if (!isValid) return;
+                            if (!await ConfirmationDialog.show(
+                              context: context,
+                              title: 'Do you want to change this budget?',
+                              content: 'Please confirm your inputs. This action cannot be undone.',
+                            )) return;
+                            if (!context.mounted) return;
+                            await LoadingOverlay.wait(
+                                context,
+                                _budgetBloc.updateBudget(
+                                  name: _titleController.text,
+                                  description: _descriptionController.text,
+                                  startDate: _startDateController.value,
+                                  endDate: _endDateController.value,
+                                  isRoutine: _isRoutineController.value,
+                                  routineInterval: int.tryParse(_routineIntervalController.text)
+                                      ?.seconds
+                                      .inSeconds,
+                                  isCompleted: _isCompletedController.value,
+                                ));
+                            if (!context.mounted) return;
+                            if (state.error != null) {
+                              ClientRepository().showErrorSnackBar(
+                                context,
+                                message: TextSpan(
+                                  text: state.error!.message,
+                                  style: context.textTheme.bodyMedium,
+                                ),
+                              );
+                            }
+                            ClientRepository().showSuccessSnackBar(context,
+                                message: TextSpan(
+                                  text: 'Budget Updated Successfully',
+                                  style: context.textTheme.bodyMedium,
+                                ));
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.theme.colorScheme.primary,
+                            foregroundColor: context.theme.colorScheme.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Text(
+                              'Save',
+                              style: context.textTheme.headlineMedium?.copyWith(
+                                color: context.theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
