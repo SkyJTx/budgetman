@@ -1,6 +1,7 @@
 import 'package:budgetman/client/component/chart/line_chart.dart';
 import 'package:budgetman/client/presentation/budget/budget_list/add_budget_list.dart';
 import 'package:budgetman/client/presentation/budget/budget_list/edit_budget_list.dart';
+import 'package:budgetman/client/presentation/budget/edit_budget.dart';
 import 'package:collection/collection.dart';
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
@@ -340,7 +341,17 @@ class BudgetPageState extends State<BudgetPage> {
                               children: [
                                 Flexible(
                                   child: ElevatedButton.icon(
-                                    onPressed: null,
+                                    onPressed: () {
+                                      showBarModalBottomSheet(
+                                        context: context,
+                                        builder: (context) {
+                                          return EditBudget(
+                                            budgetBloc: budgetBloc,
+                                            budget: widget.budget,
+                                          );
+                                        },
+                                      );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       shape: const RoundedRectangleBorder(
                                         borderRadius: BorderRadius.only(
