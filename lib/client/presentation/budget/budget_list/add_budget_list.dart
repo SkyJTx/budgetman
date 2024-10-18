@@ -1,10 +1,12 @@
 import 'package:budgetman/client/bloc/budget/budget_bloc.dart';
 import 'package:budgetman/client/component/component.dart';
 import 'package:budgetman/client/component/custom_text_form_field.dart';
+import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
 import 'package:budgetman/client/component/loading_overlay.dart';
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
-import 'package:budgetman/extension.dart';
+import 'package:budgetman/server/component/extension.dart';
+import 'package:budgetman/server/component/validator.dart';
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/categories.dart';
 import 'package:flutter/material.dart';
@@ -58,59 +60,6 @@ class AddBudgetListState extends State<AddBudgetList> {
     _descriptionValidator.value = _descriptionFormKey.currentState?.validate() ?? false;
     _priorityValidator.value = _priorityFormKey.currentState?.validate() ?? false;
     _amountValidator.value = _amountFormKey.currentState?.validate() ?? false;
-  }
-
-  String? titleValidator(String? value) {
-    final frontBackSpaceRegEx = RegExp(r'^\s+|\s+$');
-    if (value == null || value.isEmpty) {
-      return 'Title cannot be empty';
-    }
-    if (value.length < 3) {
-      return 'Title must be at least 3 characters';
-    }
-    if (value.length > 40) {
-      return 'Title must be at most 40 characters';
-    }
-    if (frontBackSpaceRegEx.hasMatch(value)) {
-      return 'Title must be different from the previous one';
-    }
-    return null;
-  }
-
-  String? descriptionValidator(String? value) {
-    final frontBackSpaceRegEx = RegExp(r'^\s+|\s+$');
-    if (value == null) {
-      return 'Description cannot be empty';
-    }
-    if (value.length > 100) {
-      return 'Description must be at most 100 characters';
-    }
-    if (frontBackSpaceRegEx.hasMatch(value)) {
-      return 'Description must be different from the previous one';
-    }
-    return null;
-  }
-
-  String? priorityValidator(String? value) {
-    final numValue = int.tryParse(value ?? '');
-    if (numValue == null) {
-      return 'Priority must be a number';
-    }
-    if (numValue < 1) {
-      return 'Priority must be at least 1';
-    }
-    return null;
-  }
-
-  String? amountValidator(String? value) {
-    final numValue = double.tryParse(value ?? '');
-    if (numValue == null) {
-      return 'Amount must be a number';
-    }
-    if (numValue < 0) {
-      return 'Amount must be at least 0';
-    }
-    return null;
   }
 
   @override
@@ -176,7 +125,7 @@ class AddBudgetListState extends State<AddBudgetList> {
                         hintText: 'Enter budget list\'s title',
                         maxLength: 40,
                         controller: _titleController,
-                        validator: titleValidator,
+                        validator: Validator.titleValidator,
                         onChanged: (value) {
                           _titleValidator.value = _titleFormKey.currentState?.validate() ?? false;
                         },
@@ -189,7 +138,7 @@ class AddBudgetListState extends State<AddBudgetList> {
                         hintText: 'Enter budget list\'s description',
                         maxLength: 100,
                         controller: _descriptionController,
-                        validator: descriptionValidator,
+                        validator: Validator.descriptionValidator,
                         onChanged: (value) {
                           _descriptionValidator.value =
                               _descriptionFormKey.currentState?.validate() ?? false;
@@ -203,7 +152,7 @@ class AddBudgetListState extends State<AddBudgetList> {
                         hintText: 'Higher priority will be shown first',
                         keyboardType: TextInputType.number,
                         controller: _priorityController,
-                        validator: priorityValidator,
+                        validator: Validator.priorityValidator,
                         onChanged: (value) {
                           _priorityValidator.value =
                               _priorityFormKey.currentState?.validate() ?? false;
@@ -217,7 +166,7 @@ class AddBudgetListState extends State<AddBudgetList> {
                         hintText: 'Enter budget list\'s amount',
                         keyboardType: TextInputType.number,
                         controller: _amountController,
-                        validator: amountValidator,
+                        validator: Validator.amountValidator,
                         onChanged: (value) {
                           _amountValidator.value = _amountFormKey.currentState?.validate() ?? false;
                         },
@@ -320,6 +269,12 @@ class AddBudgetListState extends State<AddBudgetList> {
                             !_amountValidator.value) {
                           return;
                         }
+                        if (!await ConfirmationDialog.show(
+                          context: context,
+                          title: 'Do you want to create this budget list?',
+                          content: 'Please confirm your inputs.',
+                        )) return;
+                        if (!context.mounted) return;
                         await LoadingOverlay.wait(
                             context,
                             widget.budgetBloc.addBudgetList(
