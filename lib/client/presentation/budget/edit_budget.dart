@@ -49,7 +49,8 @@ class EditBudgetState extends State<EditBudget> {
     _startDateController.value = widget.budget.startDate;
     _endDateController.value = widget.budget.endDate;
     _isRoutineController.value = widget.budget.isRoutine;
-    _routineIntervalController.text = (widget.budget.routineInterval ?? '').toString();
+    _routineIntervalController.text =
+        (widget.budget.routineInterval?.seconds.inDays ?? '').toString();
     _isCompletedController.value = widget.budget.isCompleted;
     _titleController.addListener(() {
       _titleFormKey.currentState?.validate();
@@ -211,6 +212,7 @@ class EditBudgetState extends State<EditBudget> {
                             validator: Validator.descriptionValidator,
                           ),
                           BlocBuilder<ValueChangeNotifier<DateTime>, DateTime>(
+                            bloc: _startDateController,
                             builder: (context, state) {
                               return CustomListTile(
                                 leading: Icon(
@@ -248,6 +250,7 @@ class EditBudgetState extends State<EditBudget> {
                             },
                           ),
                           BlocBuilder<ValueChangeNotifier<DateTime>, DateTime>(
+                            bloc: _endDateController,
                             builder: (context, state) {
                               return CustomListTile(
                                 leading: Icon(
@@ -304,6 +307,7 @@ class EditBudgetState extends State<EditBudget> {
                             ),
                           ),
                           BlocBuilder<ValueChangeNotifier<bool>, bool>(
+                            bloc: _isRoutineController,
                             builder: (context, state) {
                               return CustomTextFormField(
                                 enabled: state,
@@ -365,9 +369,8 @@ class EditBudgetState extends State<EditBudget> {
                                   startDate: _startDateController.value,
                                   endDate: _endDateController.value,
                                   isRoutine: _isRoutineController.value,
-                                  routineInterval: int.tryParse(_routineIntervalController.text)
-                                      ?.seconds
-                                      .inSeconds,
+                                  routineInterval:
+                                      int.tryParse(_routineIntervalController.text)?.days.inSeconds,
                                   isCompleted: _isCompletedController.value,
                                 ));
                             if (!context.mounted) return;
