@@ -26,7 +26,12 @@ class CustomTextFormField extends TextFormField {
             label: label,
             hintText: hintText,
             prefixIcon: prefix,
-            suffixIcon: suffix,
+            suffixIcon: suffix != null
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [suffix],
+                  )
+                : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
             ),
