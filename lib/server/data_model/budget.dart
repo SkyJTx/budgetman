@@ -26,6 +26,7 @@ class Budget {
 
   bool isRoutine;
 
+  // Interval in seconds
   int? routineInterval;
 
   final budgetList = IsarLinks<BudgetList>();
@@ -37,6 +38,13 @@ class Budget {
   late DateTime createdAt;
 
   late DateTime updatedAt;
+
+  @ignore
+  Duration? get intervalDuration {
+    if (!isRoutine) return null;
+    if (routineInterval == null) throw ArgumentError('routineInterval is null');
+    return Duration(seconds: routineInterval!);
+  }
 
   Budget({
     this.id = Isar.autoIncrement,
