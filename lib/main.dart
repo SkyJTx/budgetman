@@ -1,3 +1,5 @@
+// main.dart
+import 'package:budgetman/client/bloc/categories/categories_bloc.dart';
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
@@ -16,16 +18,29 @@ void main() async {
 
 Future<Widget> get widget => init().then((_) => MultiRepositoryProvider(
       providers: [
-        ClientRepository(),
-        BudgetRepository(),
-        BudgetListRepository(),
-        CategoryRepository(),
-        SettingsRepository()..init(),
-      ].map((e) => RepositoryProvider.value(value: e)).toList(),
+        // จัดเตรียม CategoryRepository โดยใช้ RepositoryProvider<T>.create แยกต่างหาก
+        RepositoryProvider<CategoryRepository>(
+          create: (_) => CategoryRepository(),
+        ),
+        // จัดเตรียม repositories อื่นๆ โดยใช้ .map และ RepositoryProvider.value
+        ...[
+          ClientRepository(),
+          BudgetRepository(),
+          BudgetListRepository(),
+          SettingsRepository()..init(),
+        ].map((e) => RepositoryProvider.value(value: e)),
+      ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(
+          // จัดเตรียม SettingsBloc
+          BlocProvider<SettingsBloc>(
             create: (context) => SettingsBloc()..init(),
+          ),
+          // จัดเตรียม CategoriesBloc โดยดึง CategoryRepository จาก context
+          BlocProvider<CategoriesBloc>(
+            create: (context) => CategoriesBloc(
+              context.read<CategoryRepository>(),
+            )..add(LoadCategories()),
           ),
         ],
         child: const BudgetManApp(),
