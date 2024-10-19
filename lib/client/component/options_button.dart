@@ -1,10 +1,10 @@
+import 'package:budgetman/client/component/dialog/category_dialog.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-
 class OptionsButton extends StatefulWidget {
   const OptionsButton({
     super.key,
@@ -57,6 +57,9 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                       ),
                       onTap: () {
                         _removeOverlay();
+                        if (widget.locate == CategoriesPage.routeName) {
+                          showCategoryDialog(context);
+                        }
                       },
                     ),
                     if (widget.locate == BudgetPage.routeName)
@@ -121,6 +124,7 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
       isClicked = !isClicked;
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
