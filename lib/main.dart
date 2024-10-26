@@ -1,3 +1,4 @@
+import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
@@ -14,53 +15,30 @@ void main() async {
   runApp(await widget);
 }
 
-Future<Widget> get widget => init().then(
-      (compatible) {
-        if (compatible) {
-          return MultiRepositoryProvider(
-            providers: [
-              ClientRepository(),
-              BudgetRepository(),
-              BudgetListRepository(),
-              CategoryRepository(),
-              SettingsRepository()..init(),
-            ].map((e) => RepositoryProvider.value(value: e)).toList(),
-            child: MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (context) => SettingsBloc()..init(),
-                ),
-              ],
-              child: const BudgetManApp(),
-            ),
-          );
-        }
-        return const MaterialApp(
-          home: Scaffold(
-            body: SafeArea(
-                child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.error,
-                    size: 100.0,
-                    color: Colors.red,
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Your device is not compatible with this app.',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            )),
-          ),
-        );
-      },
-    );
+Future<Widget> get widget async {
+  await init(); // Assuming init() is still required for some initialization
+
+  return MultiRepositoryProvider(
+    providers: [
+      ClientRepository(),
+      BudgetRepository(),
+      BudgetListRepository(),
+      CategoryRepository(),
+      SettingsRepository()..init(),
+    ].map((e) => RepositoryProvider.value(value: e)).toList(),
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => SettingsBloc()..init(),
+        ),
+        BlocProvider(
+          create: (context) => HomeBloc()..init(),
+        ),
+      ],
+      child: const BudgetManApp(),
+    ),
+  );
+}
 
 class BudgetManApp extends StatefulWidget {
   const BudgetManApp({super.key});
