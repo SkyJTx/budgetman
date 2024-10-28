@@ -114,296 +114,314 @@ class BudgetListTileState extends State<BudgetListTile> {
         BlocProvider.value(value: _selectionController),
         BlocProvider.value(value: _completeController),
       ],
-      child: ExpansionTile(
-        controller: _expandedController,
-        shape: RoundedRectangleBorder(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 1),
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          side: BorderSide.none,
-        ),
-        collapsedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide.none,
-        ),
-        expansionAnimationStyle: AnimationStyle(
-          curve: Curves.easeInOut,
-          duration: 0.3.seconds,
-          reverseCurve: Curves.easeInOut,
-          reverseDuration: 0.3.seconds,
-        ),
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        backgroundColor: context.theme.colorScheme.primaryContainer,
-        collapsedBackgroundColor: context.theme.colorScheme.surfaceContainerHighest,
-        leading: BlocBuilder<ValueChangeNotifier<bool>, bool>(
-          bloc: _completeController,
-          builder: (context, state) {
-            return Checkbox(
-              value: state,
-              onChanged: (value) async {
-                _completeController.value = value!;
-              },
-            );
-          },
-        ),
-        title: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color:
-                    widget.budgetList.category.value?.color ?? context.theme.colorScheme.tertiary,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Text(
-                widget.budgetList.category.value?.name ?? 'None',
-                style: context.theme.textTheme.titleMedium?.copyWith(
-                  color: widget.budgetList.category.value?.color ??
-                      context.theme.colorScheme.onTertiary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              widget.budgetList.title,
-              style: context.theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
-              strutStyle: const StrutStyle(height: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: context.theme.colorScheme.onSurface.withOpacity(0.2),
+              blurRadius: 6,
+              spreadRadius: 3,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        subtitle: Row(
-          children: [
-            Text(
-              '฿ ${widget.budgetList.budget.toShortString()}',
-              style: context.theme.textTheme.titleMedium,
-            ),
-            const SizedBox(width: 8),
-            Builder(
-              builder: (context) {
-                Color? color;
-                Color? textColor;
-                if (widget.budgetList.deadline.isBefore(DateTime.now())) {
-                  color = context.theme.colorScheme.error;
-                  textColor = context.theme.colorScheme.onError;
-                } else if (widget.budgetList.deadline.isBefore(DateTime.now().add(1.days))) {
-                  color = Colors.yellowAccent;
-                  textColor = Colors.black;
-                }
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(4),
+        child: ExpansionTile(
+          controller: _expandedController,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide.none,
+          ),
+          collapsedShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide.none,
+          ),
+          expansionAnimationStyle: AnimationStyle(
+            curve: Curves.easeInOut,
+            duration: 0.3.seconds,
+            reverseCurve: Curves.easeInOut,
+            reverseDuration: 0.3.seconds,
+          ),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          backgroundColor: context.theme.colorScheme.primaryContainer,
+          collapsedBackgroundColor: context.theme.colorScheme.surfaceContainerHighest,
+          leading: BlocBuilder<ValueChangeNotifier<bool>, bool>(
+            bloc: _completeController,
+            builder: (context, state) {
+              return Checkbox(
+                value: state,
+                onChanged: (value) async {
+                  _completeController.value = value!;
+                },
+              );
+            },
+          ),
+          title: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color:
+                      widget.budgetList.category.value?.color ?? context.theme.colorScheme.tertiary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Text(
+                  widget.budgetList.category.value?.name ?? 'None',
+                  style: context.theme.textTheme.titleMedium?.copyWith(
+                    color: widget.budgetList.category.value?.color ??
+                        context.theme.colorScheme.onTertiary,
                   ),
-                  child: Text(
-                    DateFormat('dd/MM/y').format(widget.budgetList.deadline),
-                    style: context.theme.textTheme.titleMedium?.copyWith(
-                      color: textColor ?? context.theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.budgetList.title,
+                style: context.theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+                strutStyle: const StrutStyle(height: 1.5),
+              ),
+            ],
+          ),
+          subtitle: Row(
+            children: [
+              Text(
+                '฿ ${widget.budgetList.budget.toShortString()}',
+                style: context.theme.textTheme.titleMedium,
+              ),
+              const SizedBox(width: 8),
+              Builder(
+                builder: (context) {
+                  Color? color;
+                  Color? textColor;
+                  if (widget.budgetList.deadline.isBefore(DateTime.now())) {
+                    color = context.theme.colorScheme.error;
+                    textColor = context.theme.colorScheme.onError;
+                  } else if (widget.budgetList.deadline.isBefore(DateTime.now().add(1.days))) {
+                    color = Colors.yellowAccent;
+                    textColor = Colors.black;
+                  }
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      DateFormat('dd/MM/y').format(widget.budgetList.deadline),
+                      style: context.theme.textTheme.titleMedium?.copyWith(
+                        color: textColor ?? context.theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          children: [
+            Divider(
+              height: 1,
+              color: context.theme.colorScheme.primary,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: SelectionArea(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Description: ',
+                                  style: context.theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: widget.budgetList.description,
+                                  style: context.theme.textTheme.titleMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Priority: ',
+                                  style: context.theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: widget.budgetList.priority.toString(),
+                                  style: context.theme.textTheme.titleMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Amount: ',
+                                  style: context.theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '฿ ${widget.budgetList.budget.toStringAsFixed(2)}',
+                                  style: context.theme.textTheme.titleMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Created: ',
+                                  style: context.theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: DateFormat('dd/MM/y').format(widget.budgetList.createdAt),
+                                  style: context.theme.textTheme.titleMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Deadline: ',
+                                  style: context.theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: DateFormat('dd/MM/y').format(widget.budgetList.deadline),
+                                  style: context.theme.textTheme.titleMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
-              },
-            ),
-          ],
-        ),
-        children: [
-          Divider(
-            height: 1,
-            color: context.theme.colorScheme.primary,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SelectionArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Description: ',
-                              style: context.theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: widget.budgetList.description,
-                              style: context.theme.textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Priority: ',
-                              style: context.theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: widget.budgetList.priority.toString(),
-                              style: context.theme.textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Amount: ',
-                              style: context.theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '฿ ${widget.budgetList.budget.toStringAsFixed(2)}',
-                              style: context.theme.textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Created: ',
-                              style: context.theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: DateFormat('dd/MM/y').format(widget.budgetList.createdAt),
-                              style: context.theme.textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Deadline: ',
-                              style: context.theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: DateFormat('dd/MM/y').format(widget.budgetList.deadline),
-                              style: context.theme.textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 2.w),
-                Flexible(
-                  child: Center(
-                    child: ElevatedButton(
-                      onPressed: widget.budgetList.imagesBytes.isEmpty
-                          ? null
-                          : () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return Stack(
-                                    alignment: AlignmentDirectional.center,
-                                    children: [
-                                      InteractiveViewer(
-                                        child: Image.memory(
-                                          Uint8List.fromList(widget.budgetList.imagesBytes),
-                                          fit: BoxFit.cover,
+                  SizedBox(width: 2.w),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 20.w,
+                    ),
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: widget.budgetList.imagesBytes.isEmpty
+                            ? null
+                            : () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return Stack(
+                                      alignment: AlignmentDirectional.center,
+                                      children: [
+                                        InteractiveViewer(
+                                          child: Image.memory(
+                                            Uint8List.fromList(widget.budgetList.imagesBytes),
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
-                                      ),
-                                      Positioned.directional(
-                                        textDirection: Directionality.of(context),
-                                        end: 12,
-                                        top: 12,
-                                        child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          label: const Text('Close'),
-                                          icon: const Icon(Icons.close),
+                                        Positioned.directional(
+                                          textDirection: Directionality.of(context),
+                                          end: 12,
+                                          top: 12,
+                                          child: ElevatedButton.icon(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            label: const Text('Close'),
+                                            icon: const Icon(Icons.close),
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Text(
-                          'View Image',
-                          textAlign: TextAlign.center,
-                          style: context.theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: context.theme.colorScheme.primary,
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            'View Image',
+                            textAlign: TextAlign.center,
+                            style: context.theme.textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: context.theme.colorScheme.primary,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Center(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          bottomLeft: Radius.circular(16),
-                        ),
-                      ),
-                    ),
-                    onPressed: widget.onPressEdit != null
-                        ? () {
-                            widget.onPressEdit?.call(widget.budgetList);
-                          }
-                        : null,
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Edit'),
-                  ),
-                  const VerticalDivider(width: 2),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(16),
-                          bottomRight: Radius.circular(16),
-                        ),
-                      ),
-                    ),
-                    onPressed: widget.onPressDelete != null
-                        ? () {
-                            widget.onPressDelete?.call(widget.budgetList);
-                          }
-                        : null,
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Delete'),
-                  ),
                 ],
               ),
             ),
-          ),
-          SizedBox(height: 1.h),
-        ],
+            Center(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            bottomLeft: Radius.circular(16),
+                          ),
+                        ),
+                      ),
+                      onPressed: widget.onPressEdit != null
+                          ? () {
+                              widget.onPressEdit?.call(widget.budgetList);
+                            }
+                          : null,
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Edit'),
+                    ),
+                    const VerticalDivider(width: 2),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                          ),
+                        ),
+                      ),
+                      onPressed: widget.onPressDelete != null
+                          ? () {
+                              widget.onPressDelete?.call(widget.budgetList);
+                            }
+                          : null,
+                      icon: const Icon(Icons.delete),
+                      label: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 1.h),
+          ],
+        ),
       ),
     );
   }

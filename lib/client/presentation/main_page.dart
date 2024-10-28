@@ -1,4 +1,5 @@
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
+import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
 import 'package:budgetman/client/presentation/component/component_page.dart';
@@ -29,91 +30,120 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final toggleOptionButtonController = ValueChangeNotifier<bool>(true);
+
+  bool get isOptionButtonVisible => toggleOptionButtonController.value;
+  set setOptionButtonVisibility(bool value) => toggleOptionButtonController.value = value;
+
+  List<String> get optionButtonVisibleLocation => [
+        HomePage.routeName,
+        CategoriesPage.routeName,
+      ];
+
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state.matchedLocation != widget.state.matchedLocation) {
+      setOptionButtonVisibility = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsState>(
-      builder: (context, state) {
-        return Scaffold(
-            key: scaffoldKey,
-            appBar: AppBar(
-              title: ListTile(
-                title: const Text('BudgetMan App'),
-                subtitle: Text(widget.state.matchedLocation),
-                titleTextStyle: context.textTheme.titleLarge,
-              ),
-            ),
-            drawer: Drawer(
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    SizedBox(height: 3.h),
-                    const CircleAvatar(
-                      radius: 50,
-                      child: FlutterLogo(size: 50),
-                    ),
-                    SizedBox(height: 3.h),
-                    Flexible(
-                      child: ListView(
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.home),
-                            title: const Text('Home'),
-                            onTap: () {
-                              context.go(HomePage.routeName);
-                              scaffoldKey.currentState!.closeDrawer();
-                            },
-                          ),
-                          if (kDebugMode) ListTile(
-                            leading: const Icon(Icons.money),
-                            title: const Text('Budget'),
-                            onTap: () async {
-                              final budget =
-                                  await BudgetRepository().getAll().then((value) => value.first);
-                              if (!context.mounted) return;
-                              context.go(BudgetPage.routeName, extra: budget);
-                              scaffoldKey.currentState!.closeDrawer();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.category),
-                            title: const Text('Categories'),
-                            onTap: () {
-                              context.go(CategoriesPage.routeName);
-                              scaffoldKey.currentState!.closeDrawer();
-                            },
-                          ),
-                          if (kDebugMode) ListTile(
-                            leading: const Icon(Icons.widgets),
-                            title: const Text('Component'),
-                            onTap: () {
-                              context.go(ComponentPage.routeName);
-                              scaffoldKey.currentState!.closeDrawer();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.settings),
-                            title: const Text('Setting'),
-                            onTap: () {
-                              context.go(SettingPage.routeName);
-                              scaffoldKey.currentState!.closeDrawer();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+    return BlocBuilder<ValueChangeNotifier<bool>, bool>(
+      bloc: toggleOptionButtonController,
+      builder: (context, isVisible) {
+        return BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            return Scaffold(
+              key: scaffoldKey,
+              appBar: AppBar(
+                title: ListTile(
+                  title: const Text('BudgetMan App'),
+                  subtitle: Text(widget.state.matchedLocation),
+                  titleTextStyle: context.textTheme.titleLarge,
                 ),
               ),
-            ),
-            body: SafeArea(
-              child: widget.child,
-            ),
-            floatingActionButton: () {
-              if (widget.state.matchedLocation == HomePage.routeName) {
-                return const OptionsButton(locate: HomePage.routeName);
-              }
-            }());
+              drawer: Drawer(
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 3.h),
+                      const CircleAvatar(
+                        radius: 50,
+                        child: FlutterLogo(size: 50),
+                      ),
+                      SizedBox(height: 3.h),
+                      Flexible(
+                        child: ListView(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.home),
+                              title: const Text('Home'),
+                              onTap: () {
+                                context.go(HomePage.routeName);
+                                scaffoldKey.currentState!.closeDrawer();
+                              },
+                            ),
+                            if (kDebugMode)
+                              ListTile(
+                                leading: const Icon(Icons.money),
+                                title: const Text('Budget'),
+                                onTap: () async {
+                                  final budget = await BudgetRepository()
+                                      .getAll()
+                                      .then((value) => value.first);
+                                  if (!context.mounted) return;
+                                  context.go(BudgetPage.routeName, extra: budget);
+                                  scaffoldKey.currentState!.closeDrawer();
+                                },
+                              ),
+                            ListTile(
+                              leading: const Icon(Icons.category),
+                              title: const Text('Categories'),
+                              onTap: () {
+                                context.go(CategoriesPage.routeName);
+                                scaffoldKey.currentState!.closeDrawer();
+                              },
+                            ),
+                            if (kDebugMode)
+                              ListTile(
+                                leading: const Icon(Icons.widgets),
+                                title: const Text('Component'),
+                                onTap: () {
+                                  context.go(ComponentPage.routeName);
+                                  scaffoldKey.currentState!.closeDrawer();
+                                },
+                              ),
+                            ListTile(
+                              leading: const Icon(Icons.settings),
+                              title: const Text('Setting'),
+                              onTap: () {
+                                context.go(SettingPage.routeName);
+                                scaffoldKey.currentState!.closeDrawer();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              body: SafeArea(
+                child: widget.child,
+              ),
+              floatingActionButton: isVisible &&
+                      optionButtonVisibleLocation
+                          .any((element) => element == widget.state.matchedLocation)
+                  ? OptionsButton(
+                      locate: optionButtonVisibleLocation
+                          .firstWhere((element) => element == widget.state.matchedLocation),
+                    )
+                  : null,
+            );
+          },
+        );
       },
     );
   }

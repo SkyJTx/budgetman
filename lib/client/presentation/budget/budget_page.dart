@@ -83,10 +83,53 @@ class BudgetPageState extends State<BudgetPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Text(
-                            widget.budget.name,
-                            style: context.theme.textTheme.titleLarge,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Builder(
+                                builder: (context) {
+                                  final formattedDes = widget.budget.description.splitMapJoin(
+                                    RegExp(r'^\s+|\s+$'),
+                                    onMatch: (m) => '',
+                                    onNonMatch: (n) => n,
+                                  );
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: context.theme.colorScheme.primary,
+                                    ),
+                                    child: Tooltip(
+                                      message:
+                                          formattedDes.isEmpty ? 'No Description' : formattedDes,
+                                      triggerMode: TooltipTriggerMode.tap,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.money,
+                                            color: context.theme.colorScheme.onPrimary,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            widget.budget.name,
+                                            style: context.theme.textTheme.titleLarge?.copyWith(
+                                              color: context.theme.colorScheme.onPrimary,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Total Budget: ${state.budget.budgetList.map((e) => e.budget).sum.toShortString()}',
+                                style: context.theme.textTheme.titleMedium,
+                              ),
+                            ],
                           ),
                         ),
                         BlocSelector<BudgetBloc, BudgetState, bool>(
@@ -192,6 +235,7 @@ class BudgetPageState extends State<BudgetPage> {
                                       onPressEdit: (budgetList) {
                                         showBarModalBottomSheet(
                                           context: context,
+                                          backgroundColor: context.theme.colorScheme.surface,
                                           builder: (context) {
                                             return EditBudgetList(
                                               budgetBloc: budgetBloc,
@@ -336,71 +380,95 @@ class BudgetPageState extends State<BudgetPage> {
                             constraints: BoxConstraints(
                               maxWidth: 80.w < 100.h || 100.w < 898 ? double.infinity : 50.w,
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      showBarModalBottomSheet(
-                                        context: context,
-                                        builder: (context) {
-                                          return EditBudget(
-                                            budgetBloc: budgetBloc,
-                                            budget: widget.budget,
-                                          );
-                                        },
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(12),
-                                          bottomLeft: Radius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                    label: const Text(
-                                      'Edit Budget',
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    icon: const Icon(Icons.edit),
-                                  ),
-                                ),
-                                VerticalDivider(
-                                  width: 2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
                                   color: context.theme.colorScheme.secondary,
                                 ),
-                                Flexible(
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      showBarModalBottomSheet(
-                                        context: context,
-                                        builder: (context) {
-                                          return AddBudgetList(
-                                            budgetBloc: budgetBloc,
-                                            budget: widget.budget,
-                                            categories: state.categories,
-                                          );
-                                        },
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(12),
-                                          bottomRight: Radius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: context.theme.colorScheme.onSurface.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        showBarModalBottomSheet(
+                                          context: context,
+                                          backgroundColor: context.theme.colorScheme.surface,
+                                          builder: (context) {
+                                            return EditBudget(
+                                              budgetBloc: budgetBloc,
+                                              budget: widget.budget,
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            bottomLeft: Radius.circular(12),
+                                          ),
+                                        ),
+                                        foregroundColor: context.theme.colorScheme.onPrimary,
+                                        backgroundColor: context.theme.colorScheme.primary,
+                                      ),
+                                      label: Text(
+                                        'Edit Budget',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: context.theme.colorScheme.onPrimary,
                                         ),
                                       ),
+                                      icon: const Icon(Icons.edit),
                                     ),
-                                    label: const Text(
-                                      'Add Budget List',
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    icon: const Icon(Icons.add),
                                   ),
-                                ),
-                              ],
+                                  VerticalDivider(
+                                    width: 2,
+                                    color: context.theme.colorScheme.secondary,
+                                  ),
+                                  Flexible(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        showBarModalBottomSheet(
+                                          context: context,
+                                          backgroundColor: context.theme.colorScheme.surface,
+                                          builder: (context) {
+                                            return AddBudgetList(
+                                              budgetBloc: budgetBloc,
+                                              budget: widget.budget,
+                                              categories: state.categories,
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(12),
+                                            bottomRight: Radius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                      label: const Text(
+                                        'Add Budget List',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      icon: const Icon(Icons.add),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
 

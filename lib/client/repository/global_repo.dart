@@ -72,11 +72,14 @@ class ClientRepository {
     );
   }
 
-  final List<FutureOr<void> Function(ClientRepository)> listeners = [];
+  MainPageState get mainPageState => mainPageKey.currentState!;
+  
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
-  static final router = GoRouter(
+  static final GlobalKey<MainPageState> mainPageKey = GlobalKey<MainPageState>();
+  final List<FutureOr<void> Function(ClientRepository)> listeners = [];
+  final router = GoRouter(
     initialLocation: HomePage.routeName,
     navigatorKey: navigatorKey,
     routes: [
@@ -84,6 +87,7 @@ class ClientRepository {
         pageBuilder: (context, state, child) {
           return MaterialPage(
             child: MainPage(
+              key: mainPageKey,
               state: state,
               child: child,
             ),
