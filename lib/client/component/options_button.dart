@@ -39,6 +39,14 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: Theme.of(context).colorScheme.primaryContainer,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 constraints: const BoxConstraints(maxWidth: 220),
                 child: ListView(
