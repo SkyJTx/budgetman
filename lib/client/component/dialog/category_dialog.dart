@@ -239,18 +239,29 @@ class _CategoryDialogState extends State<CategoryDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
+               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  hintText: 'ชื่อหมวดหมู่',
+                  hintText: 'Category name',
                   hintStyle: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.hintColor,
                   ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0), 
                 ),
                 style: theme.textTheme.bodyLarge,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'กรุณากรอกชื่อหมวดหมู่';
+                    return 'enter category name';
+                  }
+                  final categoriesState = context.read<CategoriesBloc>().state;
+                  if (categoriesState is CategoriesLoaded) {
+                    final isDuplicate = categoriesState.categories.any((category) =>
+                        category.name.toLowerCase() == value.toLowerCase() &&
+                        category.id != widget.category?.id); // ไม่นับกรณีที่กำลังแก้ไขหมวดหมู่เดิม
+                    
+                    if (isDuplicate) {
+                      return 'Category name already exists';
+                    }
                   }
                   return null;
                 },
@@ -259,7 +270,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
               TextFormField(
                 readOnly: true,
                 decoration: InputDecoration(
-                  hintText: 'เลือกสี',
+                  hintText: 'Category color',
                   hintStyle: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.hintColor,
                   ),
@@ -267,6 +278,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
                   fillColor: theme.colorScheme.surfaceContainerHighest,
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0), // Added padding
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(8.0),
                     width: 24,
@@ -284,7 +296,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
                 },
                 validator: (value) {
                   if (_selectedColor == null) {
-                    return 'กรุณาเลือกสี';
+                    return 'select category color';
                   }
                   return null;
                 },
@@ -309,10 +321,26 @@ class _CategoryDialogState extends State<CategoryDialog> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                    onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      final colorValue =
-                          _selectedColor?.value ?? Colors.grey.value;
+                      final colorValue = _selectedColor?.value ?? Colors.grey.value;
+                      final categoriesState = context.read<CategoriesBloc>().state;
+                      
+                      if (categoriesState is CategoriesLoaded) {
+                      final isDuplicate = categoriesState.categories.any((category) =>
+                        category.name.toLowerCase() == _nameController.text.toLowerCase() &&
+                        category.id != widget.category?.id);
+                        
+                      if (isDuplicate) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Category name already exists'),
+                          backgroundColor: Colors.red,
+                        ),
+                        );
+                        return;
+                      }
+                      }
                       if (widget.category != null) {
                         final updatedCategory = Category(
                           id: widget.category!.id,
@@ -346,7 +374,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
                     ),
                   ),
                   child: Text(
-                    'ยืนยัน',
+                    'Save',
                     style: theme.textTheme.bodyLarge
                         ?.copyWith(color: theme.colorScheme.onPrimary),
                   ),

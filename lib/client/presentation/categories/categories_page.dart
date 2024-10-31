@@ -73,7 +73,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
           } else if (state is CategoriesError) {
             return Center(child: Text(state.message, style: theme.textTheme.bodyLarge));
           } else {
-            return Center(child: Text('ไม่มีหมวดหมู่', style: theme.textTheme.bodyLarge));
+            return Center(child: Text('no category', style: theme.textTheme.bodyLarge));
           }
         },
       ),

@@ -140,3 +140,10 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     }
   }
 }
+bool isCategoryNameUnique(CategoriesState state, String name) {
+  if (state is CategoriesLoaded) {
+    final existingCategories = (state as CategoriesLoaded).categories;
+    return !existingCategories.any((category) => category.name == name);
+  }
+  return true;
+}
