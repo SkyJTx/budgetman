@@ -60,7 +60,7 @@ class MainPageState extends State<MainPage> {
               appBar: AppBar(
                 title: ListTile(
                   title: const Text('BudgetMan App'),
-                  subtitle: Text(widget.state.matchedLocation),
+                  subtitle: kDebugMode ? Text(widget.state.matchedLocation) : null,
                   titleTextStyle: context.textTheme.titleLarge,
                 ),
               ),
@@ -143,7 +143,7 @@ class MainPageState extends State<MainPage> {
                                       .getAll()
                                       .then((value) => value.first);
                                   if (!context.mounted) return;
-                                  context.go('/${SettingPage.routeName}', extra: budget);
+                                  context.go('/${BudgetPage.routeName}', extra: budget);
                                   scaffoldKey.currentState!.closeDrawer();
                                 },
                               ),
