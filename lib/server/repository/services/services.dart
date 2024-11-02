@@ -8,9 +8,11 @@ import 'package:budgetman/server/data_model/categories.dart';
 import 'package:budgetman/server/data_model/setting.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
 import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
+import 'package:budgetman/server/repository/services/notification_services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,7 +26,11 @@ class Services {
 
   Services._internal();
 
-  Future<bool> init() async {
+  Future<
+      ({
+        bool compatible,
+        NotificationAppLaunchDetails? notificationAppLaunchDetails,
+      })> init() async {
     try {
       WidgetsFlutterBinding.ensureInitialized();
 
@@ -74,11 +80,20 @@ class Services {
           BudgetRepository().routineReset(budget, throwError: false),
       ]);
 
+      final notificationServices = NotificationServices();
+      await notificationServices.init();
+
       getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
 
-      return Platform.isAndroid || Platform.isIOS;
+      return (
+        compatible: Platform.isAndroid || Platform.isIOS,
+        notificationAppLaunchDetails: await notificationServices.getNotificationAppLaunchDetails(),
+      );
     } catch (e, _) {
-      return false;
+      return (
+        compatible: false,
+        notificationAppLaunchDetails: null,
+      );
     }
   }
 }
