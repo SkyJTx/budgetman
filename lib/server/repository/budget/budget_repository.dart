@@ -128,42 +128,54 @@ class BudgetRepository {
     });
   }
 
-  Future<Budget> routineReset(Budget budget) async {
-    if (!budget.isRoutine || budget.routineInterval == null) {
-      throw Exception('Budget is not routine mode');
+  Future<Budget> routineReset(Budget budget, {bool throwError = true}) async {
+    Future<Budget> inside() async {
+      if (!budget.isRoutine || budget.routineInterval == null) {
+        throw Exception('Budget is not routine mode');
+      }
+
+      final newStartDate = budget.startDate.add(Duration(days: budget.routineInterval!));
+
+      if (budget.isCompleted) {
+        throw Exception('Budget is already completed');
+      }
+      if (budget.isRemoved) {
+        throw Exception('Budget is removed');
+      }
+      if (DateTime.now().isBefore(newStartDate)) {
+        throw Exception('Budget is not ended yet');
+      }
+
+      final newBudget = await update(
+        budget,
+        startDate: newStartDate,
+        endDate: newStartDate.add(budget.intervalDuration!),
+        updatedDateTime: DateTime.now(),
+      );
+      return isarInstance.writeTxn(() async {
+        await Future.wait([
+          for (final budgetList in newBudget.budgetList)
+            if (!budgetList.isRemoved)
+              BudgetListRepository().update(
+                budgetList,
+                isCompleted: false,
+                updatedDateTime: DateTime.now(),
+                deadline: newStartDate.add(newBudget.intervalDuration!),
+                image: [],
+              ),
+        ]);
+        return budget;
+      });
     }
 
-    final newStartDate = budget.startDate.add(Duration(days: budget.routineInterval!));
-
-    if (budget.isCompleted) {
-      throw Exception('Budget is already completed');
+    if (throwError) {
+      return await inside();
+    } else {
+      try {
+        return await inside();
+      } catch (e) {
+        return budget;
+      }
     }
-    if (budget.isRemoved) {
-      throw Exception('Budget is removed');
-    }
-    if (DateTime.now().isBefore(newStartDate)) {
-      throw Exception('Budget is not ended yet');
-    }
-
-    final newBudget = await update(
-      budget,
-      startDate: newStartDate,
-      endDate: newStartDate.add(budget.intervalDuration!),
-      updatedDateTime: DateTime.now(),
-    );
-    return isarInstance.writeTxn(() async {
-      await Future.wait([
-        for (final budgetList in newBudget.budgetList)
-          if (!budgetList.isRemoved)
-            BudgetListRepository().update(
-              budgetList,
-              isCompleted: false,
-              updatedDateTime: DateTime.now(),
-              deadline: newStartDate.add(newBudget.intervalDuration!),
-              image: [],
-            ),
-      ]);
-      return budget;
-    });
   }
 }

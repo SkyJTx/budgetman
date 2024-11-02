@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -67,6 +68,11 @@ class Services {
           );
         }
       }
+
+      await Future.wait([
+        for (final budget in await BudgetRepository().getAll())
+          BudgetRepository().routineReset(budget, throwError: false),
+      ]);
 
       getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
 

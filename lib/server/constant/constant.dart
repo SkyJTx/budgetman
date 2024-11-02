@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
 
-const backgroundCheckTime = TimeOfDay(hour: 8, minute: 0);
-const backgroundCheckInterval = Duration(days: 1);
+abstract class Constant {
+  static const backgroundCheckTime = TimeOfDay(hour: 8, minute: 0);
+  static const backgroundCheckInterval = Duration(days: 1);
+}
