@@ -152,11 +152,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                   builder: (BuildContext context) {
                                     return BudgetDialog(
                                       existingBudget: budget,
-                                      onBudgetAdded: (String budgetName) {
-                                        context
-                                            .read<HomeBloc>()
-                                            .updateBudget(budget, budgetName);
-                                      },
                                     );
                                   },
                                 );
@@ -176,14 +171,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: state.transactions.length,
-                          itemBuilder: (context, index) {
-                            final transaction = state.transactions[index];
-                            return TransactionCard(budgetList: transaction);
-                          },
-                        ),
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: state.transactions.length,
+                    primary: false, // Add this line
+                    shrinkWrap: true, // Add this line
+                    itemBuilder: (context, index) {
+                      final transaction = state.transactions[index];
+                      return TransactionCard(budgetList: transaction);
+                    },
+                  ),
                 ],
               ),
             ),

@@ -82,9 +82,10 @@ class HomeBloc extends Cubit<HomeState> {
 
       print('State updated after adding budget. Current budgets: ${data.$1.length}, refreshTrigger: ${state.refreshTrigger + 1}');
     } catch (e) {
-      print('Error adding budget: $e');
-      emit(state.copyWith(error: e.toString()));
-    }
+    print('Error adding budget: $e');
+    emit(state.copyWith(error: e.toString()));
+    rethrow; // Rethrow the exception to propagate it to the UI
+  }
   }
   Future<void> updateBudget(Budget budget, String newName) async {
   try {
@@ -112,6 +113,7 @@ class HomeBloc extends Cubit<HomeState> {
   } catch (e) {
     print('Error updating budget: $e');
     emit(state.copyWith(error: e.toString()));
+    rethrow; 
   }
 }
 

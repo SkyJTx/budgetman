@@ -1,32 +1,37 @@
 // lib/client/component/dialog/show_budgetlist_dialog.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:budgetman/server/data_model/budget.dart';
-import 'package:budgetman/server/repository/budget/budget_repository.dart';
-import 'budget_dialog.dart';
+import 'package:budgetman/client/component/dialog/budget_dialog.dart';
+import 'package:budgetman/client/bloc/home/home_bloc.dart';
 
 class BudgetListDialog extends StatefulWidget {
-  final Function(String) onBudgetUpdated; // Updated callback type to accept String
-
-  const BudgetListDialog({Key? key, required this.onBudgetUpdated}) : super(key: key);
+  const BudgetListDialog({Key? key}) : super(key: key);
 
   @override
   _BudgetListDialogState createState() => _BudgetListDialogState();
 }
 
 class _BudgetListDialogState extends State<BudgetListDialog> {
-  final BudgetRepository _budgetRepository = BudgetRepository();
   late Future<List<Budget>> _budgetsFuture;
 
   @override
   void initState() {
     super.initState();
-    _budgetsFuture = _budgetRepository.getAll();
+    _loadBudgets();
+  }
+
+  void _loadBudgets() {
+    final homeBloc = context.read<HomeBloc>();
+    _budgetsFuture = Future.value(homeBloc.state.budgets);
   }
 
   Future<void> _refreshBudgets() async {
+    final homeBloc = context.read<HomeBloc>();
+    await homeBloc.init();
     setState(() {
-      _budgetsFuture = _budgetRepository.getAll();
+      _loadBudgets();
     });
   }
 
@@ -36,12 +41,10 @@ class _BudgetListDialogState extends State<BudgetListDialog> {
       context: context,
       builder: (context) => BudgetDialog(
         existingBudget: budget, // Pass existing budget for editing
-        onBudgetAdded: (updatedBudgetName) { // Updated to handle budget name
-          widget.onBudgetUpdated(updatedBudgetName);
-          _refreshBudgets();
-        },
       ),
     );
+    // Refresh budgets after editing
+    _refreshBudgets();
   }
 
   void _deleteBudget(int budgetId) async {
@@ -65,7 +68,8 @@ class _BudgetListDialogState extends State<BudgetListDialog> {
 
     if (confirm == true) {
       try {
-        await _budgetRepository.delete(budgetId);
+        // Use HomeBloc to delete the budget
+        await context.read<HomeBloc>().deleteBudget(budgetId);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Budget deleted successfully')),
         );
@@ -162,12 +166,7 @@ class _BudgetListDialogState extends State<BudgetListDialog> {
           onPressed: () async {
             await showDialog(
               context: context,
-              builder: (context) => BudgetDialog(
-                onBudgetAdded: (newBudgetName) { 
-                  widget.onBudgetUpdated(newBudgetName);
-                  _refreshBudgets();
-                },
-              ),
+              builder: (context) => BudgetDialog(),
             );
             _refreshBudgets();
           },

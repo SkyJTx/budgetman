@@ -1,73 +1,28 @@
 // overview_widget.dart
 import 'package:flutter/material.dart';
-import 'package:budgetman/server/repository/budget/budget_repository.dart';
-import 'package:budgetman/server/data_model/budget_list.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:budgetman/server/data_model/budget.dart';
+import 'package:budgetman/client/bloc/home/home_bloc.dart';
+import 'package:budgetman/client/bloc/home/home_state.dart';
 import 'budget_deadline_graph.dart';
 
-class OverviewWidget extends StatefulWidget {
+class OverviewWidget extends StatelessWidget {
   const OverviewWidget({Key? key}) : super(key: key);
 
   @override
-  _OverviewWidgetState createState() => _OverviewWidgetState();
-}
-
-class _OverviewWidgetState extends State<OverviewWidget> {
-  late Future<Map<String, dynamic>> _overviewDataFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _overviewDataFuture = _fetchOverviewData();
-  }
-
-  Future<Map<String, dynamic>> _fetchOverviewData() async {
-    final budgetRepo = BudgetRepository();
-
-    // Fetch all budgets
-    final budgets = await budgetRepo.getAll();
-
-    // Calculate total cumulative budget
-    double totalCumulativeBudget = 0.0;
-    int totalBudgets = budgets.length;
-
-    for (var budget in budgets) {
-      // Get the total amount for each budget
-      double budgetTotal = await budgetRepo.getTotalAmountForBudget(budget.id);
-      totalCumulativeBudget += budgetTotal;
-    }
-
-    // Fetch transactions or budget lists for the graph
-    List<BudgetList> transactions = [];
-    for (var budget in budgets) {
-      await budget.budgetList.load();
-      transactions.addAll(budget.budgetList);
-    }
-
-    return {
-      'totalCumulativeBudget': totalCumulativeBudget,
-      'totalBudgets': totalBudgets,
-      'transactions': transactions,
-    };
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _overviewDataFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while fetching data
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (!state.isInitialized) {
+          // Show a loading indicator while initializing
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
+        } else if (state.error != null) {
           // Handle errors
-          return Text('Error: ${snapshot.error}');
-        } else if (!snapshot.hasData) {
-          // Handle the case where data is not found
-          return const Text('No data available');
+          return Text('Error: ${state.error}');
         } else {
-          final totalCumulativeBudget = snapshot.data!['totalCumulativeBudget'] as double;
-          final totalBudgets = snapshot.data!['totalBudgets'] as int;
-          final transactions = snapshot.data!['transactions'] as List<BudgetList>;
+          final totalCumulativeBudget = _calculateTotalCumulativeBudget(state.budgets);
+          final totalBudgets = state.budgets.length;
+          final transactions = state.transactions;
 
           return Container(
             padding: const EdgeInsets.all(16),
@@ -134,7 +89,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
                     ),
                     _buildSummaryItem(
                       context,
-                      'Total Budget list',
+                      'Total Budget Items',
                       '${transactions.length} Items',
                       const Color.fromARGB(255, 7, 159, 219),
                     ),
@@ -146,6 +101,16 @@ class _OverviewWidgetState extends State<OverviewWidget> {
         }
       },
     );
+  }
+
+  double _calculateTotalCumulativeBudget(List<Budget> budgets) {
+    double total = 0.0;
+    for (var budget in budgets) {
+      for (var budgetListItem in budget.budgetList) {
+        total += budgetListItem.budget;
+      }
+    }
+    return total;
   }
 
   Widget _buildSummaryItem(BuildContext context, String title, String subtitle, Color color) {

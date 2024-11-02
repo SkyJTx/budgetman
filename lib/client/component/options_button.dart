@@ -1,12 +1,10 @@
 // options_button.dart
-import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/component/dialog/budget_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Import flutter_bloc
 import 'package:go_router/go_router.dart';
 
 class OptionsButton extends StatefulWidget {
@@ -65,12 +63,7 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                           showDialog(
                             context: context,
                             builder: (BuildContext dialogContext) {
-                              return BudgetDialog(
-                                onBudgetAdded: (String budgetName) {
-                                  // Access HomeBloc from context
-                                  context.read<HomeBloc>().addBudget(budgetName);
-                                },
-                              );
+                              return BudgetDialog();
                             },
                           );
                         } else if (widget.locate == BudgetPage.routeName) {
@@ -125,8 +118,8 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
               ),
             ),
           ),
-        ),
-      ).animate().fadeIn(delay: 0.25.seconds, duration: 0.25.seconds),
+        ).animate().fadeIn(delay: 0.25.seconds, duration: 0.25.seconds),
+      ),
     );
   }
 
