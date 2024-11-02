@@ -54,6 +54,7 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   workmanager: ^0.5.2
   flutter_launcher_icons: ^0.14.1
+  flutter_local_notifications: ^17.2.4
 
 dev_dependencies:
   flutter_test:
