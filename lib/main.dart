@@ -42,23 +42,28 @@ Future<Widget> get appWidget => Services().init().then(
         return const MaterialApp(
           home: Scaffold(
             body: SafeArea(
-                child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.error,
-                    size: 100.0,
-                    color: Colors.red,
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Your device is not compatible with this app.',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+                child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error,
+                      size: 100.0,
+                      color: Colors.red,
                     ),
-                  ),
-                ],
+                    SizedBox(height: 20.0),
+                    Text(
+                      'Your device is not compatible with this app.',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )),
           ),
@@ -86,7 +91,7 @@ class BudgetManAppState extends State<BudgetManApp> {
           widget.notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
       if (isLaunchedByNotification &&
           widget.notificationAppLaunchDetails?.notificationResponse != null) {
-        NotificationServices().onDidReceiveNotificationResponse(
+        NotificationServices.onDidReceiveNotificationResponse(
           widget.notificationAppLaunchDetails!.notificationResponse!,
         );
       }
