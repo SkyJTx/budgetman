@@ -53,6 +53,7 @@ dependencies:
   flutter_image_compress: ^2.3.0
   modal_bottom_sheet: ^3.0.0
   workmanager: ^0.5.2
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +77,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/image/
+    - assets/image/logo/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
