@@ -37,11 +37,11 @@ class OverviewWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ยอดเงินทั้งหมด',
+                    'Total Budget',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Text(
-                    '${totalBalance.toStringAsFixed(2)} บาท',
+                    '${totalBalance.toStringAsFixed(2)} Baht',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -57,11 +57,7 @@ class OverviewWidget extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   Text(
-                    'กระปุกเงิน',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    'Test',
+                    'Edit Budget',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
@@ -99,15 +95,15 @@ class OverviewWidget extends StatelessWidget {
             children: [
               _buildSummaryItem(
                 context,
-                'เงินเข้า',
+                'Budget',
                 totalIncome.toStringAsFixed(2),
                 Colors.green,
               ),
               _buildSummaryItem(
                 context,
-                'เงินออก',
+                'Spendings',
                 totalExpense.toStringAsFixed(2),
-                Colors.red,
+                const Color.fromARGB(255, 7, 159, 219),
               ),
             ],
           ),
@@ -124,7 +120,7 @@ class OverviewWidget extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         Text(
-          '$amount บาท',
+          '$amount Baht',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: color,
                 fontWeight: FontWeight.bold,

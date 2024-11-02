@@ -1,8 +1,11 @@
+import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
+import 'package:budgetman/client/component/dialog/budget_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class OptionsButton extends StatefulWidget {
@@ -57,6 +60,27 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                       ),
                       onTap: () {
                         _removeOverlay();
+
+                        if (widget.locate == HomePage.routeName) {
+                          // Show the BudgetDialog when on the HomePage
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return BudgetDialog(
+                                onBudgetAdded: (String budgetName) {
+                                  // Add the budget using HomeBloc
+                                  context.read<HomeBloc>().addBudget(budgetName);
+                                },
+                              );
+                            },
+                          );
+                        } else if (widget.locate == BudgetPage.routeName) {
+                          // Handle 'Add List' action
+                          // Implement similar logic for adding to BudgetPage if needed
+                        } else {
+                          // Handle 'Add Categories' action
+                          // Implement similar logic for adding categories if needed
+                        }
                       },
                     ),
                     if (widget.locate == BudgetPage.routeName)
@@ -75,6 +99,7 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                         ),
                         onTap: () {
                           _removeOverlay();
+                          // Implement edit list functionality here
                         },
                       ),
                     if (widget.locate != CategoriesPage.routeName)

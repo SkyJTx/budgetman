@@ -1,17 +1,13 @@
-// home_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/bloc/home/home_state.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
-import 'package:budgetman/server/data_model/budget_list.dart';
-
-// Import the new widgets
 import 'widgets/header_widget.dart';
 import 'widgets/overview_widget.dart';
 import 'widgets/transaction_card.dart';
-import 'widgets/nav_button.dart';
+import 'widgets/budget_list_item.dart';
+import 'package:budgetman/client/component/dialog/budget_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -82,10 +78,52 @@ class HomePageState extends State<HomePage> {
                       transactions: state.transactions,
                     ),
 
+                    // Budgets Section
+                    const SizedBox(height: 24),
+                    Text(
+                      'Budgets',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (state.budgets.isEmpty)
+                      Center(
+                        child: Text(
+                          'No Budgets',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      )
+                    else
+                      ...state.budgets.map(
+                        (budget) => BudgetListItem(
+                          budget: budget,
+                          onEdit: () {
+                            // Show BudgetDialog for editing
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return BudgetDialog(
+                                  existingBudget: budget,
+                                  onBudgetAdded: (String budgetName) {
+                                    // Update the budget using HomeBloc
+                                    context.read<HomeBloc>().updateBudget(budget, budgetName);
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          onDelete: () {
+                            // Delete the budget using HomeBloc
+                            context.read<HomeBloc>().deleteBudget(budget.id);
+                          },
+                        ),
+                      ),
+
                     // Transaction List Section
                     const SizedBox(height: 24),
                     Text(
-                      'รายการล่าสุด',
+                      'Transactions',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -94,7 +132,7 @@ class HomePageState extends State<HomePage> {
                     if (state.transactions.isEmpty)
                       Center(
                         child: Text(
-                          'ไม่มีรายการ',
+                          'No Transactions',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       )
@@ -104,42 +142,6 @@ class HomePageState extends State<HomePage> {
                       ),
                   ],
                 ),
-              ),
-            ),
-            bottomNavigationBar: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  NavButton(
-                    icon: Icons.arrow_upward,
-                    label: 'โอนเงินเข้า',
-                    color: Colors.green,
-                    onPressed: () {},
-                  ),
-                  NavButton(
-                    icon: Icons.arrow_downward,
-                    label: 'โอนเงินออก',
-                    color: Colors.red,
-                    onPressed: () {},
-                  ),
-                  NavButton(
-                    icon: Icons.savings,
-                    label: 'กระปุกเงิน',
-                    color: Theme.of(context).colorScheme.primary,
-                    onPressed: () {},
-                  ),
-                ],
               ),
             ),
           );

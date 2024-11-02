@@ -19,8 +19,7 @@ class TransactionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () {
-          // Handle card tap if needed
+        onTap: () { //Handle tap (Maybe added later)
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -79,7 +78,7 @@ class TransactionCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '${budgetList.budget.toStringAsFixed(2)} บาท',
+                    '${budgetList.budget.toStringAsFixed(2)} Baht',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -113,7 +112,7 @@ class TransactionCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'ไม่มีรายละเอียด',
+                      'No description',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontStyle: FontStyle.italic,
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -164,13 +163,13 @@ class TransactionCard extends StatelessWidget {
   String _getPriorityText(int priority) {
     switch (priority) {
       case 1:
-        return 'สูง'; // High
+        return 'High'; // High
       case 2:
-        return 'กลาง'; // Medium
+        return 'Medium'; // Medium
       case 3:
-        return 'ต่ำ'; // Low
+        return 'Low'; // Low
       default:
-        return 'ไม่ระบุ'; // Not specified
+        return 'Unknown'; // Not specified
     }
   }
 }
