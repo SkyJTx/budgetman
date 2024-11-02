@@ -77,9 +77,8 @@ class ClientRepository {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
-  static final GlobalKey<MainPageState> mainPageKey = GlobalKey<MainPageState>();
-  static final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
-  static final GlobalKey<NavigatorState> homePageNavigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<MainPageState> mainPageKey =
+      GlobalKey<MainPageState>(debugLabel: 'MainPage');
   final List<FutureOr<void> Function(ClientRepository)> listeners = [];
   final router = GoRouter(
     initialLocation: HomePage.routeName,
@@ -98,7 +97,6 @@ class ClientRepository {
         routes: [
           GoRoute(
             path: HomePage.routeName,
-            parentNavigatorKey: shellNavigatorKey,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
                 return const HomePage();
@@ -107,7 +105,6 @@ class ClientRepository {
             routes: [
               GoRoute(
                 path: BudgetPage.routeName,
-                parentNavigatorKey: homePageNavigatorKey,
                 pageBuilder: goPageBuilder(
                   builder: (context, state) {
                     final budget = state.extra;
@@ -122,7 +119,6 @@ class ClientRepository {
               ),
               GoRoute(
                 path: CategoriesPage.routeName,
-                parentNavigatorKey: homePageNavigatorKey,
                 pageBuilder: goPageBuilder(
                   builder: (context, state) {
                     return const CategoriesPage();
@@ -131,7 +127,6 @@ class ClientRepository {
               ),
               GoRoute(
                 path: SettingPage.routeName,
-                parentNavigatorKey: homePageNavigatorKey,
                 pageBuilder: goPageBuilder(
                   builder: (context, state) {
                     return const SettingPage();
@@ -140,7 +135,6 @@ class ClientRepository {
               ),
               GoRoute(
                 path: ComponentPage.routeName,
-                parentNavigatorKey: homePageNavigatorKey,
                 pageBuilder: goPageBuilder(
                   builder: (context, state) {
                     return const ComponentPage();
