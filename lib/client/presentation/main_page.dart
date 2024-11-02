@@ -37,7 +37,7 @@ class MainPageState extends State<MainPage> {
 
   List<String> get optionButtonVisibleLocation => [
         HomePage.routeName,
-        CategoriesPage.routeName,
+        '/${CategoriesPage.routeName}',
       ];
 
   @override
@@ -103,18 +103,19 @@ class MainPageState extends State<MainPage> {
                             ListTile(
                               leading: const Icon(Icons.category),
                               title: const Text('Categories'),
-                              selected: widget.state.matchedLocation == CategoriesPage.routeName,
+                              selected:
+                                  widget.state.matchedLocation == '/${CategoriesPage.routeName}',
                               onTap: () {
-                                context.go(CategoriesPage.routeName);
+                                context.go('/${CategoriesPage.routeName}');
                                 scaffoldKey.currentState!.closeDrawer();
                               },
                             ),
                             ListTile(
                               leading: const Icon(Icons.settings),
                               title: const Text('Setting'),
-                              selected: widget.state.matchedLocation == SettingPage.routeName,
+                              selected: widget.state.matchedLocation == '/${SettingPage.routeName}',
                               onTap: () {
-                                context.go(SettingPage.routeName);
+                                context.go('/${SettingPage.routeName}');
                                 scaffoldKey.currentState!.closeDrawer();
                               },
                             ),
@@ -135,20 +136,24 @@ class MainPageState extends State<MainPage> {
                               ListTile(
                                 leading: const Icon(Icons.money),
                                 title: const Text('Budget'),
+                                selected:
+                                    widget.state.matchedLocation == '/${BudgetPage.routeName}',
                                 onTap: () async {
                                   final budget = await BudgetRepository()
                                       .getAll()
                                       .then((value) => value.first);
                                   if (!context.mounted) return;
-                                  context.go(BudgetPage.routeName, extra: budget);
+                                  context.go('/${SettingPage.routeName}', extra: budget);
                                   scaffoldKey.currentState!.closeDrawer();
                                 },
                               ),
                               ListTile(
                                 leading: const Icon(Icons.widgets),
                                 title: const Text('Component'),
+                                selected:
+                                    widget.state.matchedLocation == '/${ComponentPage.routeName}',
                                 onTap: () {
-                                  context.go(ComponentPage.routeName);
+                                  context.go('/${ComponentPage.routeName}');
                                   scaffoldKey.currentState!.closeDrawer();
                                 },
                               ),

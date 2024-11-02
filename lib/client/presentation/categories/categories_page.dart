@@ -4,7 +4,7 @@ class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
 
   static const String pageName = 'Categories';
-  static const String routeName = '/categories';
+  static const String routeName = 'categories';
 
   @override
   State<CategoriesPage> createState() => CategoriesPageState();

@@ -78,6 +78,8 @@ class ClientRepository {
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static final GlobalKey<MainPageState> mainPageKey = GlobalKey<MainPageState>();
+  static final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> homePageNavigatorKey = GlobalKey<NavigatorState>();
   final List<FutureOr<void> Function(ClientRepository)> listeners = [];
   final router = GoRouter(
     initialLocation: HomePage.routeName,
@@ -96,49 +98,56 @@ class ClientRepository {
         routes: [
           GoRoute(
             path: HomePage.routeName,
+            parentNavigatorKey: shellNavigatorKey,
             pageBuilder: goPageBuilder(
               builder: (context, state) {
                 return const HomePage();
               },
             ),
-          ),
-          GoRoute(
-            path: BudgetPage.routeName,
-            pageBuilder: goPageBuilder(
-              builder: (context, state) {
-                final budget = state.extra;
-                if (budget is Budget) {
-                  return BudgetPage(
-                    budget: budget,
-                  );
-                }
-                throw ArgumentError('Expected Argument: Budget, Got: $budget');
-              },
-            ),
-          ),
-          GoRoute(
-            path: CategoriesPage.routeName,
-            pageBuilder: goPageBuilder(
-              builder: (context, state) {
-                return const CategoriesPage();
-              },
-            ),
-          ),
-          GoRoute(
-            path: SettingPage.routeName,
-            pageBuilder: goPageBuilder(
-              builder: (context, state) {
-                return const SettingPage();
-              },
-            ),
-          ),
-          GoRoute(
-            path: ComponentPage.routeName,
-            pageBuilder: goPageBuilder(
-              builder: (context, state) {
-                return const ComponentPage();
-              },
-            ),
+            routes: [
+              GoRoute(
+                path: BudgetPage.routeName,
+                parentNavigatorKey: homePageNavigatorKey,
+                pageBuilder: goPageBuilder(
+                  builder: (context, state) {
+                    final budget = state.extra;
+                    if (budget is Budget) {
+                      return BudgetPage(
+                        budget: budget,
+                      );
+                    }
+                    throw ArgumentError('Expected Argument: Budget, Got: $budget');
+                  },
+                ),
+              ),
+              GoRoute(
+                path: CategoriesPage.routeName,
+                parentNavigatorKey: homePageNavigatorKey,
+                pageBuilder: goPageBuilder(
+                  builder: (context, state) {
+                    return const CategoriesPage();
+                  },
+                ),
+              ),
+              GoRoute(
+                path: SettingPage.routeName,
+                parentNavigatorKey: homePageNavigatorKey,
+                pageBuilder: goPageBuilder(
+                  builder: (context, state) {
+                    return const SettingPage();
+                  },
+                ),
+              ),
+              GoRoute(
+                path: ComponentPage.routeName,
+                parentNavigatorKey: homePageNavigatorKey,
+                pageBuilder: goPageBuilder(
+                  builder: (context, state) {
+                    return const ComponentPage();
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),

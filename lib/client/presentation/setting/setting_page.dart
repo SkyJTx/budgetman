@@ -10,7 +10,7 @@ class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
 
   static const String pageName = 'Setting';
-  static const String routeName = '/setting';
+  static const String routeName = 'setting';
 
   @override
   State<SettingPage> createState() => SettingPageState();

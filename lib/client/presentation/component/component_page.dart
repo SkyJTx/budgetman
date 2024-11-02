@@ -4,7 +4,7 @@ class ComponentPage extends StatefulWidget {
   const ComponentPage({super.key});
 
   static const String pageName = 'Component';
-  static const String routeName = '/component';
+  static const String routeName = 'component';
 
   @override
   State<ComponentPage> createState() => ComponentPageState();

@@ -26,7 +26,7 @@ class BudgetPage extends StatefulWidget {
   final Budget budget;
 
   static const String pageName = 'Budget';
-  static const String routeName = '/budget';
+  static const String routeName = 'budget';
 
   @override
   State<BudgetPage> createState() => BudgetPageState();
