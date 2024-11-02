@@ -2,12 +2,12 @@
 import 'dart:convert';
 
 class NotificationPayload {
-  final String action;
+  final String? action;
   final String path;
   final Object? extra;
 
   const NotificationPayload({
-    required this.action,
+    this.action,
     required this.path,
     this.extra,
   });
@@ -34,7 +34,7 @@ class NotificationPayload {
 
   factory NotificationPayload.fromMap(Map<String, dynamic> map) {
     return NotificationPayload(
-      action: map['action'] as String,
+      action: map['action'] != null ? map['action'] as String : null,
       path: map['path'] as String,
       extra: map['extra'],
     );

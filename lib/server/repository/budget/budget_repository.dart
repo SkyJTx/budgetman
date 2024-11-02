@@ -178,4 +178,49 @@ class BudgetRepository {
       }
     }
   }
+
+  Future<
+      ({
+        List<Budget> expiredBudgets,
+        List<Budget> resetBudgets,
+        List<BudgetList> deadlineBudgetLists,
+      })> backgroundTask() async {
+    final expiredBudgets = <Budget>[];
+    final resetBudgets = <Budget>[];
+    final deadlineBudgetLists = <BudgetList>[];
+
+    final budgets = await getAll();
+    for (final budget in budgets) {
+      if (budget.isRemoved) {
+        continue;
+      }
+
+      if (DateTime.now().isAfter(budget.endDate)) {
+        expiredBudgets.add(budget);
+      }
+
+      try {
+        final resetBudget = await routineReset(budget, throwError: false);
+        resetBudgets.add(resetBudget);
+      } catch (e) {
+        // Do nothing
+      }
+
+      for (final budgetList in budget.budgetList) {
+        if (budgetList.isRemoved) {
+          continue;
+        }
+
+        if (DateTime.now().isAfter(budgetList.deadline)) {
+          deadlineBudgetLists.add(budgetList);
+        }
+      }
+    }
+
+    return (
+      expiredBudgets: expiredBudgets,
+      resetBudgets: resetBudgets,
+      deadlineBudgetLists: deadlineBudgetLists,
+    );
+  }
 }

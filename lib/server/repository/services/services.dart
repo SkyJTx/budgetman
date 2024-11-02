@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:developer' as developer;
 
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
@@ -8,6 +9,7 @@ import 'package:budgetman/server/data_model/categories.dart';
 import 'package:budgetman/server/data_model/setting.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
 import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
+import 'package:budgetman/server/repository/services/background_services.dart';
 import 'package:budgetman/server/repository/services/notification_services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -83,13 +85,16 @@ class Services {
       final notificationServices = NotificationServices();
       await notificationServices.init();
 
+      await BackgroundServices().init();
+
       getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
 
       return (
         compatible: Platform.isAndroid || Platform.isIOS,
         notificationAppLaunchDetails: await notificationServices.getNotificationAppLaunchDetails(),
       );
-    } catch (e, _) {
+    } catch (e, s) {
+      developer.log('Error initializing services: $e', name: 'Services', error: e, stackTrace: s);
       return (
         compatible: false,
         notificationAppLaunchDetails: null,

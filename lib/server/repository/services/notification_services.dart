@@ -4,12 +4,15 @@ import 'dart:io';
 
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
+import 'package:budgetman/client/presentation/component/component_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
 import 'package:budgetman/server/repository/services/notification_payload.dart';
+import 'package:budgetman/server/repository/settings/settings_repository.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:isar/isar.dart';
 
 class NotificationServices {
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -21,6 +24,13 @@ class NotificationServices {
   NotificationServices._();
 
   static final NotificationServices instance = NotificationServices._();
+  static Isar get isarInstance {
+    final isar = Isar.getInstance();
+    if (isar == null) {
+      throw Exception('Isar is not initialized');
+    }
+    return isar;
+  }
 
   factory NotificationServices() {
     return instance;
@@ -40,6 +50,11 @@ class NotificationServices {
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
       onDidReceiveBackgroundNotificationResponse: onDidReceiveNotificationResponse,
     );
+
+    final isNotificationEnabled = await SettingsRepository().notification.get();
+    if (isNotificationEnabled) {
+      await requestPermissions();
+    }
   }
 
   Future<bool> requestPermissions() async {
@@ -123,7 +138,7 @@ class NotificationServices {
   }
 
   @pragma('vm:entry-point')
-  FutureOr<void> onDidReceiveNotificationResponse(NotificationResponse res) async {
+  static FutureOr<void> onDidReceiveNotificationResponse(NotificationResponse res) async {
     try {
       final payload = NotificationPayload.fromJson(res.payload ?? '');
       if (payload.path == '/${BudgetPage.routeName}') {
@@ -135,6 +150,8 @@ class NotificationServices {
         ClientRepository().router.go('/${CategoriesPage.routeName}');
       } else if (payload.path == '/${SettingPage.routeName}') {
         ClientRepository().router.go('/${SettingPage.routeName}');
+      } else if (payload.path == '/${ComponentPage.routeName}') {
+        ClientRepository().router.go('/${ComponentPage.routeName}');
       } else {
         log('Unknown path: ${payload.path}', name: 'NotificationServices');
       }
