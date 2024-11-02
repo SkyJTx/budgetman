@@ -79,6 +79,7 @@ class HomeBloc extends Cubit<HomeState> {
         refreshTrigger: state.refreshTrigger + 1,
       ));
 
+
       print('State updated after adding budget. Current budgets: ${data.$1.length}, refreshTrigger: ${state.refreshTrigger + 1}');
     } catch (e) {
       print('Error adding budget: $e');

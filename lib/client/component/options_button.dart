@@ -1,3 +1,4 @@
+// options_button.dart
 import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
@@ -5,14 +6,14 @@ import 'package:budgetman/client/presentation/home/home_page.dart';
 import 'package:budgetman/client/component/dialog/budget_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // Import flutter_bloc
 import 'package:go_router/go_router.dart';
 
 class OptionsButton extends StatefulWidget {
   const OptionsButton({
-    super.key,
+    Key? key,
     required this.locate,
-  });
+  }) : super(key: key);
 
   final String locate;
 
@@ -27,16 +28,14 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
 
   OverlayEntry _createOverlayEntry(BuildContext context) {
     return OverlayEntry(
-      builder: (context) => Scaffold(
+      builder: (overlayContext) => Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Container(
             padding: const EdgeInsets.all(15),
             alignment: Alignment.bottomRight,
-            child: TapRegion(
-              onTapOutside: (t) {
-                _removeOverlay();
-              },
+            child: GestureDetector(
+              onTap: _removeOverlay,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -65,10 +64,10 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                           // Show the BudgetDialog when on the HomePage
                           showDialog(
                             context: context,
-                            builder: (BuildContext context) {
+                            builder: (BuildContext dialogContext) {
                               return BudgetDialog(
                                 onBudgetAdded: (String budgetName) {
-                                  // Add the budget using HomeBloc
+                                  // Access HomeBloc from context
                                   context.read<HomeBloc>().addBudget(budgetName);
                                 },
                               );
@@ -76,10 +75,10 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                           );
                         } else if (widget.locate == BudgetPage.routeName) {
                           // Handle 'Add List' action
-                          // Implement similar logic for adding to BudgetPage if needed
+                          // Implement similar logic if needed
                         } else {
                           // Handle 'Add Categories' action
-                          // Implement similar logic for adding categories if needed
+                          // Implement similar logic if needed
                         }
                       },
                     ),
@@ -151,9 +150,9 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Animate(
       target: isClicked ? 1 : 0,
-      onComplete: (controller) {
-        this.controller = controller;
-        controller.stop();
+      onComplete: (animationController) {
+        controller = animationController;
+        controller?.stop();
       },
       effects: [
         FadeEffect(

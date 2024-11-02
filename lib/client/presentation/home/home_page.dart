@@ -1,3 +1,4 @@
+// home_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:budgetman/client/bloc/home/home_bloc.dart';
@@ -8,6 +9,7 @@ import 'widgets/overview_widget.dart';
 import 'widgets/transaction_card.dart';
 import 'widgets/budget_list_item.dart';
 import 'package:budgetman/client/component/dialog/budget_dialog.dart';
+import 'package:budgetman/client/component/options_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,32 +18,30 @@ class HomePage extends StatefulWidget {
   static const String routeName = '/home';
 
   @override
-  State<HomePage> createState() => HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
-  late final HomeBloc homeBloc;
-  final scrollController = ScrollController();
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    homeBloc = HomeBloc();
-    homeBloc.init();
+    // Initialize the TabController
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
-    homeBloc.close();
-    scrollController.dispose();
+    // Dispose the TabController
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HomeBloc>.value(
-      value: homeBloc,
-      child: BlocConsumer<HomeBloc, HomeState>(
+    return Scaffold(
+      body: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
           if (state.error != null) {
             ClientRepository().showErrorSnackBar(
@@ -60,92 +60,138 @@ class HomePageState extends State<HomePage> {
             );
           }
 
-          return Scaffold(
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ListView(
-                  controller: scrollController,
-                  children: [
-                    // Header Section
-                    const HeaderWidget(),
+          return SafeArea(
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Section
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: HeaderWidget(),
+                      ),
 
-                    // Overview Section
-                    OverviewWidget(
-                      totalBalance: state.totalBalance,
-                      totalIncome: state.totalIncome,
-                      totalExpense: state.totalExpense,
-                      transactions: state.transactions,
-                    ),
+                      // Overview Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: const OverviewWidget(),
+                      ),
 
-                    // Budgets Section
-                    const SizedBox(height: 24),
-                    Text(
-                      'Budgets',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (state.budgets.isEmpty)
-                      Center(
-                        child: Text(
-                          'No Budgets',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                      // TabBar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorColor: Colors.transparent,
+                          tabs: [
+                            Tab(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: _tabController.index == 0 ? Colors.blue : Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Budgets',
+                                  style: TextStyle(
+                                    color: _tabController.index == 0 ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: _tabController.index == 1 ? Colors.green : Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Recent Activities',
+                                  style: TextStyle(
+                                    color: _tabController.index == 1 ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          onTap: (index) {
+                            setState(() {
+                              _tabController.index = index;
+                            });
+                          },
                         ),
-                      )
-                    else
-                      ...state.budgets.map(
-                        (budget) => BudgetListItem(
-                          budget: budget,
-                          onEdit: () {
-                            // Show BudgetDialog for editing
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return BudgetDialog(
-                                  existingBudget: budget,
-                                  onBudgetAdded: (String budgetName) {
-                                    // Update the budget using HomeBloc
-                                    context.read<HomeBloc>().updateBudget(budget, budgetName);
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Budgets Page
+                  state.budgets.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No Budgets',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: state.budgets.length,
+                          itemBuilder: (context, index) {
+                            final budget = state.budgets[index];
+                            return BudgetListItem(
+                              budgetId: budget.id,
+                              onEdit: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return BudgetDialog(
+                                      existingBudget: budget,
+                                      onBudgetAdded: (String budgetName) {
+                                        context
+                                            .read<HomeBloc>()
+                                            .updateBudget(budget, budgetName);
+                                      },
+                                    );
                                   },
                                 );
                               },
+                              onDelete: () {
+                                context.read<HomeBloc>().deleteBudget(budget.id);
+                              },
                             );
                           },
-                          onDelete: () {
-                            // Delete the budget using HomeBloc
-                            context.read<HomeBloc>().deleteBudget(budget.id);
+                        ),
+
+                  // Transactions Page
+                  state.transactions.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No Activities',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: state.transactions.length,
+                          itemBuilder: (context, index) {
+                            final transaction = state.transactions[index];
+                            return TransactionCard(budgetList: transaction);
                           },
                         ),
-                      ),
-
-                    // Transaction List Section
-                    const SizedBox(height: 24),
-                    Text(
-                      'Transactions',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (state.transactions.isEmpty)
-                      Center(
-                        child: Text(
-                          'No Transactions',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      )
-                    else
-                      ...state.transactions.map(
-                        (transaction) => TransactionCard(budgetList: transaction),
-                      ),
-                  ],
-                ),
+                ],
               ),
             ),
           );
         },
+      ),
+      floatingActionButton: const OptionsButton(
+        locate: HomePage.routeName,
       ),
     );
   }

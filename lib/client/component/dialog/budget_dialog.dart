@@ -1,6 +1,7 @@
 // budget_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:budgetman/server/data_model/budget.dart';
+import 'package:budgetman/client/component/dialog/custom_alert_dialog.dart';
 
 class BudgetDialog extends StatefulWidget {
   final Function(String) onBudgetAdded;
@@ -30,17 +31,32 @@ class _BudgetDialogState extends State<BudgetDialog> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final budgetName = _budgetNameController.text.trim();
+void _submitForm() {
+  if (_formKey.currentState!.validate()) {
+    final budgetName = _budgetNameController.text.trim();
 
-      // Close the dialog
-      Navigator.of(context).pop();
+    // Close the dialog
+    Navigator.of(context).pop();
 
-      // Pass the budget name back to be handled by HomeBloc
-      widget.onBudgetAdded(budgetName);
-    }
+    // Pass the budget name back to be handled by HomeBloc
+    widget.onBudgetAdded(budgetName);
+    final isEditing = widget.existingBudget != null;
+
+    // Show success alert after adding or editing budget
+    Future.microtask(() {
+      if (context.mounted) {
+        CustomAlertDialog.alertWithoutOptions(
+          context,
+          AlertType.success,
+          'Success',
+          isEditing
+              ? 'Budget "$budgetName" successfully edited!'
+              : 'Budget "$budgetName" successfully added!',
+        );
+      }
+    });
   }
+}
 
 
   @override

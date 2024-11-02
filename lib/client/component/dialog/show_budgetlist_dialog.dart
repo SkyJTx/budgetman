@@ -160,7 +160,6 @@ class _BudgetListDialogState extends State<BudgetListDialog> {
         ),
         ElevatedButton(
           onPressed: () async {
-            // Open BudgetDialog to add a new budget
             await showDialog(
               context: context,
               builder: (context) => BudgetDialog(

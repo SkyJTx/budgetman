@@ -126,4 +126,19 @@ class BudgetRepository {
       return isarInstance.budgets.where().findAll();
     });
   }
+  Future<double> getTotalAmountForBudget(int budgetId) async {
+    final budget = await getById(budgetId);
+    await budget.budgetList.load();
+    double totalAmount = 0.0;
+    for (var budgetListItem in budget.budgetList) {
+      totalAmount += budgetListItem.budget;
+    }
+    return totalAmount;
+  }
+  Future<Budget?> getBudgetForBudgetList(int budgetListId) async {
+    return await isarInstance.budgets
+        .filter()
+        .budgetList((q) => q.idEqualTo(budgetListId))
+        .findFirst();
+  }
 }
