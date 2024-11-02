@@ -49,5 +49,10 @@
 	<string>Allow access to photo library for saving receipt</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to camera for taking receipt photo</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+    	<string>fetch</string>
+	</array>
 </dict>
 </plist>

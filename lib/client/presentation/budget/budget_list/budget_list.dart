@@ -120,7 +120,7 @@ class BudgetListTileState extends State<BudgetListTile> {
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: context.theme.colorScheme.onSurface.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.2),
               blurRadius: 6,
               spreadRadius: 3,
               offset: const Offset(0, 2),

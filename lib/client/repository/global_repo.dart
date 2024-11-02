@@ -73,7 +73,7 @@ class ClientRepository {
   }
 
   MainPageState get mainPageState => mainPageKey.currentState!;
-  
+
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();

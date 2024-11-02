@@ -69,9 +69,23 @@ class MainPageState extends State<MainPage> {
                   child: Column(
                     children: [
                       SizedBox(height: 3.h),
-                      const CircleAvatar(
-                        radius: 50,
-                        child: FlutterLogo(size: 50),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.asset(
+                          'assets/image/logo/logo.png',
+                          width: 150,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'BudgetMan',
+                        style: context.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'a budget management app',
+                        style: context.textTheme.bodyMedium,
                       ),
                       SizedBox(height: 3.h),
                       Flexible(
@@ -80,12 +94,44 @@ class MainPageState extends State<MainPage> {
                             ListTile(
                               leading: const Icon(Icons.home),
                               title: const Text('Home'),
+                              selected: widget.state.matchedLocation == HomePage.routeName,
                               onTap: () {
                                 context.go(HomePage.routeName);
                                 scaffoldKey.currentState!.closeDrawer();
                               },
                             ),
-                            if (kDebugMode)
+                            ListTile(
+                              leading: const Icon(Icons.category),
+                              title: const Text('Categories'),
+                              selected: widget.state.matchedLocation == CategoriesPage.routeName,
+                              onTap: () {
+                                context.go(CategoriesPage.routeName);
+                                scaffoldKey.currentState!.closeDrawer();
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.settings),
+                              title: const Text('Setting'),
+                              selected: widget.state.matchedLocation == SettingPage.routeName,
+                              onTap: () {
+                                context.go(SettingPage.routeName);
+                                scaffoldKey.currentState!.closeDrawer();
+                              },
+                            ),
+                            SizedBox(height: 3.h),
+                            if (kDebugMode) ...[
+                              Container(
+                                margin: const EdgeInsets.only(left: 4),
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.developer_mode),
+                                    SizedBox(width: 4),
+                                    Text('Developer Mode'),
+                                    SizedBox(width: 4),
+                                    Flexible(child: Divider()),
+                                  ],
+                                ),
+                              ),
                               ListTile(
                                 leading: const Icon(Icons.money),
                                 title: const Text('Budget'),
@@ -98,15 +144,6 @@ class MainPageState extends State<MainPage> {
                                   scaffoldKey.currentState!.closeDrawer();
                                 },
                               ),
-                            ListTile(
-                              leading: const Icon(Icons.category),
-                              title: const Text('Categories'),
-                              onTap: () {
-                                context.go(CategoriesPage.routeName);
-                                scaffoldKey.currentState!.closeDrawer();
-                              },
-                            ),
-                            if (kDebugMode)
                               ListTile(
                                 leading: const Icon(Icons.widgets),
                                 title: const Text('Component'),
@@ -115,14 +152,7 @@ class MainPageState extends State<MainPage> {
                                   scaffoldKey.currentState!.closeDrawer();
                                 },
                               ),
-                            ListTile(
-                              leading: const Icon(Icons.settings),
-                              title: const Text('Setting'),
-                              onTap: () {
-                                context.go(SettingPage.routeName);
-                                scaffoldKey.currentState!.closeDrawer();
-                              },
-                            ),
+                            ],
                           ],
                         ),
                       ),
