@@ -1,5 +1,6 @@
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
+import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
 import 'package:isar/isar.dart';
 
 class BudgetRepository {
@@ -123,7 +124,46 @@ class BudgetRepository {
 
   Future<List<Budget>> getAll() async {
     return isarInstance.txn(() async {
-      return isarInstance.budgets.where().findAll();
+      return isarInstance.budgets.where().filter().isRemovedEqualTo(false).findAll();
+    });
+  }
+
+  Future<Budget> routineReset(Budget budget) async {
+    if (!budget.isRoutine || budget.routineInterval == null) {
+      throw Exception('Budget is not routine mode');
+    }
+
+    final newStartDate = budget.startDate.add(Duration(days: budget.routineInterval!));
+
+    if (budget.isCompleted) {
+      throw Exception('Budget is already completed');
+    }
+    if (budget.isRemoved) {
+      throw Exception('Budget is removed');
+    }
+    if (DateTime.now().isBefore(newStartDate)) {
+      throw Exception('Budget is not ended yet');
+    }
+
+    final newBudget = await update(
+      budget,
+      startDate: newStartDate,
+      endDate: newStartDate.add(budget.intervalDuration!),
+      updatedDateTime: DateTime.now(),
+    );
+    return isarInstance.writeTxn(() async {
+      await Future.wait([
+        for (final budgetList in newBudget.budgetList)
+          if (!budgetList.isRemoved)
+            BudgetListRepository().update(
+              budgetList,
+              isCompleted: false,
+              updatedDateTime: DateTime.now(),
+              deadline: newStartDate.add(newBudget.intervalDuration!),
+              image: [],
+            ),
+      ]);
+      return budget;
     });
   }
 }
