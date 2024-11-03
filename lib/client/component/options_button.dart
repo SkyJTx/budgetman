@@ -6,12 +6,13 @@ import 'package:budgetman/client/component/dialog/budget_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:budgetman/client/component/dialog/category_dialog.dart';
 
 class OptionsButton extends StatefulWidget {
   const OptionsButton({
-    Key? key,
+    super.key,
     required this.locate,
-  }) : super(key: key);
+  });
 
   final String locate;
 
@@ -26,14 +27,16 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
 
   OverlayEntry _createOverlayEntry(BuildContext context) {
     return OverlayEntry(
-      builder: (overlayContext) => Scaffold(
+      builder: (context) => Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Container(
             padding: const EdgeInsets.all(15),
             alignment: Alignment.bottomRight,
-            child: GestureDetector(
-              onTap: _removeOverlay,
+            child: TapRegion(
+              onTapOutside: (t) {
+                _removeOverlay();
+              },
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -77,9 +80,8 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                         } else if (widget.locate == BudgetPage.routeName) {
                           // Handle 'Add List' action
                           // Implement similar logic if needed
-                        } else {
-                          // Handle 'Add Categories' action
-                          // Implement similar logic if needed
+                        } else if (widget.locate == CategoriesPage.routeName) {
+                          showCategoryDialog(context);
                         }
                       },
                     ),

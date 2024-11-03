@@ -1,3 +1,4 @@
+import 'package:budgetman/client/bloc/categories/categories_bloc.dart';
 import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
@@ -22,19 +23,30 @@ Future<Widget> get appWidget => Services().init().then(
         if (payload.compatible) {
           return MultiRepositoryProvider(
             providers: [
-              ClientRepository(),
-              BudgetRepository(),
-              BudgetListRepository(),
-              CategoryRepository(),
-              SettingsRepository()..init(),
-            ].map((e) => RepositoryProvider.value(value: e)).toList(),
+              RepositoryProvider<CategoryRepository>(
+                create: (_) => CategoryRepository(),
+              ),
+              ...[
+                ClientRepository(),
+                BudgetRepository(),
+                BudgetListRepository(),
+                SettingsRepository()..init(),
+              ].map((e) => RepositoryProvider.value(value: e)),
+            ],
             child: MultiBlocProvider(
               providers: [
-                BlocProvider(
+                BlocProvider<SettingsBloc>(
                   create: (context) => SettingsBloc()..init(),
                 ),
                 BlocProvider(
                   create: (context) => HomeBloc()..init(),
+                ),
+                BlocProvider<CategoriesBloc>(
+                  create: (context) => CategoriesBloc(
+                    context.read<CategoryRepository>(),
+                  )..add(
+                      LoadCategories(),
+                    ),
                 ),
               ],
               child: BudgetManApp(
