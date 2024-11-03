@@ -42,7 +42,7 @@ class LocalNotification extends SettingsEntry<bool> {
       });
 
   @override
-  Future<void> set(bool value) => isarInstance.writeTxn(() async {
+  Future<void> set(bool value, {bool requestPermission = true}) => isarInstance.writeTxn(() async {
         final isar = isarInstance;
         final setting = isar.settings;
         final localNotification = await setting.getByKey(key);
@@ -51,7 +51,7 @@ class LocalNotification extends SettingsEntry<bool> {
         } else {
           await setting.put(localNotification..value = '$value');
         }
-        if (value) {
+        if (value && requestPermission) {
           await NotificationServices().requestPermissions();
         }
       });
