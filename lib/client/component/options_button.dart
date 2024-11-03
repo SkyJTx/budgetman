@@ -16,10 +16,10 @@ class OptionsButton extends StatefulWidget {
   final String locate;
 
   @override
-  State<OptionsButton> createState() => _OptionsButtonState();
+  State<OptionsButton> createState() => OptionsButtonState();
 }
 
-class _OptionsButtonState extends State<OptionsButton> with SingleTickerProviderStateMixin {
+class OptionsButtonState extends State<OptionsButton> with SingleTickerProviderStateMixin {
   AnimationController? controller;
   bool isClicked = false;
   OverlayEntry? _overlayEntry;
