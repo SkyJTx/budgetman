@@ -1,3 +1,5 @@
+// budget_list_item.dart
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
@@ -7,7 +9,7 @@ import 'edit_budget_button.dart';
 
 class BudgetListItem extends StatefulWidget {
   final int budgetId;
-  final VoidCallback onEdit;
+  final Future<void> Function() onEdit;
   final VoidCallback onDelete;
 
   const BudgetListItem({
@@ -43,6 +45,13 @@ class _BudgetListItemState extends State<BudgetListItem> {
     };
   }
 
+  Future<void> _handleEdit() async {
+    await widget.onEdit();
+    setState(() {
+      _budgetDataFuture = _fetchBudgetData(); // Refresh the data
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final DateFormat formatter = DateFormat('MM/dd/yyyy');
@@ -51,13 +60,12 @@ class _BudgetListItemState extends State<BudgetListItem> {
       future: _budgetDataFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while fetching data
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // Handle errors
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData) {
-          // Handle the case where data is not found
+          // Case data not found
           return const Text('Budget data not found');
         } else {
           final budget = snapshot.data!['budget'];
@@ -72,7 +80,7 @@ class _BudgetListItemState extends State<BudgetListItem> {
             child: Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFa8e063), Color(0xFF56ab2f)], // Adjusted gradient colors
+                  colors: [Color(0xFFa8e063), Color(0xFF56ab2f)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -89,7 +97,7 @@ class _BudgetListItemState extends State<BudgetListItem> {
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: Colors.white, // Use white text with shadow
+                      color: Colors.white, 
                       shadows: [
                         Shadow(
                           blurRadius: 2.0,
@@ -152,13 +160,13 @@ class _BudgetListItemState extends State<BudgetListItem> {
                         children: [
                           // EditBudgetButton
                           EditBudgetButton(
-                            onPressed: widget.onEdit,
+                            onPressed: _handleEdit,
                           ),
                           const SizedBox(width: 8),
                           // Edit Icon Button
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.white),
-                            onPressed: widget.onEdit,
+                            onPressed: _handleEdit,
                             tooltip: 'Edit Budget',
                           ),
                           // Delete Icon Button

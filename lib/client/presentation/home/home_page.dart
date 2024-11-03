@@ -146,8 +146,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             final budget = state.budgets[index];
                             return BudgetListItem(
                               budgetId: budget.id,
-                              onEdit: () {
-                                showDialog(
+                              onEdit: () async {
+                                await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return BudgetDialog(
