@@ -166,11 +166,23 @@ class BudgetListTileState extends State<BudgetListTile> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  widget.budgetList.category.value?.name ?? 'None',
-                  style: context.theme.textTheme.titleMedium?.copyWith(
-                    color: widget.budgetList.category.value?.color ??
-                        context.theme.colorScheme.onTertiary,
+                child: Theme(
+                  data: ThemeData.from(
+                    colorScheme: ColorScheme.fromSeed(
+                      seedColor: widget.budgetList.category.value?.color ??
+                          context.theme.colorScheme.tertiary,
+                    ),
+                  ),
+                  child: DefaultTextStyle(
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Text(
+                        widget.budgetList.category.value?.name ?? 'None',
+                      ),
+                    ),
                   ),
                 ),
               ),

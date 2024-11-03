@@ -7,7 +7,7 @@ import 'package:budgetman/client/bloc/home/home_state.dart';
 import 'budget_deadline_graph.dart';
 
 class OverviewWidget extends StatelessWidget {
-  const OverviewWidget({Key? key}) : super(key: key);
+  const OverviewWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,6 @@ class OverviewWidget extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(

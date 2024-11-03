@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
 import 'package:budgetman/client/component/dialog/custom_alert_dialog.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
-import 'edit_budget_button.dart';
 
 class BudgetListItem extends StatefulWidget {
   final int budgetId;
@@ -154,9 +153,9 @@ class _BudgetListItemState extends State<BudgetListItem> {
                       Row(
                         children: [
                           // EditBudgetButton
-                          EditBudgetButton(
-                            onPressed: widget.onEdit,
-                          ),
+                          // EditBudgetButton(
+                          //   onPressed: widget.onEdit,
+                          // ),
                           const SizedBox(width: 8),
                           // Edit Icon Button
                           IconButton(

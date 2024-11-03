@@ -122,3 +122,21 @@ extension BetterIsar on Isar {
     return isar;
   }
 }
+
+extension ProperColor on Color {
+  Color get invert {
+    final luma = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+    return luma > 0.5 ? Colors.black : Colors.white;
+  }
+  Color get lighten => HSLColor.fromColor(this).withLightness(0.1).toColor();
+  Color get darken => HSLColor.fromColor(this).withLightness(-0.1).toColor();
+  Color get saturate => HSLColor.fromColor(this).withSaturation(0.1).toColor();
+  Color get desaturate => HSLColor.fromColor(this).withSaturation(-0.1).toColor();
+  Color get rotate => HSLColor.fromColor(this).withHue(30).toColor();
+  Color get complement => HSLColor.fromColor(this).withHue(180).toColor();
+  Color get triad => HSLColor.fromColor(this).withHue(120).toColor();
+  Color get tetrad => HSLColor.fromColor(this).withHue(90).toColor();
+  Color get splitComplement => HSLColor.fromColor(this).withHue(150).toColor();
+  Color get analogous => HSLColor.fromColor(this).withHue(30).toColor();
+  Color get monochromatic => HSLColor.fromColor(this).withHue(0).toColor();
+}
