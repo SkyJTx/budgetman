@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:budgetman/server/data_model/budget.dart';
@@ -23,10 +24,10 @@ void main() async {
       final getit = GetIt.instance;
 
       // Initialize the database
-      const dir = '/';
+      final dir = await Directory.current.createTemp('isar');
       final isar = await Isar.open(
         [BudgetSchema, BudgetListSchema, CategorySchema, SettingSchema],
-        directory: dir,
+        directory: dir.path,
       );
 
       getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());

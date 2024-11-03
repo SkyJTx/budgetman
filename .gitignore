@@ -97,3 +97,5 @@ windows/flutter/generated_plugins.cmake
 
 # For Testing
 isar.dll
+isar8b3191a7/default.isar
+isar8b3191a7/default.isar-lck
