@@ -11,6 +11,53 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
 
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    log('Background task $task with input $inputData');
+    switch (task) {
+      case 'sync':
+        await Services().backgroundInit();
+        final result = await BudgetRepository().backgroundTask();
+
+        late final bool isNotificationEnabled;
+        late final bool isLocalNotificationEnabled;
+        late final bool isDiscordWebhookEnabled;
+        late final String discordWebhookUri;
+
+        await Future.wait([
+          SettingsRepository().notification.get().then((value) => isNotificationEnabled = value),
+          SettingsRepository()
+              .localNotification
+              .get()
+              .then((value) => isLocalNotificationEnabled = value),
+          SettingsRepository()
+              .discordWebhook
+              .get()
+              .then((value) => isDiscordWebhookEnabled = value),
+          SettingsRepository().discordWebhookUri.get().then((value) => discordWebhookUri = value),
+        ]);
+
+        if (isNotificationEnabled && isLocalNotificationEnabled) {
+          await NotificationServices().showInstantNotification(
+            'Summary for Today Budgets',
+            'There are ${result.deadlineBudgetLists.length} budgets past deadline, ${result.resetBudgets.length} budgets with routine reset, ${result.deadlineBudgetLists.length} budget lists on deadline today.',
+            payload: const NotificationPayload(
+              path: HomePage.routeName,
+            ).toJson(),
+          );
+        } else if (isNotificationEnabled &&
+            isDiscordWebhookEnabled &&
+            discordWebhookUri.isNotEmpty) {
+          //TODO: Implement Discord Webhook
+        }
+      default:
+        log('Task $task is not implemented');
+    }
+    return true;
+  });
+}
+
 class BackgroundServices {
   static final instance = BackgroundServices._internal();
 
@@ -21,68 +68,40 @@ class BackgroundServices {
   BackgroundServices._internal();
 
   Future<void> init() async {
-    Workmanager().cancelAll();
+    if (kDebugMode) {
+      await Workmanager().cancelAll();
+      await Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
+      await Future.wait([
+        for (final task in ['sync'].indexed)
+          Workmanager().registerPeriodicTask(
+            task.$1.toString(),
+            task.$2,
+            tag: task.$2,
+            frequency: const Duration(minutes: 15),
+            inputData: <String, dynamic>{'test': 'value'},
+            backoffPolicy: BackoffPolicy.linear,
+            backoffPolicyDelay: const Duration(minutes: 15),
+          )
+      ]);
+      return;
+    }
+    await Workmanager().cancelAll();
     await Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
     final current = TimeOfDay.now();
     await Future.wait([
-      for (final taskName in ['sync'])
+      for (final task in ['sync'].indexed)
         Workmanager().registerPeriodicTask(
-          taskName,
-          taskName,
+          task.$1.toString(),
+          task.$2,
+          tag: task.$2,
           initialDelay: Duration(
             hours: (Constant.backgroundCheckTime.hour - current.hour) % 24,
             minutes: (Constant.backgroundCheckTime.minute - current.minute) % 60,
           ),
           frequency: Constant.backgroundCheckInterval,
-          inputData: <String, dynamic>{'test': 'value'},
+          backoffPolicy: BackoffPolicy.linear,
+          backoffPolicyDelay: const Duration(minutes: 15),
         )
     ]);
-  }
-
-  @pragma('vm:entry-point')
-  static void callbackDispatcher() {
-    Workmanager().executeTask((task, inputData) async {
-      log('Background task $task with input $inputData');
-      switch (task) {
-        case 'sync':
-          await Services().backgroundInit();
-          final result = await BudgetRepository().backgroundTask();
-
-          late final bool isNotificationEnabled;
-          late final bool isLocalNotificationEnabled;
-          late final bool isDiscordWebhookEnabled;
-          late final String discordWebhookUri;
-
-          await Future.wait([
-            SettingsRepository().notification.get().then((value) => isNotificationEnabled = value),
-            SettingsRepository()
-                .localNotification
-                .get()
-                .then((value) => isLocalNotificationEnabled = value),
-            SettingsRepository()
-                .discordWebhook
-                .get()
-                .then((value) => isDiscordWebhookEnabled = value),
-            SettingsRepository().discordWebhookUri.get().then((value) => discordWebhookUri = value),
-          ]);
-
-          if (isNotificationEnabled && isLocalNotificationEnabled) {
-            await NotificationServices().showInstantNotification(
-              'Summary for Today Budgets',
-              'There are \n 1. ${result.deadlineBudgetLists.length} budgets past deadline\n 2. ${result.resetBudgets.length} budgets with routine reset \n 3. ${result.deadlineBudgetLists.length} budget lists on deadline today',
-              payload: const NotificationPayload(
-                path: HomePage.routeName,
-              ).toJson(),
-            );
-          } else if (isNotificationEnabled &&
-              isDiscordWebhookEnabled &&
-              discordWebhookUri.isNotEmpty) {
-            //TODO: Implement Discord Webhook
-          }
-        default:
-          log('Task $task is not implemented');
-      }
-      return true;
-    });
   }
 }
