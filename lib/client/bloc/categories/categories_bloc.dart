@@ -94,7 +94,15 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
       AddCategory event, Emitter<CategoriesState> emit) async {
     if (state is CategoriesLoaded) {
       try {
-        await _categoryRepository.add(event.category); // เรียกใช้ repository เพื่อเพิ่มหมวดหมู่
+        await _categoryRepository.add(
+          id: event.category.id,
+          name: event.category.name,
+          description: event.category.description,
+          colorValue: event.category.colorValue,
+          createdDateTime: event.category.createdAt,
+          updatedDateTime: event.category.updatedAt,
+          isRemoved: event.category.isRemoved,
+        ); // เรียกใช้ repository เพื่อเพิ่มหมวดหมู่
         final List<Category> updatedCategories =
             List.from((state as CategoriesLoaded).categories)..add(event.category);
         emit(CategoriesLoaded(updatedCategories));
@@ -128,7 +136,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
       RemoveCategory event, Emitter<CategoriesState> emit) async {
     if (state is CategoriesLoaded) {
       try {
-        await _categoryRepository.delete(event.category.id); // เรียกใช้ repository เพื่อลบหมวดหมู่โดยใช้ id
+        await _categoryRepository.delete(event.category); // เรียกใช้ repository เพื่อลบหมวดหมู่โดยใช้ id
         final List<Category> updatedCategories = (state as CategoriesLoaded)
             .categories
             .where((category) => category.id != event.category.id)
