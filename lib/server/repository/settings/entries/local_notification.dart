@@ -38,9 +38,6 @@ class LocalNotification extends SettingsEntry<bool> {
           return defaultValue;
         }
         final value = bool.tryParse(localNotification.value) ?? defaultValue;
-        if (value) {
-          await NotificationServices().requestPermissions();
-        }
         return value;
       });
 
@@ -53,6 +50,9 @@ class LocalNotification extends SettingsEntry<bool> {
           await setting.put(Setting(key: key, value: '$value'));
         } else {
           await setting.put(localNotification..value = '$value');
+        }
+        if (value) {
+          await NotificationServices().requestPermissions();
         }
       });
 
