@@ -1,3 +1,4 @@
+// main_page.dart
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/value_notifier/value_change_notifier.dart';
 import 'package:budgetman/client/presentation/budget/budget_page.dart';

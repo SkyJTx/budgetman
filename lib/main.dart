@@ -1,3 +1,4 @@
+import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
@@ -31,6 +32,9 @@ Future<Widget> get appWidget => Services().init().then(
               providers: [
                 BlocProvider(
                   create: (context) => SettingsBloc()..init(),
+                ),
+                BlocProvider(
+                  create: (context) => HomeBloc()..init(),
                 ),
               ],
               child: BudgetManApp(
