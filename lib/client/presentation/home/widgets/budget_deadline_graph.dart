@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 class BudgetDeadlineGraph extends StatelessWidget {
   final List<BudgetList> transactions;
 
-  const BudgetDeadlineGraph({Key? key, required this.transactions}) : super(key: key);
+  const BudgetDeadlineGraph({super.key, required this.transactions});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class BudgetDeadlineGraph extends StatelessWidget {
         isCurved: false,
         barWidth: 3,
         color: lineColor,
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
       );
 
       lineBarsData.add(barData);
@@ -88,11 +88,12 @@ class BudgetDeadlineGraph extends StatelessWidget {
         maxY: adjustedMaxY,
         titlesData: FlTitlesData(
           show: true,
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              maxIncluded: false,
               interval: xInterval,
               getTitlesWidget: (value, meta) {
                 final date = DateTime(1970, 1, 1).add(Duration(days: value.toInt()));
@@ -110,6 +111,7 @@ class BudgetDeadlineGraph extends StatelessWidget {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              maxIncluded: false,
               interval: yInterval,
               reservedSize: 60,
               getTitlesWidget: (value, meta) {
@@ -154,23 +156,23 @@ class BudgetDeadlineGraph extends StatelessWidget {
               }
 
               // Display the tooltip for the touched spot (จุดแรกที่แตะเท่านั้น)
-        return touchedSpots.map((spot) {
-          if (spot == touchedSpots.first) {
-            final date = DateTime(1970, 1, 1).add(Duration(days: spot.x.toInt()));
-            final amount = spot.y;
-            final amountText = '${(amount / 1000).toStringAsFixed(0)}K';
-            return LineTooltipItem(
-              'Deadline: ${DateFormat('dd/MM/yyyy').format(date)}, Amount: $amountText',
-              TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold, // Make the text bold
-              ),
-            );
-          } else {
-            // Return an empty LineTooltipItem for other spots
-            return LineTooltipItem('', TextStyle(color: Colors.transparent));
-          }
-        }).toList();
+              return touchedSpots.map((spot) {
+                if (spot == touchedSpots.first) {
+                  final date = DateTime(1970, 1, 1).add(Duration(days: spot.x.toInt()));
+                  final amount = spot.y;
+                  final amountText = '${(amount / 1000).toStringAsFixed(0)}K';
+                  return LineTooltipItem(
+                    'Deadline: ${DateFormat('dd/MM/yyyy').format(date)}, Amount: $amountText',
+                    const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold, // Make the text bold
+                    ),
+                  );
+                } else {
+                  // Return an empty LineTooltipItem for other spots
+                  return const LineTooltipItem('', TextStyle(color: Colors.transparent));
+                }
+              }).toList();
             },
           ),
         ),

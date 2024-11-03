@@ -169,8 +169,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               : ListView.builder(
                                   padding: const EdgeInsets.symmetric(horizontal: 16),
                                   itemCount: state.transactions.length,
-                                  primary: false, // Add this line
-                                  shrinkWrap: true, // Add this line
                                   itemBuilder: (context, index) {
                                     final transaction = state.transactions[index];
                                     return TransactionCard(budgetList: transaction);

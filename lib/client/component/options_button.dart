@@ -152,6 +152,7 @@ class OptionsButtonState extends State<OptionsButton> with SingleTickerProviderS
         ),
       ],
       child: FloatingActionButton(
+        key: const Key('options_button'),
         shape: const CircleBorder(),
         onPressed: () {
           if (controller?.isAnimating ?? false) return;
