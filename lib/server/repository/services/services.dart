@@ -101,4 +101,23 @@ class Services {
       );
     }
   }
+
+  Future<void> backgroundInit() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    final getit = GetIt.instance;
+
+    // Initialize the database
+    final dir = await getApplicationDocumentsDirectory();
+    final isar = await Isar.open(
+      [BudgetSchema, BudgetListSchema, CategorySchema, SettingSchema],
+      directory: dir.path,
+      inspector: kDebugMode,
+    );
+
+    final notificationServices = NotificationServices();
+    await notificationServices.init();
+
+    getit.registerSingleton<Isar>(isar, dispose: (isar) => isar.close());
+  }
 }
