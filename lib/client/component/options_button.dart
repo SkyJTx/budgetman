@@ -101,7 +101,7 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                         ),
                         onTap: () {
                           _removeOverlay();
-                          context.go(CategoriesPage.routeName);
+                          context.go('/${CategoriesPage.routeName}');
                         },
                       ),
                   ],
