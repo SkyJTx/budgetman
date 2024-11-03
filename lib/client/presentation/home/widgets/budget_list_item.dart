@@ -11,11 +11,11 @@ class BudgetListItem extends StatefulWidget {
   final VoidCallback onDelete;
 
   const BudgetListItem({
-    Key? key,
+    super.key,
     required this.budgetId,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   _BudgetListItemState createState() => _BudgetListItemState();
@@ -123,30 +123,33 @@ class _BudgetListItemState extends State<BudgetListItem> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Total Amount
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white24),
-                        ),
-                        child: Text(
-                          'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 2.0,
-                                color: Colors.black26,
-                                offset: Offset(1.0, 1.0),
-                              ),
-                            ],
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Text(
+                            'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 2.0,
+                                  color: Colors.black26,
+                                  offset: Offset(1.0, 1.0),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       // Action Buttons
                       Row(
                         children: [

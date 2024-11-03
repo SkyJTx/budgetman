@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:budgetman/client/component/dialog/category_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,9 +22,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
     return Scaffold(
       body: BlocBuilder<CategoriesBloc, CategoriesState>(
         builder: (context, state) {
+          log('CategoriesBloc state: $state');
           if (state is CategoriesLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is CategoriesLoaded) {
+            if (state.categories.isEmpty) {
+              return Center(
+                  child: Text(
+                'No Category',
+                style: theme.textTheme.bodyLarge,
+              ));
+            }
             return ListView.builder(
               itemCount: state.categories.length,
               itemBuilder: (context, index) {
@@ -49,7 +59,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         Expanded(
                           child: Text(
                             category.name,
-                            style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface, fontSize: 20),
+                            style: theme.textTheme.bodyLarge
+                                ?.copyWith(color: theme.colorScheme.onSurface, fontSize: 20),
                           ),
                         ),
                         IconButton(
@@ -73,7 +84,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
           } else if (state is CategoriesError) {
             return Center(child: Text(state.message, style: theme.textTheme.bodyLarge));
           } else {
-            return Center(child: Text('no category', style: theme.textTheme.bodyLarge));
+            return Center(
+                child: Text(
+              'Invalid State',
+              style: theme.textTheme.bodyLarge,
+            ));
           }
         },
       ),

@@ -74,9 +74,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
 
                       // Overview Section
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: const OverviewWidget(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: OverviewWidget(),
                       ),
 
                       // TabBar
@@ -105,7 +105,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                                 decoration: BoxDecoration(
-                                  color: _tabController.index == 1 ? Colors.green : Colors.grey[300],
+                                  color:
+                                      _tabController.index == 1 ? Colors.green : Colors.grey[300],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -171,16 +172,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: state.transactions.length,
-                    primary: false, // Add this line
-                    shrinkWrap: true, // Add this line
-                    itemBuilder: (context, index) {
-                      final transaction = state.transactions[index];
-                      return TransactionCard(budgetList: transaction);
-                    },
-                  ),
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: state.transactions.length,
+                          primary: false, // Add this line
+                          shrinkWrap: true, // Add this line
+                          itemBuilder: (context, index) {
+                            final transaction = state.transactions[index];
+                            return TransactionCard(budgetList: transaction);
+                          },
+                        ),
                 ],
               ),
             ),

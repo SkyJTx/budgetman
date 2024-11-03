@@ -55,60 +55,27 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    ListTile(
-                      leading: Icon(Icons.add_circle_outline,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer),
-                      title: Text(
-                        widget.locate == HomePage.routeName
-                            ? 'Add Budget'
-                            : widget.locate == BudgetPage.routeName
-                                ? 'Add List'
-                                : 'Add Categories',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
-                      ),
-                      onTap: () {
-                        _removeOverlay();
-
-                        if (widget.locate == HomePage.routeName) {
-                          // Show the BudgetDialog when on the HomePage
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext dialogContext) {
-                              return BudgetDialog();
-                            },
-                          );
-                        } else if (widget.locate == BudgetPage.routeName) {
-                          // Handle 'Add List' action
-                          // Implement similar logic if needed
-                        } else if (widget.locate == CategoriesPage.routeName) {
-                          showCategoryDialog(context);
-                        }
-                      },
-                    ),
-                    if (widget.locate == BudgetPage.routeName)
-                      Divider(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    if (widget.locate == BudgetPage.routeName)
+                    if (widget.locate == HomePage.routeName) ...[
                       ListTile(
-                        leading: Icon(
-                          Icons.edit_outlined,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+                        leading: Icon(Icons.add_circle_outline,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer),
                         title: Text(
-                          'Edit List',
+                          'Add Budget',
                           style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
                         ),
                         onTap: () {
                           _removeOverlay();
-                          // Implement edit list functionality here
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return const BudgetDialog();
+                            },
+                          );
                         },
                       ),
-                    if (widget.locate != CategoriesPage.routeName)
                       Divider(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
-                    if (widget.locate != CategoriesPage.routeName)
                       ListTile(
                         leading: Icon(
                           Icons.folder_outlined,
@@ -123,6 +90,21 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                           context.go('/${CategoriesPage.routeName}');
                         },
                       ),
+                    ],
+                    if (widget.locate == '/${CategoriesPage.routeName}') ...[
+                      ListTile(
+                        leading: Icon(Icons.add_circle_outline,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer),
+                        title: Text(
+                          'Add Categories',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                        ),
+                        onTap: () {
+                          _removeOverlay();
+                          showCategoryDialog(context);
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -153,9 +135,8 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Animate(
       target: isClicked ? 1 : 0,
-      onComplete: (animationController) {
-        controller = animationController;
-        controller?.stop();
+      onInit: (controller) {
+        this.controller = controller;
       },
       effects: [
         FadeEffect(
@@ -175,8 +156,8 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
         shape: const CircleBorder(),
         onPressed: () {
           if (controller?.isAnimating ?? false) return;
-          controller?.forward();
           isClicked = !isClicked;
+          isClicked ? controller?.forward() : controller?.reverse();
           _showOverlay(context);
         },
         child: const Icon(Icons.more_horiz),
