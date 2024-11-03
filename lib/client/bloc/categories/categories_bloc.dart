@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:budgetman/server/data_model/categories.dart';
 import 'package:equatable/equatable.dart';
 import 'package:budgetman/server/repository/categories/categories_repository.dart';
+import 'package:isar/isar.dart';
 
 // Events
 abstract class CategoriesEvent extends Equatable {
@@ -14,18 +17,54 @@ abstract class CategoriesEvent extends Equatable {
 class LoadCategories extends CategoriesEvent {}
 
 class AddCategory extends CategoriesEvent {
-  final Category category;
+  final int id;
+  final String name;
+  final String description;
+  final int colorValue;
+  final DateTime? createdDateTime;
+  final DateTime? updatedDateTime;
+  final bool isRemoved;
 
-  const AddCategory(this.category);
+  const AddCategory({
+    this.id = Isar.autoIncrement,
+    required this.name,
+    required this.description,
+    required this.colorValue,
+    this.createdDateTime,
+    this.updatedDateTime,
+    this.isRemoved = false,
+  });
 
   @override
-  List<Object?> get props => [category];
+  List<Object?> get props => [
+        id,
+        name,
+        description,
+        colorValue,
+        createdDateTime,
+        updatedDateTime,
+        isRemoved,
+      ];
 }
 
 class UpdateCategory extends CategoriesEvent {
   final Category category;
+  final String? name;
+  final String? description;
+  final int? colorValue;
+  final DateTime? createdDateTime;
+  final DateTime? updatedDateTime;
+  final bool? isRemoved;
 
-  const UpdateCategory(this.category);
+  const UpdateCategory(
+    this.category, {
+    this.name,
+    this.description,
+    this.colorValue,
+    this.createdDateTime,
+    this.updatedDateTime,
+    this.isRemoved,
+  });
 
   @override
   List<Object?> get props => [category];
@@ -79,8 +118,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     on<RemoveCategory>(_onRemoveCategory);
   }
 
-  Future<void> _onLoadCategories(
-      LoadCategories event, Emitter<CategoriesState> emit) async {
+  Future<void> _onLoadCategories(LoadCategories event, Emitter<CategoriesState> emit) async {
     emit(CategoriesLoading());
     try {
       final categories = await _categoryRepository.getAll();
@@ -90,21 +128,19 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     }
   }
 
-  Future<void> _onAddCategory(
-      AddCategory event, Emitter<CategoriesState> emit) async {
+  Future<void> _onAddCategory(AddCategory event, Emitter<CategoriesState> emit) async {
     if (state is CategoriesLoaded) {
       try {
         await _categoryRepository.add(
-          id: event.category.id,
-          name: event.category.name,
-          description: event.category.description,
-          colorValue: event.category.colorValue,
-          createdDateTime: event.category.createdAt,
-          updatedDateTime: event.category.updatedAt,
-          isRemoved: event.category.isRemoved,
+          id: event.id,
+          name: event.name,
+          description: event.description,
+          colorValue: event.colorValue,
+          createdDateTime: event.createdDateTime,
+          updatedDateTime: event.updatedDateTime,
+          isRemoved: event.isRemoved,
         ); // เรียกใช้ repository เพื่อเพิ่มหมวดหมู่
-        final List<Category> updatedCategories =
-            List.from((state as CategoriesLoaded).categories)..add(event.category);
+        final List<Category> updatedCategories = await _categoryRepository.getAll();
         emit(CategoriesLoaded(updatedCategories));
       } catch (e) {
         emit(const CategoriesError("ไม่สามารถเพิ่มหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
@@ -112,35 +148,34 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     }
   }
 
-  Future<void> _onUpdateCategory(
-    UpdateCategory event, Emitter<CategoriesState> emit) async {
-  if (state is CategoriesLoaded) {
-    try {
-      print('Attempting to update category with id: ${event.category.id}');
-      await _categoryRepository.update(event.category); // เรียกใช้ repository เพื่ออัพเดตหมวดหมู่
-      final List<Category> updatedCategories = (state as CategoriesLoaded)
-          .categories
-          .map((category) => category.id == event.category.id ? event.category : category)
-          .toList();
-      emit(CategoriesLoaded(updatedCategories));
-    } catch (e) {
-      print('Error updating category: $e');
-      emit(const CategoriesError("ไม่สามารถอัพเดตหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
-    }
-  }
-}
-
-
-
-  Future<void> _onRemoveCategory(
-      RemoveCategory event, Emitter<CategoriesState> emit) async {
+  Future<void> _onUpdateCategory(UpdateCategory event, Emitter<CategoriesState> emit) async {
     if (state is CategoriesLoaded) {
       try {
-        await _categoryRepository.delete(event.category); // เรียกใช้ repository เพื่อลบหมวดหมู่โดยใช้ id
-        final List<Category> updatedCategories = (state as CategoriesLoaded)
-            .categories
-            .where((category) => category.id != event.category.id)
-            .toList();
+        print('Attempting to update category with id: ${event.category.id}');
+        await _categoryRepository.update(
+          event.category,
+          name: event.name,
+          description: event.description,
+          colorValue: event.colorValue,
+          createdDateTime: event.createdDateTime,
+          updatedDateTime: event.updatedDateTime,
+          isRemoved: event.isRemoved,
+        ); // เรียกใช้ repository เพื่ออัพเดตหมวดหมู่
+        final List<Category> updatedCategories = await _categoryRepository.getAll();
+        emit(CategoriesLoaded(updatedCategories));
+      } catch (e) {
+        log('Error updating category: $e');
+        emit(const CategoriesError("ไม่สามารถอัพเดตหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
+      }
+    }
+  }
+
+  Future<void> _onRemoveCategory(RemoveCategory event, Emitter<CategoriesState> emit) async {
+    if (state is CategoriesLoaded) {
+      try {
+        await _categoryRepository
+            .delete(event.category); // เรียกใช้ repository เพื่อลบหมวดหมู่โดยใช้ id
+        final List<Category> updatedCategories = await _categoryRepository.getAll();
         emit(CategoriesLoaded(updatedCategories));
       } catch (e) {
         emit(const CategoriesError("ไม่สามารถลบหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
@@ -148,9 +183,10 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     }
   }
 }
+
 bool isCategoryNameUnique(CategoriesState state, String name) {
   if (state is CategoriesLoaded) {
-    final existingCategories = (state as CategoriesLoaded).categories;
+    final existingCategories = (state).categories;
     return !existingCategories.any((category) => category.name == name);
   }
   return true;

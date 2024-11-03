@@ -9,10 +9,10 @@ class ColorPickerDialog extends StatefulWidget {
   final ValueChanged<Color> onColorSelected;
 
   const ColorPickerDialog({
-    Key? key,
+    super.key,
     this.selectedColor,
     required this.onColorSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<ColorPickerDialog> createState() => _ColorPickerDialogState();
@@ -61,7 +61,6 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                   _showCustomPicker = false;
                 });
               },
-              child: Text('Preset'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: !_showCustomPicker
                     ? theme.colorScheme.primary
@@ -70,15 +69,15 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                     ? theme.colorScheme.onPrimary
                     : theme.colorScheme.onSurface, // สีข้อความตามธีม
               ),
+              child: const Text('Preset'),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () {
                 setState(() {
                   _showCustomPicker = true;
                 });
               },
-              child: Text('Custom'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _showCustomPicker
                     ? theme.colorScheme.primary
@@ -87,10 +86,11 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                     ? theme.colorScheme.onPrimary
                     : theme.colorScheme.onSurface, // สีข้อความตามธีม
               ),
+              child: const Text('Custom'),
             ),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         if (!_showCustomPicker)
           Wrap(
             spacing: 12,
@@ -158,17 +158,14 @@ class _ColorOption extends StatelessWidget {
           color: color,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : Colors.transparent, // ใช้สีจากธีม
+            color: isSelected ? theme.colorScheme.primary : Colors.transparent, // ใช้สีจากธีม
             width: 2,
           ),
         ),
         child: isSelected
             ? Icon(
                 Icons.check,
-                color:
-                    color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+                color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
               )
             : null,
       ),
@@ -239,14 +236,14 @@ class _CategoryDialogState extends State<CategoryDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-               TextFormField(
+              TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   hintText: 'Category name',
                   hintStyle: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.hintColor,
                   ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0), 
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
                 ),
                 style: theme.textTheme.bodyLarge,
                 validator: (value) {
@@ -258,7 +255,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
                     final isDuplicate = categoriesState.categories.any((category) =>
                         category.name.toLowerCase() == value.toLowerCase() &&
                         category.id != widget.category?.id); // ไม่นับกรณีที่กำลังแก้ไขหมวดหมู่เดิม
-                    
+
                     if (isDuplicate) {
                       return 'Category name already exists';
                     }
@@ -278,7 +275,8 @@ class _CategoryDialogState extends State<CategoryDialog> {
                   fillColor: theme.colorScheme.surfaceContainerHighest,
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0), // Added padding
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0), // Added padding
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(8.0),
                     width: 24,
@@ -321,47 +319,42 @@ class _CategoryDialogState extends State<CategoryDialog> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                    onPressed: () {
+                  onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
                       final colorValue = _selectedColor?.value ?? Colors.grey.value;
                       final categoriesState = context.read<CategoriesBloc>().state;
-                      
+
                       if (categoriesState is CategoriesLoaded) {
-                      final isDuplicate = categoriesState.categories.any((category) =>
-                        category.name.toLowerCase() == _nameController.text.toLowerCase() &&
-                        category.id != widget.category?.id);
-                        
-                      if (isDuplicate) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Category name already exists'),
-                          backgroundColor: Colors.red,
-                        ),
-                        );
-                        return;
-                      }
+                        final isDuplicate = categoriesState.categories.any((category) =>
+                            category.name.toLowerCase() == _nameController.text.toLowerCase() &&
+                            category.id != widget.category?.id);
+
+                        if (isDuplicate) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Category name already exists'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
                       }
                       if (widget.category != null) {
-                        final updatedCategory = Category(
-                          id: widget.category!.id,
-                          name: _nameController.text,
-                          description: '',
-                          colorValue: colorValue,
-                          updatedDateTime: DateTime.now(),
-                        );
-                        context
-                            .read<CategoriesBloc>()
-                            .add(UpdateCategory(updatedCategory));
+                        context.read<CategoriesBloc>().add(UpdateCategory(
+                              widget.category!,
+                              name: _nameController.text,
+                              description: '',
+                              colorValue: colorValue,
+                              updatedDateTime: DateTime.now(),
+                            ));
                       } else {
-                        final newCategory = Category(
-                          name: _nameController.text,
-                          colorValue: colorValue,
-                          description: '',
-                          createdDateTime: DateTime.now(),
-                        );
-                        context
-                            .read<CategoriesBloc>()
-                            .add(AddCategory(newCategory));
+                        context.read<CategoriesBloc>().add(AddCategory(
+                              name: _nameController.text,
+                              colorValue: colorValue,
+                              description: '',
+                              createdDateTime: DateTime.now(),
+                              updatedDateTime: DateTime.now(),
+                            ));
                       }
                       Navigator.pop(context);
                     }
@@ -375,8 +368,7 @@ class _CategoryDialogState extends State<CategoryDialog> {
                   ),
                   child: Text(
                     'Save',
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(color: theme.colorScheme.onPrimary),
+                    style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary),
                   ),
                 ),
               ),
