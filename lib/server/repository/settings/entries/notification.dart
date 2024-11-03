@@ -35,9 +35,6 @@ final class NotificationEntry extends SettingsEntry<bool> {
           return defaultValue;
         }
         final value = bool.tryParse(notification.value) ?? defaultValue;
-        if (value) {
-          await NotificationServices().requestPermissions();
-        }
         return value;
       });
 
