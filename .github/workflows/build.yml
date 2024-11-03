@@ -24,13 +24,13 @@ jobs:
           flutter-version: "3.24.4"
       
       - name: Run Flutter Unit Test
-        run: flutter test test/unit_test.dart
+        run: sudo flutter test test/unit_test.dart
       
       - name: Run Flutter UI Test
-        run: flutter test test/ui_test.dart
+        run: sudo flutter test test/ui_test.dart
       
       - name: Run Flutter Integration Test
-        run: bash ./utils/run.sh
+        run: sudo bash ./utils/run.sh
 
       - name: Build Budgetman
         run: |
