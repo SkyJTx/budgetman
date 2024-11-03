@@ -1,5 +1,5 @@
+import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/presentation/setting/setting_page.dart';
-import 'package:budgetman/server/component/extension.dart';
 import 'package:budgetman/server/repository/services/notification_payload.dart';
 import 'package:budgetman/server/repository/services/notification_services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -160,17 +160,23 @@ class ComponentPageState extends State<ComponentPage> {
             ),
           ],
         ),
-        ElevatedButton(
-          onPressed: () async {
-            await NotificationServices().showInstantNotification(
-              'Test',
-              'Test',
-              payload: const NotificationPayload(
-                path: '/${SettingPage.routeName}',
-              ).toJson(),
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            return ElevatedButton(
+              onPressed: state.localNotification
+                  ? () async {
+                      await NotificationServices().showInstantNotification(
+                        'Test',
+                        'Test',
+                        payload: const NotificationPayload(
+                          path: '/${SettingPage.routeName}',
+                        ).toJson(),
+                      );
+                    }
+                  : null,
+              child: const Text('Push Notification Button'),
             );
           },
-          child: const Text('Push Notification Button'),
         ),
       ].map((e) => Padding(padding: const EdgeInsets.all(10), child: e)).toList()),
     );
