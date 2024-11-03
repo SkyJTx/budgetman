@@ -138,6 +138,7 @@ class NotificationServices {
     if (res?.didNotificationLaunchApp ?? false) {
       return res;
     }
+    return null;
   }
 
   @pragma('vm:entry-point')

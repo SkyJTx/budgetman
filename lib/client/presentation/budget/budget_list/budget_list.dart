@@ -187,13 +187,14 @@ class BudgetListTileState extends State<BudgetListTile> {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                widget.budgetList.title,
-                style: context.theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  widget.budgetList.title,
+                  style: context.theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  strutStyle: const StrutStyle(height: 1.5),
                 ),
-                overflow: TextOverflow.ellipsis,
-                strutStyle: const StrutStyle(height: 1.5),
               ),
             ],
           ),
@@ -393,6 +394,7 @@ class BudgetListTileState extends State<BudgetListTile> {
                 child: Row(
                   children: [
                     ElevatedButton.icon(
+                      key: const Key('edit_button_of_budget_list'),
                       style: ElevatedButton.styleFrom(
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
@@ -411,6 +413,7 @@ class BudgetListTileState extends State<BudgetListTile> {
                     ),
                     const VerticalDivider(width: 2),
                     ElevatedButton.icon(
+                      key: const Key('delete_button_of_budget_list'),
                       style: ElevatedButton.styleFrom(
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
