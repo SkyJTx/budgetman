@@ -26,7 +26,7 @@ class BudgetPage extends StatefulWidget {
   final Budget budget;
 
   static const String pageName = 'Budget';
-  static const String routeName = '/budget';
+  static const String routeName = 'budget';
 
   @override
   State<BudgetPage> createState() => BudgetPageState();
@@ -384,14 +384,12 @@ class BudgetPageState extends State<BudgetPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 4),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: context.theme.colorScheme.secondary,
-                                ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: context.theme.colorScheme.onSurface.withOpacity(0.2),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 16,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),

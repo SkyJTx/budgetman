@@ -1,9 +1,11 @@
-import 'package:budgetman/client/presentation/budget/budget_page.dart';
+// options_button.dart
 import 'package:budgetman/client/presentation/categories/categories_page.dart';
 import 'package:budgetman/client/presentation/home/home_page.dart';
+import 'package:budgetman/client/component/dialog/budget_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:budgetman/client/component/dialog/category_dialog.dart';
 
 class OptionsButton extends StatefulWidget {
   const OptionsButton({
@@ -52,44 +54,27 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    ListTile(
-                      leading: Icon(Icons.add_circle_outline,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer),
-                      title: Text(
-                        widget.locate == HomePage.routeName
-                            ? 'Add Budget'
-                            : widget.locate == BudgetPage.routeName
-                                ? 'Add List'
-                                : 'Add Categories',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
-                      ),
-                      onTap: () {
-                        _removeOverlay();
-                      },
-                    ),
-                    if (widget.locate == BudgetPage.routeName)
-                      Divider(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    if (widget.locate == BudgetPage.routeName)
+                    if (widget.locate == HomePage.routeName) ...[
                       ListTile(
-                        leading: Icon(
-                          Icons.edit_outlined,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+                        leading: Icon(Icons.add_circle_outline,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer),
                         title: Text(
-                          'Edit List',
+                          'Add Budget',
                           style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
                         ),
                         onTap: () {
                           _removeOverlay();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return const BudgetDialog();
+                            },
+                          );
                         },
                       ),
-                    if (widget.locate != CategoriesPage.routeName)
                       Divider(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
-                    if (widget.locate != CategoriesPage.routeName)
                       ListTile(
                         leading: Icon(
                           Icons.folder_outlined,
@@ -101,16 +86,31 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
                         ),
                         onTap: () {
                           _removeOverlay();
-                          context.go(CategoriesPage.routeName);
+                          context.go('/${CategoriesPage.routeName}');
                         },
                       ),
+                    ],
+                    if (widget.locate == '/${CategoriesPage.routeName}') ...[
+                      ListTile(
+                        leading: Icon(Icons.add_circle_outline,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer),
+                        title: Text(
+                          'Add Categories',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                        ),
+                        onTap: () {
+                          _removeOverlay();
+                          showCategoryDialog(context);
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
           ),
-        ),
-      ).animate().fadeIn(delay: 0.25.seconds, duration: 0.25.seconds),
+        ).animate().fadeIn(delay: 0.25.seconds, duration: 0.25.seconds),
+      ),
     );
   }
 
@@ -134,9 +134,8 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Animate(
       target: isClicked ? 1 : 0,
-      onComplete: (controller) {
+      onInit: (controller) {
         this.controller = controller;
-        controller.stop();
       },
       effects: [
         FadeEffect(
@@ -156,8 +155,8 @@ class _OptionsButtonState extends State<OptionsButton> with SingleTickerProvider
         shape: const CircleBorder(),
         onPressed: () {
           if (controller?.isAnimating ?? false) return;
-          controller?.forward();
           isClicked = !isClicked;
+          isClicked ? controller?.forward() : controller?.reverse();
           _showOverlay(context);
         },
         child: const Icon(Icons.more_horiz),

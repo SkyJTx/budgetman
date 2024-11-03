@@ -1,60 +1,85 @@
+import 'package:budgetman/client/bloc/categories/categories_bloc.dart';
+import 'package:budgetman/client/bloc/home/home_bloc.dart';
 import 'package:budgetman/client/bloc/settings/settings_bloc.dart';
 import 'package:budgetman/client/component/theme.dart';
 import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:budgetman/server/repository/budget/budget_repository.dart';
 import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
 import 'package:budgetman/server/repository/categories/categories_repository.dart';
+import 'package:budgetman/server/repository/services/notification_services.dart';
+import 'package:budgetman/server/repository/services/services.dart';
 import 'package:budgetman/server/repository/settings/settings_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:budgetman/dependencies_injector.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sizer/sizer.dart';
 
 void main() async {
-  runApp(await widget);
+  runApp(await appWidget);
 }
 
-Future<Widget> get widget => init().then(
-      (compatible) {
-        if (compatible) {
+Future<Widget> get appWidget => Services().init().then(
+      (payload) {
+        if (payload.compatible) {
           return MultiRepositoryProvider(
             providers: [
-              ClientRepository(),
-              BudgetRepository(),
-              BudgetListRepository(),
-              CategoryRepository(),
-              SettingsRepository()..init(),
-            ].map((e) => RepositoryProvider.value(value: e)).toList(),
+              RepositoryProvider<CategoryRepository>(
+                create: (_) => CategoryRepository(),
+              ),
+              ...[
+                ClientRepository(),
+                BudgetRepository(),
+                BudgetListRepository(),
+                SettingsRepository()..init(),
+              ].map((e) => RepositoryProvider.value(value: e)),
+            ],
             child: MultiBlocProvider(
               providers: [
-                BlocProvider(
+                BlocProvider<SettingsBloc>(
                   create: (context) => SettingsBloc()..init(),
                 ),
+                BlocProvider(
+                  create: (context) => HomeBloc()..init(),
+                ),
+                BlocProvider<CategoriesBloc>(
+                  create: (context) => CategoriesBloc(
+                    context.read<CategoryRepository>(),
+                  )..add(
+                      LoadCategories(),
+                    ),
+                ),
               ],
-              child: const BudgetManApp(),
+              child: BudgetManApp(
+                notificationAppLaunchDetails: payload.notificationAppLaunchDetails,
+              ),
             ),
           );
         }
         return const MaterialApp(
           home: Scaffold(
             body: SafeArea(
-                child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.error,
-                    size: 100.0,
-                    color: Colors.red,
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Your device is not compatible with this app.',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+                child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error,
+                      size: 100.0,
+                      color: Colors.red,
                     ),
-                  ),
-                ],
+                    SizedBox(height: 20.0),
+                    Text(
+                      'Your device is not compatible with this app.',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )),
           ),
@@ -63,13 +88,32 @@ Future<Widget> get widget => init().then(
     );
 
 class BudgetManApp extends StatefulWidget {
-  const BudgetManApp({super.key});
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails;
+  const BudgetManApp({
+    super.key,
+    this.notificationAppLaunchDetails,
+  });
 
   @override
   State<BudgetManApp> createState() => BudgetManAppState();
 }
 
 class BudgetManAppState extends State<BudgetManApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      final isLaunchedByNotification =
+          widget.notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
+      if (isLaunchedByNotification &&
+          widget.notificationAppLaunchDetails?.notificationResponse != null) {
+        NotificationServices.onDidReceiveNotificationResponse(
+          widget.notificationAppLaunchDetails!.notificationResponse!,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final baseThemes = MaterialTheme(const TextTheme().apply());

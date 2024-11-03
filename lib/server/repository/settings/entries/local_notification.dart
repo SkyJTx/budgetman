@@ -37,8 +37,11 @@ class LocalNotification extends SettingsEntry<bool> {
         if (localNotification == null) {
           return defaultValue;
         }
-        final value = bool.tryParse(localNotification.value);
-        return value ?? defaultValue;
+        final value = bool.tryParse(localNotification.value) ?? defaultValue;
+        if (value) {
+          await NotificationServices().requestPermissions();
+        }
+        return value;
       });
 
   @override
@@ -62,7 +65,7 @@ class LocalNotification extends SettingsEntry<bool> {
           await setting.deleteByKey(key);
         }
       });
-  
+
   @override
   Future<void> reset() => isarInstance.writeTxn(() async {
         final isar = isarInstance;

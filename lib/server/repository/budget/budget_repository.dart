@@ -1,5 +1,6 @@
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
+import 'package:budgetman/server/repository/budget_list/budget_list_repository.dart';
 import 'package:isar/isar.dart';
 
 class BudgetRepository {
@@ -123,7 +124,120 @@ class BudgetRepository {
 
   Future<List<Budget>> getAll() async {
     return isarInstance.txn(() async {
-      return isarInstance.budgets.where().findAll();
+      return isarInstance.budgets.where().filter().isRemovedEqualTo(false).findAll();
     });
+  }
+
+  Future<Budget> routineReset(Budget budget, {bool throwError = true}) async {
+    Future<Budget> inside() async {
+      if (!budget.isRoutine || budget.routineInterval == null) {
+        throw Exception('Budget is not routine mode');
+      }
+
+      final newStartDate = budget.startDate.add(Duration(days: budget.routineInterval!));
+
+      if (budget.isCompleted) {
+        throw Exception('Budget is already completed');
+      }
+      if (budget.isRemoved) {
+        throw Exception('Budget is removed');
+      }
+      if (DateTime.now().isBefore(newStartDate)) {
+        throw Exception('Budget is not ended yet');
+      }
+
+      final newBudget = await update(
+        budget,
+        startDate: newStartDate,
+        endDate: newStartDate.add(budget.intervalDuration!),
+        updatedDateTime: DateTime.now(),
+      );
+      return isarInstance.writeTxn(() async {
+        await Future.wait([
+          for (final budgetList in newBudget.budgetList)
+            if (!budgetList.isRemoved)
+              BudgetListRepository().update(
+                budgetList,
+                isCompleted: false,
+                updatedDateTime: DateTime.now(),
+                deadline: newStartDate.add(newBudget.intervalDuration!),
+                image: [],
+              ),
+        ]);
+        return budget;
+      });
+    }
+
+    if (throwError) {
+      return await inside();
+    } else {
+      try {
+        return await inside();
+      } catch (e) {
+        return budget;
+      }
+    }
+  }
+
+  Future<
+      ({
+        List<Budget> expiredBudgets,
+        List<Budget> resetBudgets,
+        List<BudgetList> deadlineBudgetLists,
+      })> backgroundTask() async {
+    final expiredBudgets = <Budget>[];
+    final resetBudgets = <Budget>[];
+    final deadlineBudgetLists = <BudgetList>[];
+
+    final budgets = await getAll();
+    for (final budget in budgets) {
+      if (budget.isRemoved) {
+        continue;
+      }
+
+      if (DateTime.now().isAfter(budget.endDate)) {
+        expiredBudgets.add(budget);
+      }
+
+      try {
+        final resetBudget = await routineReset(budget, throwError: false);
+        resetBudgets.add(resetBudget);
+      } catch (e) {
+        // Do nothing
+      }
+
+      for (final budgetList in budget.budgetList) {
+        if (budgetList.isRemoved) {
+          continue;
+        }
+
+        if (DateTime.now().isAfter(budgetList.deadline)) {
+          deadlineBudgetLists.add(budgetList);
+        }
+      }
+    }
+
+    return (
+      expiredBudgets: expiredBudgets,
+      resetBudgets: resetBudgets,
+      deadlineBudgetLists: deadlineBudgetLists,
+    );
+  }
+
+  Future<double> getTotalAmountForBudget(int budgetId) async {
+    final budget = await getById(budgetId);
+    await budget.budgetList.load();
+    double totalAmount = 0.0;
+    for (var budgetListItem in budget.budgetList) {
+      totalAmount += budgetListItem.budget;
+    }
+    return totalAmount;
+  }
+
+  Future<Budget?> getBudgetForBudgetList(int budgetListId) async {
+    return await isarInstance.budgets
+        .filter()
+        .budgetList((q) => q.idEqualTo(budgetListId))
+        .findFirst();
   }
 }

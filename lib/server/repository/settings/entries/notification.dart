@@ -34,8 +34,8 @@ final class NotificationEntry extends SettingsEntry<bool> {
         if (notification == null) {
           return defaultValue;
         }
-        final value = bool.tryParse(notification.value);
-        return value ?? defaultValue;
+        final value = bool.tryParse(notification.value) ?? defaultValue;
+        return value;
       });
 
   @override

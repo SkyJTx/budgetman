@@ -40,7 +40,7 @@ class CategoryRepository {
     });
   }
 
-  Future<void> add({
+  Future<Category> add({
     int id = Isar.autoIncrement,
     required String name,
     required String description,
@@ -58,12 +58,13 @@ class CategoryRepository {
       createdDateTime: createdDateTime,
       updatedDateTime: updatedDateTime,
     );
-    await isarInstance.writeTxn(() async {
-      await isarInstance.categorys.put(category);
+    final resultId = await isarInstance.writeTxn(() async {
+      return await isarInstance.categorys.put(category);
     });
+    return await getById(resultId);
   }
 
-  Future<void> update(
+  Future<Category> update(
     Category category, {
     String? name,
     String? description,
@@ -87,9 +88,10 @@ class CategoryRepository {
     }
     category.createdAt = createdDateTime ?? category.createdAt;
     category.updatedAt = updatedDateTime ?? DateTime.now();
-    await isarInstance.writeTxn(() async {
-      await isarInstance.categorys.put(category);
+    final resultId = await isarInstance.writeTxn(() async {
+      return await isarInstance.categorys.put(category);
     });
+    return await getById(resultId);
   }
 
   Future<void> delete(Category category) async {
