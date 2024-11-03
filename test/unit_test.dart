@@ -15,9 +15,11 @@ import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 
 void main() async {
+  await Isar.initializeIsarCore(download: true);
   group('Database Test', () {
     setUpAll(() async {
       TestWidgetsFlutterBinding.ensureInitialized();
+      
       final getit = GetIt.instance;
 
       // Initialize the database
