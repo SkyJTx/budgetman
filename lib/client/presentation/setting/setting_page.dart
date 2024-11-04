@@ -21,6 +21,15 @@ class SettingPageState extends State<SettingPage> with SingleTickerProviderState
   final discordWebhookUriController = TextEditingController();
   final scrollController = ScrollController();
   AnimationController? controller;
+
+  @override
+  void initState() {
+    super.initState();
+    userNameController.text = BlocProvider.of<SettingsBloc>(context).state.username;
+    discordWebhookUriController.text =
+        BlocProvider.of<SettingsBloc>(context).state.discordWebhookUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
