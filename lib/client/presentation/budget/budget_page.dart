@@ -305,7 +305,9 @@ class BudgetPageState extends State<BudgetPage> {
                                   child: Text('No budget list found'),
                                 );
                               }
-                              final mapper = filteredBudgetList.map((e) {
+                              final mapper = filteredBudgetList
+                                  .sortedBy((element) => element.deadline)
+                                  .map((e) {
                                 return (x: e.deadline, y: e.budget);
                               });
                               final sortedData = <DateTime, double>{};
