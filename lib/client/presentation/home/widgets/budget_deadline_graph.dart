@@ -33,10 +33,23 @@ class BudgetDeadlineGraph extends StatelessWidget {
     final minY = dataPoints.map((e) => e.y).reduce(min);
     final maxY = dataPoints.map((e) => e.y).reduce(max);
     const numIntervals = 4;
-    final yInterval = ((maxY - minY) / numIntervals).ceilToDouble();
-    final xInterval = ((maxX - minX) / numIntervals).ceilToDouble();
-    final adjustedMinY = (minY / yInterval).floor() * yInterval;
-    final adjustedMaxY = (maxY / yInterval).ceil() * yInterval;
+    late double yInterval;
+    late double xInterval = ((maxX - minX) / numIntervals).ceilToDouble();
+    late double adjustedMinY;
+    late double adjustedMaxY;
+    if (minY == maxY) {
+      yInterval = minY * 0.25;
+      adjustedMinY = minY * 0.5;
+      adjustedMaxY = maxY * 1.5;
+    } else {
+      yInterval = ((maxY - minY) / numIntervals).ceilToDouble();
+      adjustedMinY = (minY / yInterval).floor() * yInterval;
+      adjustedMaxY = (maxY / yInterval).ceil() * yInterval;
+    }
+
+    if (xInterval == 0) {
+      xInterval = 1;
+    }
 
     // Create line segments with colors based on slope
     List<LineChartBarData> lineBarsData = [];
