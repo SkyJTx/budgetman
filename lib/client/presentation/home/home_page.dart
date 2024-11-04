@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               );
+              context.read<HomeBloc>().init();
             }
           },
           builder: (context, state) {
