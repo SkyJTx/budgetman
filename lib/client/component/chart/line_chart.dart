@@ -36,9 +36,9 @@ class CustomLineChartState extends State<CustomLineChart> {
       context.theme.colorScheme.tertiary,
       context.theme.colorScheme.tertiary.withOpacity(.3),
     ];
-    final realMaxY = widget.maxY?.clamp(double.minPositive, double.maxFinite) ??
-        widget.data.map((e) => e.y).max.toDouble();
-    final realMinY = widget.minY?.clamp(double.minPositive, double.maxFinite) ?? 0;
+    final realMaxY =
+        widget.maxY?.clamp(1.0, double.maxFinite) ?? widget.data.map((e) => e.y).max.toDouble();
+    final realMinY = widget.minY?.clamp(1.0, double.maxFinite) ?? 0;
     return Padding(
       padding: const EdgeInsets.only(
         top: 24.0,
@@ -94,7 +94,10 @@ class CustomLineChartState extends State<CustomLineChart> {
               sideTitles: SideTitles(
                 showTitles: true,
                 maxIncluded: false,
-                interval: widget.data.map((e) => e.y).max.toDouble() / 3,
+                interval: () {
+                  double result = widget.data.map((e) => e.y).max.toDouble() / 3;
+                  return result == 0 ? 1.0 : result;
+                }(),
                 getTitlesWidget: widget.getLeftAxisTitlesWidget ?? defaultGetTitle,
                 reservedSize: 62,
               ),
@@ -105,7 +108,10 @@ class CustomLineChartState extends State<CustomLineChart> {
                 showTitles: true,
                 minIncluded: false,
                 maxIncluded: false,
-                interval: widget.data.map((e) => e.x).max.toDouble() / 3,
+                interval: () {
+                  double result = widget.data.map((e) => e.x).max.toDouble() / 3;
+                  return result == 0 ? 1.0 : result;
+                }(),
                 getTitlesWidget: widget.getBottomAxisTitlesWidget ?? defaultGetTitle,
               ),
             ),
