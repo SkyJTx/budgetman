@@ -44,23 +44,10 @@ jobs:
           flutter pub get
           flutter build apk --split-per-abi --obfuscate --split-debug-info build/debug-symbol --build-name ${{ env.TAG_NAME }}
     
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Release Assets
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.TAG_NAME }}
-          release_name: Release ${{ env.TAG_NAME }}
+          name: Budgetman Release v${{ env.TAG_NAME }}
           body: "Release ${{ env.TAG_NAME }}"
-          draft: false
-          prerelease: false
-    
-      - name: Upload Release Assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          for file in ./build/app/outputs/flutter-apk/*; do
-            echo "Uploading $file"
-            gh release upload "Release ${{ env.TAG_NAME }}" "$file"
-          done
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: ./build/app/outputs/flutter-apk/*
