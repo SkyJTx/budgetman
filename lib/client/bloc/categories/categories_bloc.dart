@@ -124,7 +124,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
       final categories = await _categoryRepository.getAll();
       emit(CategoriesLoaded(categories));
     } catch (e) {
-      emit(const CategoriesError("ไม่สามารถโหลดหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
+      emit(const CategoriesError("Cannot load categories. Please try again."));
     }
   }
 
@@ -143,7 +143,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
         final List<Category> updatedCategories = await _categoryRepository.getAll();
         emit(CategoriesLoaded(updatedCategories));
       } catch (e) {
-        emit(const CategoriesError("ไม่สามารถเพิ่มหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
+        emit(const CategoriesError("Cannot add category. Please try again."));
       }
     }
   }
@@ -165,7 +165,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
         emit(CategoriesLoaded(updatedCategories));
       } catch (e) {
         log('Error updating category: $e');
-        emit(const CategoriesError("ไม่สามารถอัพเดตหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
+        emit(const CategoriesError("Cannot update category. Please try again."));
       }
     }
   }
@@ -178,7 +178,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
         final List<Category> updatedCategories = await _categoryRepository.getAll();
         emit(CategoriesLoaded(updatedCategories));
       } catch (e) {
-        emit(const CategoriesError("ไม่สามารถลบหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง."));
+        emit(const CategoriesError("Cannot remove category. Please try again."));
       }
     }
   }
