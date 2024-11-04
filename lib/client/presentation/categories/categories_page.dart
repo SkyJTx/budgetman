@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:budgetman/client/component/component.dart';
 import 'package:budgetman/client/component/dialog/category_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,78 +20,99 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      body: BlocBuilder<CategoriesBloc, CategoriesState>(
-        builder: (context, state) {
-          log('CategoriesBloc state: $state');
-          if (state is CategoriesLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is CategoriesLoaded) {
-            if (state.categories.isEmpty) {
+    return BlocProvider.value(
+      value: context.read<CategoriesBloc>()..add(LoadCategories()),
+      child: Scaffold(
+        body: BlocConsumer<CategoriesBloc, CategoriesState>(
+          listener: (context, state) async {
+            if (state is CategoriesError) {
+              await CustomAlertDialog.alertWithoutOptions(
+                context,
+                AlertType.error,
+                'Error',
+                state.message,
+              );
+              if (!context.mounted) return;
+              context.read<CategoriesBloc>().add(LoadCategories());
+            }
+          },
+          builder: (context, state) {
+            log('CategoriesBloc state: $state');
+            if (state is CategoriesLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is CategoriesLoaded) {
+              if (state.categories.isEmpty) {
+                return Center(
+                    child: Text(
+                  'No Category',
+                  style: theme.textTheme.bodyLarge,
+                ));
+              }
+              return ListView.builder(
+                itemCount: state.categories.length,
+                itemBuilder: (context, index) {
+                  final category = state.categories[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Color(category.colorValue),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              category.name,
+                              style: theme.textTheme.bodyLarge
+                                  ?.copyWith(color: theme.colorScheme.onSurface, fontSize: 20),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.edit, color: theme.colorScheme.onSurface, size: 25),
+                            onPressed: () {
+                              showCategoryDialog(context, category: category);
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: theme.colorScheme.onSurface, size: 25),
+                            onPressed: () async {
+                              final confirmed = await ConfirmationDialog.show(
+                                context: context,
+                                title: 'Delete Category',
+                                content: 'Are you sure you want to delete this category?',
+                              );
+                              if (!confirmed || !context.mounted) return;
+                              context.read<CategoriesBloc>().add(RemoveCategory(category));
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else if (state is CategoriesError) {
+              return Center(child: Text(state.message, style: theme.textTheme.bodyLarge));
+            } else {
               return Center(
                   child: Text(
-                'No Category',
+                'Invalid State',
                 style: theme.textTheme.bodyLarge,
               ));
             }
-            return ListView.builder(
-              itemCount: state.categories.length,
-              itemBuilder: (context, index) {
-                final category = state.categories[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Color(category.colorValue),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            category.name,
-                            style: theme.textTheme.bodyLarge
-                                ?.copyWith(color: theme.colorScheme.onSurface, fontSize: 20),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.edit, color: theme.colorScheme.onSurface, size: 25),
-                          onPressed: () {
-                            showCategoryDialog(context, category: category);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: theme.colorScheme.onSurface, size: 25),
-                          onPressed: () {
-                            context.read<CategoriesBloc>().add(RemoveCategory(category));
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          } else if (state is CategoriesError) {
-            return Center(child: Text(state.message, style: theme.textTheme.bodyLarge));
-          } else {
-            return Center(
-                child: Text(
-              'Invalid State',
-              style: theme.textTheme.bodyLarge,
-            ));
-          }
-        },
+          },
+        ),
       ),
     );
   }
