@@ -18,8 +18,8 @@ void main() {
       await tester.drag(find.byType(NestedScrollView), const Offset(0.0, -200.0));
       await tester.pumpAndSettle();
 
-      // press the first budget edit icon button
-      await tester.tap(find.byIcon(Icons.edit).first);
+      // press the first budget card
+      await tester.tap(find.text('Budget 1').first);
       await tester.pumpAndSettle();
 
       // press the "Edit Budget" button
