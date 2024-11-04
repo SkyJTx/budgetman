@@ -63,7 +63,7 @@ Future<void> sendBudgetNotification(
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    log('Background task $task with input $inputData');
+    // log('Background task $task with input $inputData');
     switch (task) {
       case 'sync':
         await Services().backgroundInit();
@@ -87,6 +87,10 @@ void callbackDispatcher() {
           SettingsRepository().discordWebhookUri.get().then((value) => discordWebhookUri = value),
         ]);
 
+        log(
+          'Notification: $isNotificationEnabled, Local Notification: $isLocalNotificationEnabled, Discord Webhook: $isDiscordWebhookEnabled, Discord Webhook URI: $discordWebhookUri',
+        );
+
         if (isNotificationEnabled && isLocalNotificationEnabled) {
           await NotificationServices().showInstantNotification(
             'Summary for Today Budgets',
@@ -95,10 +99,10 @@ void callbackDispatcher() {
               path: HomePage.routeName,
             ).toJson(),
           );
-        } else if (isNotificationEnabled &&
-            isDiscordWebhookEnabled &&
-            discordWebhookUri.isNotEmpty) {
+        }
+        if (isNotificationEnabled && isDiscordWebhookEnabled && discordWebhookUri.isNotEmpty) {
           try {
+            log("Sending Discord webhook notification");
             String deadline = DateFormat('yyyy-MM-dd').format(DateTime.now());
             String title = "📊 Budget Summary for Today";
             String description =
