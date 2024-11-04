@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as developer;
+import 'dart:ui';
 
 import 'package:budgetman/server/data_model/budget.dart';
 import 'package:budgetman/server/data_model/budget_list.dart';
@@ -104,6 +105,7 @@ class Services {
 
   Future<void> backgroundInit() async {
     WidgetsFlutterBinding.ensureInitialized();
+    DartPluginRegistrant.ensureInitialized();
 
     final getit = GetIt.instance;
 

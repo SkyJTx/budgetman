@@ -200,7 +200,7 @@ class BudgetRepository {
       }
 
       try {
-        final resetBudget = await routineReset(budget, throwError: false);
+        final resetBudget = await routineReset(budget, throwError: true);
         resetBudgets.add(resetBudget);
       } catch (e) {
         // Do nothing

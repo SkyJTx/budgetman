@@ -22,6 +22,21 @@ jobs:
         with:
           channel: "main"
           flutter-version: "3.24.4"
+      
+      - name: Run Flutter Unit Test
+        run: flutter test test/unit_test.dart
+      
+      - name: Run Flutter UI Test
+        run: flutter test test/ui_test.dart
+
+      # - name: Run Flutter Integration Test
+      #   continue-on-error: true
+      #   uses: ReactiveCircus/android-emulator-runner@v2
+      #   with:
+      #     api-level: 29
+      #     arch: x86_64
+      #     target: google_apis
+      #     script: bash ./utils/run.sh
 
       - name: Build Budgetman
         run: |
@@ -29,21 +44,10 @@ jobs:
           flutter pub get
           flutter build apk --split-per-abi --obfuscate --split-debug-info build/debug-symbol --build-name ${{ env.TAG_NAME }}
     
-      - name: Create Release and Upload Build APK
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Release Assets
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG_NAME }}
-          release_name: Release ${{ env.TAG_NAME }}
+          name: Budgetman Release v${{ env.TAG_NAME }}
           body: "Release ${{ env.TAG_NAME }}"
-          draft: false
-          prerelease: false
-    
-      - name: Upload Release Assets
-        run: |
-          for file in ./build/app/outputs/flutter-apk/*; do
-            echo "Uploading $file"
-            gh release upload ${{ github.ref }} "$file"
-          done
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: ./build/app/outputs/flutter-apk/*

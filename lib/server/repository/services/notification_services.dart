@@ -134,11 +134,16 @@ class NotificationServices {
   }
 
   Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() async {
-    return _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    final res = await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    if (res?.didNotificationLaunchApp ?? false) {
+      return res;
+    }
+    return null;
   }
 
   @pragma('vm:entry-point')
   static FutureOr<void> onDidReceiveNotificationResponse(NotificationResponse res) async {
+    log('Notification received: ${res.payload}', name: 'NotificationServices');
     try {
       final payload = NotificationPayload.fromJson(res.payload ?? '');
       if (payload.path == '/${BudgetPage.routeName}') {
