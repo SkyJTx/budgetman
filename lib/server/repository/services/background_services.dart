@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:budgetman/client/presentation/home/home_page.dart';
@@ -10,6 +11,62 @@ import 'package:budgetman/server/repository/settings/settings_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+
+Future<void> sendBudgetNotification(
+  String webhookUrl,
+  String deadline, {
+  String title = "⏳ Budget Deadline Alert",
+  String description =
+      "Your monthly budget is approaching its deadline. Please review remaining funds and allocate accordingly.",
+  String avatarUrl = "https://i.imgur.com/ZZTOM2p.png",
+}) async {
+  try {
+    final currentTime = DateTime.now().toUtc().add(Duration(hours: 7));
+    final DateFormat formatter =
+        DateFormat("MMMM dd, yyyy 'at' HH:mm '(GMT+7)'");
+    final formattedTime = formatter.format(currentTime);
+
+    final embed = {
+      "title": title,
+      "description": description,
+      "color": 16711680,
+      "fields": [
+        {"name": "🕒 Deadline", "value": deadline, "inline": false},
+        {
+          "name": "💰 Status",
+          "value": "Approaching deadline, review budget!",
+          "inline": false
+        }
+      ],
+      "footer": {
+        "text": "Budgetman Notification • $formattedTime",
+        "icon_url": avatarUrl
+      }
+    };
+
+    final data = {
+      "username": "Budgetman",
+      "avatar_url": avatarUrl,
+      "embeds": [embed]
+    };
+
+    final response = await http.post(
+      Uri.parse(webhookUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 204) {
+      log("Notification sent successfully!");
+    } else {
+      log("Failed to send notification. Status code: ${response.statusCode}");
+    }
+  } catch (e, stackTrace) {
+    log("Exception occurred while sending notification: $e", stackTrace: stackTrace);
+  }
+}
 
 class BackgroundServices {
   static final instance = BackgroundServices._internal();
@@ -20,9 +77,13 @@ class BackgroundServices {
 
   BackgroundServices._internal();
 
+  /// Initializes the background services by setting up periodic tasks.
   Future<void> init() async {
     Workmanager().cancelAll();
-    await Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
+    await Workmanager().initialize(
+      callbackDispatcher,
+      isInDebugMode: kDebugMode,
+    );
     final current = TimeOfDay.now();
     await Future.wait([
       for (final taskName in ['sync'])
@@ -39,6 +100,7 @@ class BackgroundServices {
     ]);
   }
 
+  /// Handles background tasks.
   @pragma('vm:entry-point')
   static void callbackDispatcher() {
     Workmanager().executeTask((task, inputData) async {
@@ -54,7 +116,10 @@ class BackgroundServices {
           late final String discordWebhookUri;
 
           await Future.wait([
-            SettingsRepository().notification.get().then((value) => isNotificationEnabled = value),
+            SettingsRepository()
+                .notification
+                .get()
+                .then((value) => isNotificationEnabled = value),
             SettingsRepository()
                 .localNotification
                 .get()
@@ -63,7 +128,10 @@ class BackgroundServices {
                 .discordWebhook
                 .get()
                 .then((value) => isDiscordWebhookEnabled = value),
-            SettingsRepository().discordWebhookUri.get().then((value) => discordWebhookUri = value),
+            SettingsRepository()
+                .discordWebhookUri
+                .get()
+                .then((value) => discordWebhookUri = value),
           ]);
 
           if (isNotificationEnabled && isLocalNotificationEnabled) {
@@ -74,11 +142,30 @@ class BackgroundServices {
                 path: HomePage.routeName,
               ).toJson(),
             );
-          } else if (isNotificationEnabled &&
+          }
+
+          if (isNotificationEnabled &&
               isDiscordWebhookEnabled &&
               discordWebhookUri.isNotEmpty) {
-            //TODO: Implement Discord Webhook
+            try {
+              String deadline = DateFormat('yyyy-MM-dd').format(DateTime.now());
+              String title = "📊 Budget Summary for Today";
+              String description =
+                  "There are:\n1. **${result.deadlineBudgetLists.length}** budgets past deadline\n2. **${result.resetBudgets.length}** budgets with routine reset\n3. **${result.deadlineBudgetLists.length}** budget lists on deadline today";
+
+              await sendBudgetNotification(
+                discordWebhookUri,
+                deadline,
+                title: title,
+                description: description,
+              );
+            } catch (e, stackTrace) {
+              log("Error sending Discord webhook: $e", stackTrace: stackTrace);
+            }
+          } else {
+            log('Notifications are disabled or webhook URL is empty.');
           }
+          break;
         default:
           log('Task $task is not implemented');
       }

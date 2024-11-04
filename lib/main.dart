@@ -20,68 +20,37 @@ void main() async {
 
 Future<Widget> get appWidget => Services().init().then(
       (payload) {
-        if (payload.compatible) {
-          return MultiRepositoryProvider(
-            providers: [
-              RepositoryProvider<CategoryRepository>(
-                create: (_) => CategoryRepository(),
-              ),
-              ...[
-                ClientRepository(),
-                BudgetRepository(),
-                BudgetListRepository(),
-                SettingsRepository()..init(),
-              ].map((e) => RepositoryProvider.value(value: e)),
-            ],
-            child: MultiBlocProvider(
-              providers: [
-                BlocProvider<SettingsBloc>(
-                  create: (context) => SettingsBloc()..init(),
-                ),
-                BlocProvider(
-                  create: (context) => HomeBloc()..init(),
-                ),
-                BlocProvider<CategoriesBloc>(
-                  create: (context) => CategoriesBloc(
-                    context.read<CategoryRepository>(),
-                  )..add(
-                      LoadCategories(),
-                    ),
-                ),
-              ],
-              child: BudgetManApp(
-                notificationAppLaunchDetails: payload.notificationAppLaunchDetails,
-              ),
+        return MultiRepositoryProvider(
+          providers: [
+            RepositoryProvider<CategoryRepository>(
+              create: (_) => CategoryRepository(),
             ),
-          );
-        }
-        return const MaterialApp(
-          home: Scaffold(
-            body: SafeArea(
-                child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error,
-                      size: 100.0,
-                      color: Colors.red,
-                    ),
-                    SizedBox(height: 20.0),
-                    Text(
-                      'Your device is not compatible with this app.',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
+            ...[
+              ClientRepository(),
+              BudgetRepository(),
+              BudgetListRepository(),
+              SettingsRepository()..init(),
+            ].map((e) => RepositoryProvider.value(value: e)),
+          ],
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<SettingsBloc>(
+                create: (context) => SettingsBloc()..init(),
               ),
-            )),
+              BlocProvider(
+                create: (context) => HomeBloc()..init(),
+              ),
+              BlocProvider<CategoriesBloc>(
+                create: (context) => CategoriesBloc(
+                  context.read<CategoryRepository>(),
+                )..add(
+                    LoadCategories(),
+                  ),
+              ),
+            ],
+            child: BudgetManApp(
+              notificationAppLaunchDetails: payload.notificationAppLaunchDetails,
+            ),
           ),
         );
       },
