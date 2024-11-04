@@ -23,9 +23,6 @@ jobs:
           channel: "main"
           flutter-version: "3.24.4"
       
-      
-            
-      
       - name: Run Flutter Unit Test
         run: flutter test test/unit_test.dart
       
@@ -35,7 +32,7 @@ jobs:
       - name: Run Flutter Integration Test
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 29
           arch: x86_64
           target: google_apis
           script: bash ./utils/run.sh
