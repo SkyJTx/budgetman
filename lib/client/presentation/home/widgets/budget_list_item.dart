@@ -1,3 +1,4 @@
+import 'package:budgetman/client/repository/global_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetman/client/component/dialog/confirmation_dialog.dart';
@@ -27,6 +28,19 @@ class _BudgetListItemState extends State<BudgetListItem> {
   void initState() {
     super.initState();
     _budgetDataFuture = _fetchBudgetData();
+    ClientRepository().router.routeInformationProvider.addListener(refresh);
+  }
+
+  void refresh() {
+    setState(() {
+      _budgetDataFuture = _fetchBudgetData();
+    });
+  }
+
+  @override
+  void dispose() {
+    ClientRepository().router.routeInformationProvider.removeListener(refresh);
+    super.dispose();
   }
 
   Future<Map<String, dynamic>> _fetchBudgetData() async {
