@@ -40,7 +40,10 @@ extension NumX on num {
   num round() => floorToDouble();
   String toShortString({int fractionDigits = 2}) {
     final level = ['', 'K', 'M', 'B', 'T', 'Q'];
-    final index = (math.log(this) ~/ math.log(1000)).clamp(0, level.length - 1);
+    if (this == 0) {
+      return 0.toStringAsFixed(fractionDigits);
+    }
+    final index = (math.log(this.abs()) ~/ math.log(1000)).clamp(0, level.length - 1);
     return '${(this / math.pow(1000, index)).toStringAsFixed(fractionDigits)}${level[index]}';
   }
 }
@@ -128,6 +131,7 @@ extension ProperColor on Color {
     final luma = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
     return luma > 0.5 ? Colors.black : Colors.white;
   }
+
   Color get lighten => HSLColor.fromColor(this).withLightness(0.1).toColor();
   Color get darken => HSLColor.fromColor(this).withLightness(-0.1).toColor();
   Color get saturate => HSLColor.fromColor(this).withSaturation(0.1).toColor();
