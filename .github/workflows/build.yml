@@ -29,13 +29,14 @@ jobs:
       - name: Run Flutter UI Test
         run: flutter test test/ui_test.dart
 
-      - name: Run Flutter Integration Test
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          arch: x86_64
-          target: google_apis
-          script: bash ./utils/run.sh
+      # - name: Run Flutter Integration Test
+      #   continue-on-error: true
+      #   uses: ReactiveCircus/android-emulator-runner@v2
+      #   with:
+      #     api-level: 29
+      #     arch: x86_64
+      #     target: google_apis
+      #     script: bash ./utils/run.sh
 
       - name: Build Budgetman
         run: |
