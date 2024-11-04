@@ -77,127 +77,133 @@ class _BudgetListItemState extends State<BudgetListItem> {
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Budget Name
-                  Text(
-                    budget.name,
-                    style: const TextStyle(
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.white, // Use white text with shadow
-                      shadows: [
-                        Shadow(
-                          blurRadius: 2.0,
-                          color: Colors.black26,
-                          offset: Offset(1.0, 1.0),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Budget Dates
-                  Text(
-                    'Start: ${formatter.format(budget.startDate.toLocal())}',
-                    style: const TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  Text(
-                    'End: ${formatter.format(budget.endDate.toLocal())}',
-                    style: const TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Bottom Row with Total Amount and Action Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: widget.onEdit,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Total Amount
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: Text(
-                            'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontFamily: 'Roboto',
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  blurRadius: 2.0,
-                                  color: Colors.black26,
-                                  offset: Offset(1.0, 1.0),
-                                ),
-                              ],
+                      // Budget Name
+                      Text(
+                        budget.name,
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white, // Use white text with shadow
+                          shadows: [
+                            Shadow(
+                              blurRadius: 2.0,
+                              color: Colors.black26,
+                              offset: Offset(1.0, 1.0),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      // Action Buttons
+                      const SizedBox(height: 8),
+                      // Budget Dates
+                      Text(
+                        'Start: ${formatter.format(budget.startDate.toLocal())}',
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      Text(
+                        'End: ${formatter.format(budget.endDate.toLocal())}',
+                        style: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Bottom Row with Total Amount and Action Buttons
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // EditBudgetButton
-                          // EditBudgetButton(
-                          //   onPressed: widget.onEdit,
-                          // ),
-                          const SizedBox(width: 8),
-                          // Edit Icon Button
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            onPressed: widget.onEdit,
-                            tooltip: 'Edit Budget',
+                          // Total Amount
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.white24),
+                              ),
+                              child: Text(
+                                'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 2.0,
+                                      color: Colors.black26,
+                                      offset: Offset(1.0, 1.0),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                          // Delete Icon Button
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.white),
-                            onPressed: () async {
-                              // Show confirmation dialog before deleting
-                              final confirmed = await ConfirmationDialog.show(
-                                context: context,
-                                title: 'Delete Budget',
-                                content: 'Are you sure you want to delete this budget?',
-                              );
+                          const SizedBox(width: 8),
+                          // Action Buttons
+                          Row(
+                            children: [
+                              // EditBudgetButton
+                              // EditBudgetButton(
+                              //   onPressed: widget.onEdit,
+                              // ),
+                              // const SizedBox(width: 8),
+                              // // Edit Icon Button
+                              // IconButton(
+                              //   icon: const Icon(Icons.edit, color: Colors.white),
+                              //   onPressed: widget.onEdit,
+                              //   tooltip: 'Edit Budget',
+                              // ),
+                              // Delete Icon Button
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.white),
+                                onPressed: () async {
+                                  // Show confirmation dialog before deleting
+                                  final confirmed = await ConfirmationDialog.show(
+                                    context: context,
+                                    title: 'Delete Budget',
+                                    content: 'Are you sure you want to delete this budget?',
+                                  );
 
-                              if (confirmed) {
-                                // Perform the delete operation
-                                widget.onDelete();
+                                  if (confirmed) {
+                                    // Perform the delete operation
+                                    widget.onDelete();
 
-                                // Show warning alert after successful deletion
-                                Future.microtask(() {
-                                  if (context.mounted) {
-                                    CustomAlertDialog.alertWithoutOptions(
-                                      context,
-                                      AlertType.warning,
-                                      'Budget Deleted',
-                                      'The budget "${budget.name}" has been deleted.',
-                                    );
+                                    // Show warning alert after successful deletion
+                                    Future.microtask(() {
+                                      if (context.mounted) {
+                                        CustomAlertDialog.alertWithoutOptions(
+                                          context,
+                                          AlertType.warning,
+                                          'Budget Deleted',
+                                          'The budget "${budget.name}" has been deleted.',
+                                        );
+                                      }
+                                    });
                                   }
-                                });
-                              }
-                            },
-                            tooltip: 'Delete Budget',
+                                },
+                                tooltip: 'Delete Budget',
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           );

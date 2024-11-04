@@ -38,34 +38,31 @@ class _TransactionCardState extends State<TransactionCard> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _dataFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while fetching data
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          // Handle errors
-          return Text('Error: ${snapshot.error}');
-        } else if (!snapshot.hasData) {
-          // Handle the case where data is not found
-          return const Text('No data available');
-        } else {
-          final budgetList = snapshot.data!['budgetList'] as BudgetList;
-          final associatedBudget = snapshot.data!['associatedBudget'];
+    return Padding(
+      padding: const EdgeInsets.all(4),
+      child: FutureBuilder<Map<String, dynamic>>(
+        future: _dataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show a loading indicator while fetching data
+            return const SizedBox.shrink();
+          } else if (snapshot.hasError) {
+            // Handle errors
+            return Text('Error: ${snapshot.error}');
+          } else if (!snapshot.hasData) {
+            // Handle the case where data is not found
+            return const Text('No data available');
+          } else {
+            final budgetList = snapshot.data!['budgetList'] as BudgetList;
+            final associatedBudget = snapshot.data!['associatedBudget'];
 
-          // Determine accent color based on priority
-          final Color accentColor = _getAccentColor(budgetList.priority);
+            // Determine accent color based on priority
+            final Color accentColor = _getAccentColor(budgetList.priority);
 
-          return Card(
-            elevation: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: InkWell(
-              onTap: () {
-                // Define behavior on tap if needed
-              },
-              borderRadius: BorderRadius.circular(12),
+            return Card(
+              elevation: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -197,10 +194,7 @@ class _TransactionCardState extends State<TransactionCard> {
                         'No budget', // No budget assigned.
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontStyle: FontStyle.italic,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.6),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             ),
                       )
                     else
@@ -222,10 +216,10 @@ class _TransactionCardState extends State<TransactionCard> {
                   ],
                 ),
               ),
-            ),
-          ).animate().fade().slideX();
-        }
-      },
+            ).animate().fade();
+          }
+        },
+      ),
     );
   }
 

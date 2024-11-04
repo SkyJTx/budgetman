@@ -108,17 +108,33 @@ class BudgetRepository {
   }
 
   Future<void> delete(int id) async {
+    late final List<int> ids;
+    final budget = await isarInstance.budgets.get(id);
+    if (budget == null) {
+      throw Exception('Failed to get Budget with id $id');
+    }
+    ids = [
+      for (final budgetList in budget.budgetList.toList()) budgetList.id,
+    ];
+
     await isarInstance.writeTxn(() async {
       final success = await isarInstance.budgets.delete(id);
       if (!success) {
         throw Exception('Failed to delete Budget with id $id');
       }
     });
+
+    await Future.wait([
+      for (final id in ids) BudgetListRepository().delete(id),
+    ]);
   }
 
   Future<void> deleteAll() async {
     await isarInstance.writeTxn(() async {
       await isarInstance.budgets.clear();
+    });
+    await isarInstance.writeTxn(() async {
+      await isarInstance.budgetLists.clear();
     });
   }
 
