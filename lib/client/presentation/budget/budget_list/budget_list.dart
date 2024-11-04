@@ -335,7 +335,7 @@ class BudgetListTileState extends State<BudgetListTile> {
                   SizedBox(width: 2.w),
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: 20.w,
+                      maxWidth: 30.w,
                     ),
                     child: Center(
                       child: ElevatedButton(
