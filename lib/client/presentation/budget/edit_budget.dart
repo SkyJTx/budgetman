@@ -69,7 +69,7 @@ class EditBudgetState extends State<EditBudget> {
     return [
       _titleFormKey.currentState?.validate() ?? false,
       _descriptionFormKey.currentState?.validate() ?? false,
-      _routineIntervalFormKey.currentState?.validate() ?? false,
+      if (_isRoutineController.value) _routineIntervalFormKey.currentState?.validate() ?? false,
     ];
   }
 
